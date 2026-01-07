@@ -1,0 +1,39 @@
+Create a spiritual patch note for Instagram.
+
+Today's Themes: {themes}
+G-Code Intensity Score: {score}/100
+Key Insight: {interpretation}
+
+Requirements:
+- Create an engaging caption
+- Include line breaks for readability
+- Add 5-8 relevant hashtags
+- Make it visual and evocative
+- Include a call-to-action
+- Target length: 150-200 characters
+
+Format:
+[Opening hook - 1 line]
+
+[Space]
+
+[Body paragraph - 2-3 lines with the insight]
+
+[Space]
+
+[Practical guidance - 1-2 lines]
+
+[Space]
+
+[Call to action - 1 line]
+
+[Space]
+
+[Hashtags - 5-8 tags]
+
+Style guidelines:
+- Use emojis sparingly but effectively
+- Make it shareable
+- Keep it authentic and grounded
+
+Now create the Instagram caption:

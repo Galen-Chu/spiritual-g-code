@@ -1,0 +1,33 @@
+Create a spiritual patch note for Twitter (X).
+
+Today's Themes: {themes}
+G-Code Intensity Score: {score}/100
+Key Insight: {interpretation}
+
+Requirements:
+- Keep it UNDER 280 characters
+- Start with a hook
+- Include the key insight
+- Add practical takeaway
+- End with 2-3 relevant hashtags
+- Make it inspiring and actionable
+
+Format:
+[Hook]
+
+[Insight]
+
+[Call to Action]
+
+[Hashtags]
+
+Example:
+"🔮 Today's G-Code: The cosmos is recalibrating.
+
+With Mercury trine Jupiter, it's time to expand your mental horizons. Trust the downloads.
+
+✨ Action: Share one idea that scares you a little.
+
+#SpiritualGCode #CosmicWeather #Growth"
+
+Now create the patch note:
