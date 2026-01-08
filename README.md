@@ -187,6 +187,8 @@ open http://localhost:8000
 
 - [**Brand Story**](./docs/BRAND_STORY.md) - The philosophy and vision behind G-Code
 - [**Technical Architecture**](./docs/TECHNICAL_ARCHITECTURE.md) - System design and implementation details
+- [**Testing Record**](./docs/TESTING_RECORD.md) - Complete testing record and execution notes (✅ Updated 2025-01-08)
+- [**Troubleshooting Guide**](./docs/TROUBLESHOOTING.md) - Common issues and solutions for development setup
 - [**API Documentation**](./docs/API.md) - (Coming Soon) Complete API reference
 - [**User Guide**](./docs/USER_GUIDE.md) - (Coming Soon) How to use the platform
 

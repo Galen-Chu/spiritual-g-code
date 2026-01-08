@@ -35,7 +35,7 @@ THIRD_PARTY_APPS = [
 
 LOCAL_APPS = [
     'api.apps.ApiConfig',
-    'ai_engine.apps.AiEngineConfig',
+    # 'ai_engine.apps.AiEngineConfig',  # Temporarily disabled - requires PyEphem (C++ compiler on Windows)
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -75,16 +75,26 @@ ASGI_APPLICATION = 'core.asgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
+# Use SQLite for testing (switch to PostgreSQL in production)
+import os
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME', 'spiritual_gcode'),
-        'USER': os.getenv('DB_USER', 'gcode_user'),
-        'PASSWORD': os.getenv('DB_PASSWORD', ''),
-        'HOST': os.getenv('DB_HOST', 'localhost'),
-        'PORT': os.getenv('DB_PORT', '5432'),
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+# PostgreSQL configuration (for production)
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': os.getenv('DB_NAME', 'spiritual_gcode'),
+#         'USER': os.getenv('DB_USER', 'gcode_user'),
+#         'PASSWORD': os.getenv('DB_PASSWORD', ''),
+#         'HOST': os.getenv('DB_HOST', 'localhost'),
+#         'PORT': os.getenv('DB_PORT', '5432'),
+#     }
+# }
 
 # Custom User Model
 AUTH_USER_MODEL = 'api.GCodeUser'
@@ -184,6 +194,12 @@ GEMINI_MODEL = os.getenv('GEMINI_MODEL', 'gemini-pro')
 
 # Logging Configuration
 LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')
+
+# Use logs directory in project root for cross-platform compatibility
+LOG_DIR = os.path.join(BASE_DIR.parent, 'logs')
+os.makedirs(LOG_DIR, exist_ok=True)
+LOG_FILE = os.path.join(LOG_DIR, 'django.log')
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -197,7 +213,7 @@ LOGGING = {
         'file': {
             'level': LOG_LEVEL,
             'class': 'logging.FileHandler',
-            'filename': os.getenv('LOG_FILE', '/var/log/gcode/django.log'),
+            'filename': LOG_FILE,
             'formatter': 'verbose',
         },
         'console': {

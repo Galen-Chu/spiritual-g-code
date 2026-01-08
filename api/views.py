@@ -11,6 +11,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.utils import timezone
 from django.db.models import Q, Count, Avg
 from datetime import date, timedelta
+from django_filters.rest_framework import DjangoFilterBackend
 
 from .models import (
     GCodeUser,
@@ -168,7 +169,7 @@ class DailyTransitViewSet(viewsets.ModelViewSet):
     serializer_class = DailyTransitSerializer
     permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
     filterset_class = DailyTransitFilter
-    filter_backends = [filters.DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['themes', 'interpretation']
     ordering_fields = ['transit_date', 'g_code_score', 'created_at']
     ordering = ['-transit_date']
@@ -234,7 +235,7 @@ class GeneratedContentViewSet(viewsets.ModelViewSet):
     serializer_class = GeneratedContentSerializer
     permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
     filterset_class = GeneratedContentFilter
-    filter_backends = [filters.DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['title', 'body', 'hashtags']
     ordering_fields = ['generated_at', 'scheduled_for', 'posted_at']
     ordering = ['-generated_at']
@@ -340,7 +341,7 @@ class GCodeTemplateViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = GCodeTemplateSerializer
     permission_classes = [IsAuthenticated]
     filterset_class = GCodeTemplateFilter
-    filter_backends = [filters.DjangoFilterBackend, filters.SearchFilter]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     search_fields = ['name', 'description']
     ordering = ['category', 'name']
 
