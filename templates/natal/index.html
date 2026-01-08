@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}Natal Chart | Spiritual G-Code{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-white mb-2">
+            <span class="terminal-text">root@spiritual-gcode</span>:~# ./natal.sh
+        </h1>
+        <p class="text-gray-400 typing-cursor">Calculating your cosmic blueprint...</p>
+    </div>
+
+    <div class="card">
+        <div class="text-center py-20">
+            <span class="text-6xl mb-4 block">🌟</span>
+            <h2 class="text-2xl font-bold text-white mb-4">Natal Chart Calculator</h2>
+            <p class="text-gray-400 mb-8">Your natal chart reveals the cosmic code you were born with.</p>
+
+            <button onclick="calculateNatal()"
+                    class="bg-gcode-green text-gcode-bg font-bold px-8 py-3 rounded-lg hover:bg-gcode-greenDim transition-colors">
+                Calculate My Natal Chart
+            </button>
+
+            <div id="natal-result" class="mt-12 text-left hidden">
+                <!-- Results will appear here -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function calculateNatal() {
+    try {
+        const response = await fetch('/api/natal/calculate/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+            },
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            showNatalResult(data);
+        } else {
+            showToast('Failed to calculate natal chart', 'error');
+        }
+    } catch (error) {
+        showToast('An error occurred', 'error');
+    }
+}
+
+function showNatalResult(data) {
+    const resultDiv = document.getElementById('natal-result');
+    resultDiv.classList.remove('hidden');
+    resultDiv.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+            <div class="bg-gcode-bg rounded-lg p-6 border border-gcode-border">
+                <h3 class="text-gcode-green font-bold mb-2">☀️ SUN SIGN</h3>
+                <p class="text-3xl font-bold text-white">${data.sun_sign}</p>
+            </div>
+            <div class="bg-gcode-bg rounded-lg p-6 border border-gcode-border">
+                <h3 class="text-gcode-green font-bold mb-2">🌙 MOON SIGN</h3>
+                <p class="text-3xl font-bold text-white">${data.moon_sign}</p>
+            </div>
+            <div class="bg-gcode-bg rounded-lg p-6 border border-gcode-border">
+                <h3 class="text-gcode-green font-bold mb-2">⬆️ ASCENDANT</h3>
+                <p class="text-3xl font-bold text-white">${data.ascendant}</p>
+            </div>
+        </div>
+    `;
+}
+</script>
+{% endblock %}

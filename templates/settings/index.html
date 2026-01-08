@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+
+{% block title %}Settings | Spiritual G-Code{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-white mb-2">
+            <span class="terminal-text">root@spiritual-gcode</span>:~# ./settings.sh
+        </h1>
+        <p class="text-gray-400 typing-cursor">Configure your G-Code system...</p>
+    </div>
+
+    <div class="space-y-8">
+        <!-- Profile Settings -->
+        <div class="card">
+            <h2 class="text-xl font-bold text-white mb-6 flex items-center">
+                <i data-lucide="user" class="w-5 h-5 mr-2 terminal-text"></i>
+                Profile Settings
+            </h2>
+
+            <form id="profile-form" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-2">Username</label>
+                    <input type="text" name="username" value="{{ user.username }}" readonly
+                           class="w-full bg-gcode-dark border border-gcode-border rounded-lg px-4 py-3 text-gray-500 cursor-not-allowed">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-2">Email</label>
+                    <input type="email" name="email" value="{{ user.email }}"
+                           class="w-full bg-gcode-bg border border-gcode-border rounded-lg px-4 py-3 text-white focus:outline-none focus:border-gcode-green transition-colors">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-2">Bio</label>
+                    <textarea name="bio" rows="3"
+                              class="w-full bg-gcode-bg border border-gcode-border rounded-lg px-4 py-3 text-white focus:outline-none focus:border-gcode-green transition-colors"
+                              placeholder="Tell us about your spiritual journey...">{{ user.bio|default:"" }}</textarea>
+                </div>
+
+                <button type="submit"
+                        class="bg-gcode-green text-gcode-bg font-bold px-6 py-2 rounded-lg hover:bg-gcode-greenDim transition-colors">
+                    Save Profile
+                </button>
+            </form>
+        </div>
+
+        <!-- Preferences -->
+        <div class="card">
+            <h2 class="text-xl font-bold text-white mb-6 flex items-center">
+                <i data-lucide="settings" class="w-5 h-5 mr-2 terminal-text"></i>
+                Preferences
+            </h2>
+
+            <form id="preferences-form" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-2">Preferred Tone</label>
+                    <select name="preferred_tone"
+                            class="w-full bg-gcode-bg border border-gcode-border rounded-lg px-4 py-3 text-white focus:outline-none focus:border-gcode-green transition-colors">
+                        <option value="inspiring" {% if user.preferred_tone == 'inspiring' %}selected{% endif %}>Inspiring</option>
+                        <option value="practical" {% if user.preferred_tone == 'practical' %}selected{% endif %}>Practical</option>
+                        <option value="poetic" {% if user.preferred_tone == 'poetic' %}selected{% endif %}>Poetic</option>
+                        <option value="technical" {% if user.preferred_tone == 'technical' %}selected{% endif %}>Technical</option>
+                    </select>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-white font-medium">Email Notifications</h3>
+                        <p class="text-sm text-gray-500">Receive daily G-Code via email</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" name="email_notifications" {% if user.email_notifications %}checked{% endif %}
+                               class="sr-only peer">
+                        <div class="w-11 h-6 bg-gcode-border peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-gcode-green rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gcode-green"></div>
+                    </label>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-white font-medium">Daily G-Code</h3>
+                        <p class="text-sm text-gray-500">Automatic daily calculations</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" name="daily_gcode_enabled" {% if user.daily_gcode_enabled %}checked{% endif %}
+                               class="sr-only peer">
+                        <div class="w-11 h-6 bg-gcode-border peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-gcode-green rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gcode-green"></div>
+                    </label>
+                </div>
+
+                <button type="submit"
+                        class="bg-gcode-green text-gcode-bg font-bold px-6 py-2 rounded-lg hover:bg-gcode-greenDim transition-colors">
+                    Save Preferences
+                </button>
+            </form>
+        </div>
+
+        <!-- Birth Information -->
+        <div class="card">
+            <h2 class="text-xl font-bold text-white mb-6 flex items-center">
+                <i data-lucide="calendar" class="w-5 h-5 mr-2 terminal-text"></i>
+                Birth Information
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <p class="text-sm text-gray-400">Birth Date</p>
+                    <p class="text-white font-medium">{{ user.birth_date|date:"F d, Y" }}</p>
+                </div>
+
+                <div>
+                    <p class="text-sm text-gray-400">Birth Time</p>
+                    <p class="text-white font-medium">{{ user.birth_time|default:"Not specified" }}</p>
+                </div>
+
+                <div>
+                    <p class="text-sm text-gray-400">Birth Location</p>
+                    <p class="text-white font-medium">{{ user.birth_location }}</p>
+                </div>
+
+                <div>
+                    <p class="text-sm text-gray-400">Timezone</p>
+                    <p class="text-white font-medium">{{ user.timezone }}</p>
+                </div>
+            </div>
+
+            <div class="mt-6 p-4 bg-gcode-bg border border-gcode-border rounded-lg">
+                <p class="text-sm text-gray-500 mb-2">⚠️ To update birth information, please contact support.</p>
+                <p class="text-xs text-gray-600">Accurate birth data is essential for precise natal chart calculations.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    lucide.createIcons();
+
+    // Profile form
+    document.getElementById('profile-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const data = Object.fromEntries(formData);
+
+        try {
+            const response = await fetch('/api/auth/profile/', {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                },
+                body: JSON.stringify(data),
+            });
+
+            if (response.ok) {
+                showToast('Profile updated successfully!', 'success');
+            } else {
+                showToast('Failed to update profile', 'error');
+            }
+        } catch (error) {
+            showToast('An error occurred', 'error');
+        }
+    });
+
+    // Preferences form
+    document.getElementById('preferences-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const data = Object.fromEntries(formData);
+
+        // Convert checkboxes
+        data.email_notifications = e.target.querySelector('[name="email_notifications"]').checked;
+        data.daily_gcode_enabled = e.target.querySelector('[name="daily_gcode_enabled"]').checked;
+
+        try {
+            const response = await fetch('/api/auth/profile/', {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                },
+                body: JSON.stringify(data),
+            });
+
+            if (response.ok) {
+                showToast('Preferences saved successfully!', 'success');
+            } else {
+                showToast('Failed to save preferences', 'error');
+            }
+        } catch (error) {
+            showToast('An error occurred', 'error');
+        }
+    });
+});
+</script>
+{% endblock %}

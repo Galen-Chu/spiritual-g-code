@@ -1,0 +1,193 @@
+{% extends 'base.html' %}
+
+{% block title %}Content Generation | Spiritual G-Code{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-white mb-2">
+            <span class="terminal-text">root@spiritual-gcode</span>:~# ./content.sh
+        </h1>
+        <p class="text-gray-400 typing-cursor">Generate spiritual content with AI...</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Content Generator -->
+        <div class="card">
+            <h2 class="text-xl font-bold text-white mb-6 flex items-center">
+                <i data-lucide="sparkles" class="w-5 h-5 mr-2 terminal-text"></i>
+                Generate Content
+            </h2>
+
+            <form id="content-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-2">Content Type</label>
+                    <select name="content_type" id="content_type"
+                            class="w-full bg-gcode-bg border border-gcode-border rounded-lg px-4 py-3 text-white focus:outline-none focus:border-gcode-green">
+                        <option value="patch_note">Spiritual Patch Note</option>
+                        <option value="insight">Daily Insight</option>
+                        <option value="affirmation">Affirmation</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-2">Platform</label>
+                    <select name="platform" id="platform"
+                            class="w-full bg-gcode-bg border border-gcode-border rounded-lg px-4 py-3 text-white focus:outline-none focus:border-gcode-green">
+                        <option value="twitter">Twitter/X</option>
+                        <option value="instagram">Instagram</option>
+                        <option value="linkedin">LinkedIn</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-2">Custom Instructions</label>
+                    <textarea name="custom_instructions" rows="3"
+                              class="w-full bg-gcode-bg border border-gcode-border rounded-lg px-4 py-3 text-white focus:outline-none focus:border-gcode-green"
+                              placeholder="Optional: Add custom instructions for the AI..."></textarea>
+                </div>
+
+                <button type="submit"
+                        class="w-full bg-gcode-green text-gcode-bg font-bold py-3 rounded-lg hover:bg-gcode-greenDim transition-colors">
+                    Generate Content
+                </button>
+            </form>
+
+            <div id="generated-content" class="mt-8 hidden">
+                <h3 class="text-lg font-bold text-white mb-4">Generated Content</h3>
+                <div class="bg-gcode-bg rounded-lg p-4 border border-gcode-border">
+                    <p id="content-body" class="text-gray-300 whitespace-pre-wrap"></p>
+                </div>
+                <div class="mt-4 flex gap-2">
+                    <button onclick="copyContent()"
+                            class="flex-1 bg-gcode-border text-white px-4 py-2 rounded-lg hover:bg-gcode-green hover:text-gcode-bg transition-colors">
+                        Copy
+                    </button>
+                    <button onclick="regenerateContent()"
+                            class="flex-1 bg-gcode-border text-white px-4 py-2 rounded-lg hover:bg-gcode-accent transition-colors">
+                        Regenerate
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content History -->
+        <div class="card">
+            <h2 class="text-xl font-bold text-white mb-6 flex items-center">
+                <i data-lucide="history" class="w-5 h-5 mr-2 terminal-text"></i>
+                Content History
+            </h2>
+
+            <div id="content-history" class="space-y-4">
+                <div class="text-center py-8 text-gray-500">
+                    <p>Loading content history...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', async function() {
+    lucide.createIcons();
+
+    // Load content history
+    await loadContentHistory();
+
+    // Setup form submission
+    document.getElementById('content-form').addEventListener('submit', generateContent);
+});
+
+async function loadContentHistory() {
+    try {
+        const response = await fetch('/api/content/', {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+            },
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            displayContentHistory(data.results || []);
+        }
+    } catch (error) {
+        console.error('Error loading content history:', error);
+    }
+}
+
+function displayContentHistory(items) {
+    const container = document.getElementById('content-history');
+
+    if (items.length === 0) {
+        container.innerHTML = '<p class="text-center text-gray-500 py-8">No content generated yet.</p>';
+        return;
+    }
+
+    container.innerHTML = items.map(item => `
+        <div class="bg-gcode-bg rounded-lg p-4 border border-gcode-border hover:border-gcode-green transition-colors">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs text-gcode-green uppercase">${item.content_type}</span>
+                <span class="text-xs text-gray-500">${new Date(item.generated_at).toLocaleDateString()}</span>
+            </div>
+            <h4 class="text-sm font-bold text-white mb-1">${item.title}</h4>
+            <p class="text-xs text-gray-400 line-clamp-2">${item.body.substring(0, 100)}...</p>
+            <div class="mt-2 flex items-center justify-between">
+                <span class="text-xs text-gray-500">${item.platform}</span>
+                <span class="text-xs px-2 py-1 rounded ${
+                    item.status === 'posted' ? 'bg-gcode-green/20 text-gcode-green' :
+                    item.status === 'generated' ? 'bg-gcode-yellow/20 text-gcode-yellow' :
+                    'bg-gray-700 text-gray-400'
+                }">${item.status}</span>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function generateContent(e) {
+    e.preventDefault();
+
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData);
+
+    try {
+        const response = await fetch('/api/content/generate/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+            },
+            body: JSON.stringify(data),
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            displayGeneratedContent(result.body);
+            showToast('Content generated successfully!', 'success');
+            await loadContentHistory();
+        } else {
+            const error = await response.json();
+            showToast(error.error || 'Generation failed', 'error');
+        }
+    } catch (error) {
+        showToast('An error occurred', 'error');
+    }
+}
+
+function displayGeneratedContent(content) {
+    document.getElementById('content-body').textContent = content;
+    document.getElementById('generated-content').classList.remove('hidden');
+}
+
+function copyContent() {
+    const content = document.getElementById('content-body').textContent;
+    navigator.clipboard.writeText(content);
+    showToast('Copied to clipboard!', 'success');
+}
+
+function regenerateContent() {
+    document.getElementById('content-form').dispatchEvent(new Event('submit'));
+}
+</script>
+{% endblock %}

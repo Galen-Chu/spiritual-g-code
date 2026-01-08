@@ -1,0 +1,398 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard | Spiritual G-Code{% endblock %}
+
+{% block extra_css %}
+<style>
+    .score-circle {
+        position: relative;
+        width: 200px;
+        height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: conic-gradient(
+            var(--score-color) 0deg,
+            var(--score-color) calc(var(--score) * 3.6deg),
+            #161b22 calc(var(--score) * 3.6deg),
+            #161b22 360deg
+        );
+        box-shadow: 0 0 30px rgba(0, 255, 65, 0.3);
+    }
+
+    .score-circle::before {
+        content: '';
+        position: absolute;
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        background: #0D1117;
+    }
+
+    .score-value {
+        position: relative;
+        z-index: 1;
+        font-size: 3rem;
+        font-weight: bold;
+    }
+
+    .theme-tag {
+        background: rgba(0, 255, 65, 0.1);
+        border: 1px solid rgba(0, 255, 65, 0.3);
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+    }
+
+    .card {
+        background: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .card:hover {
+        border-color: #00FF41;
+        box-shadow: 0 0 20px rgba(0, 255, 65, 0.1);
+    }
+
+    .intensity-low { --score-color: #00B82D; }
+    .intensity-medium { --score-color: #00FF41; }
+    .intensity-high { --score-color: #F4D03F; }
+    .intensity-intense { --score-color: #FF5A5F; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-white mb-2">
+            <span class="terminal-text">root@spiritual-gcode</span>:~# ./dashboard.sh
+        </h1>
+        <p class="text-gray-400 typing-cursor">Loading cosmic data...</p>
+    </div>
+
+    <!-- Loading State -->
+    <div id="dashboard-loading" class="flex flex-col items-center justify-center py-20">
+        <div class="w-64 h-2 bg-gcode-border rounded-full overflow-hidden">
+            <div class="loading-bar h-full rounded-full"></div>
+        </div>
+        <p class="mt-4 text-gcode-green text-sm">Initializing G-Code system...</p>
+    </div>
+
+    <!-- Dashboard Content -->
+    <div id="dashboard-content" class="hidden space-y-8">
+        <!-- Today's G-Code Hero Section -->
+        <section class="card card-glow">
+            <div class="flex flex-col lg:flex-row gap-8 items-center justify-between">
+                <!-- Left: Score Circle -->
+                <div class="flex-shrink-0">
+                    <div id="score-circle" class="score-circle intensity-low">
+                        <div class="score-value terminal-text">--</div>
+                    </div>
+                    <p class="text-center text-gray-400 mt-4 text-sm">G-CODE INTENSITY</p>
+                </div>
+
+                <!-- Middle: Today's Details -->
+                <div class="flex-1 space-y-6 w-full">
+                    <!-- Theme -->
+                    <div>
+                        <h3 class="text-xs text-gray-500 mb-2">TODAY'S THEME</h3>
+                        <p id="today-theme" class="text-2xl font-bold text-white">Loading...</p>
+                    </div>
+
+                    <!-- Themes Tags -->
+                    <div>
+                        <h3 class="text-xs text-gray-500 mb-2">KEY THEMES</h3>
+                        <div id="themes-container" class="flex flex-wrap gap-2">
+                            <span class="theme-tag text-gcode-green">#Loading...</span>
+                        </div>
+                    </div>
+
+                    <!-- Affirmation -->
+                    <div>
+                        <h3 class="text-xs text-gray-500 mb-2">DAILY AFFIRMATION</h3>
+                        <p id="today-affirmation" class="text-lg italic text-gray-300">Loading...</p>
+                    </div>
+
+                    <!-- Practical Guidance -->
+                    <div>
+                        <h3 class="text-xs text-gray-500 mb-2">PRACTICAL GUIDANCE</h3>
+                        <ul id="guidance-list" class="space-y-2">
+                            <li class="flex items-start text-gray-400">
+                                <span class="terminal-text mr-2">▸</span>
+                                <span>Loading guidance...</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Right: Quick Stats -->
+                <div class="flex-shrink-0 w-full lg:w-64 space-y-4">
+                    <div class="bg-gcode-bg rounded-lg p-4 border border-gcode-border">
+                        <h4 class="text-xs text-gray-500 mb-1">SUN SIGN</h4>
+                        <p id="sun-sign" class="text-xl font-bold text-white">--</p>
+                    </div>
+
+                    <div class="bg-gcode-bg rounded-lg p-4 border border-gcode-border">
+                        <h4 class="text-xs text-gray-500 mb-1">MOON SIGN</h4>
+                        <p id="moon-sign" class="text-xl font-bold text-white">--</p>
+                    </div>
+
+                    <div class="bg-gcode-bg rounded-lg p-4 border border-gcode-border">
+                        <h4 class="text-xs text-gray-500 mb-1">ASCENDANT</h4>
+                        <p id="ascendant" class="text-xl font-bold text-white">--</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Two Column Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Weekly Forecast -->
+            <section class="card">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-bold text-white flex items-center">
+                        <i data-lucide="calendar" class="w-5 h-5 mr-2 terminal-text"></i>
+                        Weekly Forecast
+                    </h2>
+                    <span class="text-xs text-gray-500">Next 7 days</span>
+                </div>
+
+                <div id="weekly-forecast" class="space-y-4">
+                    <!-- Weekly items will be loaded here -->
+                    <div class="text-center py-8 text-gray-500">
+                        <div class="loading-bar w-48 h-2 mx-auto rounded-full mb-4"></div>
+                        <p class="text-sm">Calculating transits...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recent Content -->
+            <section class="card">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-bold text-white flex items-center">
+                        <i data-lucide="file-text" class="w-5 h-5 mr-2 terminal-text"></i>
+                        Recent Content
+                    </h2>
+                    <a href="{% url 'content' %}" class="text-xs text-gcode-green hover:underline">View All →</a>
+                </div>
+
+                <div id="recent-content" class="space-y-4">
+                    <!-- Content items will be loaded here -->
+                    <div class="text-center py-8 text-gray-500">
+                        <div class="loading-bar w-48 h-2 mx-auto rounded-full mb-4"></div>
+                        <p class="text-sm">Loading content...</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- User Stats -->
+        <section class="card">
+            <h2 class="text-xl font-bold text-white mb-6 flex items-center">
+                <i data-lucide="bar-chart-2" class="w-5 h-5 mr-2 terminal-text"></i>
+                Your G-Code Statistics
+            </h2>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="user-stats">
+                <div class="bg-gcode-bg rounded-lg p-4 border border-gcode-border text-center">
+                    <p id="stat-transits" class="text-3xl font-bold terminal-text">--</p>
+                    <p class="text-xs text-gray-500 mt-1">Total Transits</p>
+                </div>
+
+                <div class="bg-gcode-bg rounded-lg p-4 border border-gcode-border text-center">
+                    <p id="stat-content" class="text-3xl font-bold terminal-text">--</p>
+                    <p class="text-xs text-gray-500 mt-1">Content Generated</p>
+                </div>
+
+                <div class="bg-gcode-bg rounded-lg p-4 border border-gcode-border text-center">
+                    <p id="stat-avg-score" class="text-3xl font-bold terminal-text">--</p>
+                    <p class="text-xs text-gray-500 mt-1">Avg G-Code Score</p>
+                </div>
+
+                <div class="bg-gcode-bg rounded-lg p-4 border border-gcode-border text-center">
+                    <p id="stat-days" class="text-3xl font-bold terminal-text">--</p>
+                    <p class="text-xs text-gray-500 mt-1">Days on G-Code</p>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Dashboard JavaScript
+document.addEventListener('DOMContentLoaded', async function() {
+    // Initialize Lucide icons
+    lucide.createIcons();
+
+    // Mobile menu toggle
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+    }
+
+    try {
+        // Fetch dashboard data
+        const response = await fetch('/api/dashboard/overview/');
+        if (!response.ok) throw new Error('Failed to fetch dashboard data');
+
+        const data = await response.json();
+
+        // Hide loading, show content
+        document.getElementById('dashboard-loading').classList.add('hidden');
+        document.getElementById('dashboard-content').classList.remove('hidden');
+
+        // Update today's G-Code
+        if (data.today_gcode) {
+            updateTodayGCode(data.today_gcode);
+        }
+
+        // Update weekly forecast
+        if (data.weekly_transits && data.weekly_transits.length > 0) {
+            updateWeeklyForecast(data.weekly_transits);
+        }
+
+        // Update recent content
+        if (data.recent_content && data.recent_content.length > 0) {
+            updateRecentContent(data.recent_content);
+        }
+
+        // Update user stats
+        if (data.user_stats) {
+            updateUserStats(data.user_stats);
+        }
+
+    } catch (error) {
+        console.error('Error loading dashboard:', error);
+        showError('Failed to load dashboard data. Please try again.');
+    }
+});
+
+function updateTodayGCode(gcode) {
+    // Update score
+    const score = gcode.g_code_score || 50;
+    const scoreCircle = document.getElementById('score-circle');
+    scoreCircle.querySelector('.score-value').textContent = score;
+
+    // Set color based on score
+    let intensityClass = 'intensity-low';
+    if (score >= 80) intensityClass = 'intensity-intense';
+    else if (score >= 60) intensityClass = 'intensity-high';
+    else if (score >= 40) intensityClass = 'intensity-medium';
+
+    scoreCircle.classList.remove('intensity-low', 'intensity-medium', 'intensity-high', 'intensity-intense');
+    scoreCircle.classList.add(intensityClass);
+
+    // Update theme
+    document.getElementById('today-theme').textContent = gcode.interpretation?.substring(0, 100) + '...' || 'No theme available';
+
+    // Update themes
+    const themesContainer = document.getElementById('themes-container');
+    if (gcode.themes && gcode.themes.length > 0) {
+        themesContainer.innerHTML = gcode.themes.map(theme =>
+            `<span class="theme-tag text-gcode-green">${theme}</span>`
+        ).join('');
+    }
+
+    // Update affirmation
+    document.getElementById('today-affirmation').textContent = gcode.affirmation || 'Loading affirmation...';
+
+    // Update guidance
+    const guidanceList = document.getElementById('guidance-list');
+    if (gcode.practical_guidance && gcode.practical_guidance.length > 0) {
+        guidanceList.innerHTML = gcode.practical_guidance.map(guidance =>
+            `<li class="flex items-start text-gray-400">
+                <span class="terminal-text mr-2">▸</span>
+                <span>${guidance}</span>
+            </li>`
+        ).join('');
+    }
+}
+
+function updateWeeklyForecast(transits) {
+    const container = document.getElementById('weekly-forecast');
+
+    container.innerHTML = transits.map(transit => {
+        const date = new Date(transit.transit_date);
+        const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+        const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+        let intensityColor = 'text-gcode-green';
+        if (transit.intensity_level === 'high') intensityColor = 'text-gcode-yellow';
+        if (transit.intensity_level === 'intense') intensityColor = 'text-gcode-red';
+
+        return `
+            <div class="flex items-center justify-between bg-gcode-bg rounded-lg p-3 border border-gcode-border hover:border-gcode-green transition-colors">
+                <div class="flex items-center space-x-3">
+                    <div class="text-center">
+                        <p class="text-lg font-bold text-white">${dayName}</p>
+                        <p class="text-xs text-gray-500">${dateStr}</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="text-2xl font-bold ${intensityColor}">${transit.g_code_score}</p>
+                    <p class="text-xs text-gray-500">${transit.intensity_level}</p>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function updateRecentContent(contentItems) {
+    const container = document.getElementById('recent-content');
+
+    container.innerHTML = contentItems.map(item => {
+        const date = new Date(item.generated_at);
+        const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+        return `
+            <div class="bg-gcode-bg rounded-lg p-3 border border-gcode-border hover:border-gcode-green transition-colors">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs text-gcode-green uppercase">${item.content_type}</span>
+                    <span class="text-xs text-gray-500">${dateStr}</span>
+                </div>
+                <h4 class="text-sm font-bold text-white mb-1">${item.title}</h4>
+                <p class="text-xs text-gray-400 line-clamp-2">${item.body.substring(0, 100)}...</p>
+                <div class="mt-2 flex items-center justify-between">
+                    <span class="text-xs text-gray-500">${item.platform}</span>
+                    <span class="text-xs px-2 py-1 rounded ${
+                        item.status === 'posted' ? 'bg-gcode-green/20 text-gcode-green' :
+                        item.status === 'generated' ? 'bg-gcode-yellow/20 text-gcode-yellow' :
+                        'bg-gray-700 text-gray-400'
+                    }">${item.status}</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function updateUserStats(stats) {
+    document.getElementById('stat-transits').textContent = stats.total_transits || 0;
+    document.getElementById('stat-content').textContent = stats.total_content || 0;
+    document.getElementById('stat-avg-score').textContent = stats.avg_gcode_score || '--';
+    document.getElementById('stat-days').textContent = Math.floor(stats.total_transits / 7) || 0;
+}
+
+function showError(message) {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = 'bg-gcode-red border border-gcode-red rounded-lg p-4 text-white shadow-lg';
+    toast.textContent = message;
+    container.appendChild(toast);
+
+    setTimeout(() => {
+        toast.remove();
+    }, 5000);
+}
+</script>
+{% endblock %}

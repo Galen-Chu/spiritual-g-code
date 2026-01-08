@@ -10,10 +10,26 @@ from drf_spectacular.views import (
     SpectacularRedocView,
     SpectacularSwaggerView,
 )
+from api.views_html import (
+    dashboard_view,
+    natal_view,
+    content_view,
+    settings_view,
+    login_view,
+    register_view,
+)
 
 urlpatterns = [
     # Admin
     path('admin/', admin.site.urls),
+
+    # Frontend Pages
+    path('', dashboard_view, name='dashboard'),
+    path('natal/', natal_view, name='natal'),
+    path('content/', content_view, name='content'),
+    path('settings/', settings_view, name='settings'),
+    path('auth/login/', login_view, name='login'),
+    path('auth/register/', register_view, name='register'),
 
     # API
     path('api/auth/', include('rest_framework_simplejwt.urls')),
