@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Dashboard | Spiritual G-Code{% endblock %}
 
@@ -220,11 +221,69 @@
                 </div>
             </div>
         </section>
+
+        <!-- Charts Section -->
+        <section class="space-y-8">
+            <div class="flex items-center justify-between">
+                <h2 class="text-xl font-bold text-white flex items-center">
+                    <i data-lucide="activity" class="w-5 h-5 mr-2 terminal-text"></i>
+                    G-Code Analytics
+                </h2>
+                <span class="text-xs text-gray-500">Real-time cosmic visualization</span>
+            </div>
+
+            <!-- Charts Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- G-Code Trend Chart -->
+                <div class="card card-glow p-6">
+                    <h3 class="text-lg font-bold text-white mb-2">G-Code 7-Day Trend</h3>
+                    <p class="text-xs text-gray-500 mb-4">Your cosmic energy patterns over the last week</p>
+                    <div class="h-80">
+                        <canvas id="gcode-trend-chart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Planetary Positions Chart -->
+                <div class="card card-glow p-6">
+                    <h3 class="text-lg font-bold text-white mb-2">Planetary Positions</h3>
+                    <p class="text-xs text-gray-500 mb-4">Current zodiac positions of celestial bodies</p>
+                    <div class="h-80">
+                        <canvas id="planetary-chart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Element Distribution Chart -->
+                <div class="card card-glow p-6">
+                    <h3 class="text-lg font-bold text-white mb-2">Element Distribution</h3>
+                    <p class="text-xs text-gray-500 mb-4">Balance of Fire, Earth, Air, and Water in your chart</p>
+                    <div class="h-80">
+                        <canvas id="element-chart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Weekly Forecast Chart -->
+                <div class="card card-glow p-6">
+                    <h3 class="text-lg font-bold text-white mb-2">7-Day Forecast</h3>
+                    <p class="text-xs text-gray-500 mb-4">Predicted G-Code intensity for the coming week</p>
+                    <div class="h-80">
+                        <canvas id="forecast-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
+<!-- Chart.js Components -->
+<script src="{% static 'js/components/charts/chart-utils.js' %}"></script>
+<script src="{% static 'js/components/charts/trend-chart.js' %}"></script>
+<script src="{% static 'js/components/charts/planetary-chart.js' %}"></script>
+<script src="{% static 'js/components/charts/element-chart.js' %}"></script>
+<script src="{% static 'js/components/charts/forecast-chart.js' %}"></script>
+<script src="{% static 'js/components/charts/chart-manager.js' %}"></script>
+
 <script>
 // Dashboard JavaScript
 document.addEventListener('DOMContentLoaded', async function() {
@@ -270,6 +329,12 @@ document.addEventListener('DOMContentLoaded', async function() {
         // Update user stats
         if (data.user_stats) {
             updateUserStats(data.user_stats);
+        }
+
+        // Initialize Charts
+        if (window.DashboardChartsManager) {
+            const chartManager = new window.DashboardChartsManager();
+            await chartManager.initAll();
         }
 
     } catch (error) {

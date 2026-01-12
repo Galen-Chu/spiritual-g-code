@@ -21,6 +21,10 @@ from .models import (
     GCodeTemplate,
     UserActivity,
 )
+
+# Import AI engine for chart data generation
+from ai_engine.daily_gcode_service import get_daily_gcode_service
+from ai_engine.mock_calculator import MockGCodeCalculator
 from .serializers import (
     UserSerializer,
     UserRegistrationSerializer,
@@ -424,52 +428,268 @@ class DashboardChartsView(APIView):
 
         data = {}
 
-        if chart_type in ['all', 'gcode_trend']:
-            # G-Code score trend (last 30 days)
-            start_date = date.today() - timedelta(days=30)
+        # ========================================
+        # 1. G-Code 7-Day Trend Chart
+        # ========================================
+        if chart_type in ['all', 'gcode_trend_7d']:
+            # Last 7 days of G-Code scores
+            start_date = date.today() - timedelta(days=6)
             transits = DailyTransit.objects.filter(
                 user=request.user,
                 transit_date__gte=start_date
             ).order_by('transit_date')
 
-            data['gcode_trend'] = [
-                {
-                    'date': t.transit_date.isoformat(),
-                    'score': t.g_code_score,
-                    'intensity': t.intensity_level
+            # Generate data for any missing dates
+            trend_data = []
+            current_date = start_date
+            transit_dict = {t.transit_date: t for t in transits}
+
+            for i in range(7):
+                if current_date in transit_dict:
+                    t = transit_dict[current_date]
+                    trend_data.append({
+                        'date': current_date.isoformat(),
+                        'score': t.g_code_score,
+                        'intensity': t.intensity_level
+                    })
+                else:
+                    # Generate mock data for missing dates
+                    calculator = MockGCodeCalculator()
+                    try:
+                        natal = NatalChart.objects.get(user=request.user)
+                        mock_transit = calculator.calculate_transits(
+                            birth_date=request.user.birth_date,
+                            birth_time=request.user.birth_time.strftime('%H:%M') if request.user.birth_time else None,
+                            birth_location=request.user.birth_location,
+                            target_date=current_date
+                        )
+                        score = calculator.calculate_g_code_intensity(
+                            transit_data=mock_transit['planets'],
+                            aspects=mock_transit['aspects']
+                        )
+                        intensity = 'low' if score < 25 else 'medium' if score < 50 else 'high' if score < 75 else 'intense'
+                        trend_data.append({
+                            'date': current_date.isoformat(),
+                            'score': score,
+                            'intensity': intensity
+                        })
+                    except:
+                        trend_data.append({
+                            'date': current_date.isoformat(),
+                            'score': 50,
+                            'intensity': 'medium'
+                        })
+                current_date += timedelta(days=1)
+
+            data['gcode_trend_7d'] = trend_data
+
+        # ========================================
+        # 2. Planetary Positions (Polar Chart)
+        # ========================================
+        if chart_type in ['all', 'planetary_positions']:
+            try:
+                natal = NatalChart.objects.get(user=request.user)
+                calculator = MockGCodeCalculator()
+
+                # Calculate current natal chart
+                chart_data = calculator.calculate_natal_chart(
+                    birth_date=request.user.birth_date,
+                    birth_time=request.user.birth_time.strftime('%H:%M') if request.user.birth_time else None,
+                    birth_location=request.user.birth_location,
+                    timezone=request.user.timezone
+                )
+
+                # Extract planetary positions
+                planets = chart_data.get('chart_data', {})
+                planetary_data = []
+
+                planet_names = {
+                    'sun': 'Sun', 'moon': 'Moon', 'mercury': 'Mercury',
+                    'venus': 'Venus', 'mars': 'Mars', 'jupiter': 'Jupiter',
+                    'saturn': 'Saturn', 'uranus': 'Uranus', 'neptune': 'Neptune',
+                    'pluto': 'Pluto'
                 }
-                for t in transits
-            ]
 
-        if chart_type in ['all', 'themes']:
-            # Top themes (last 90 days)
-            start_date = date.today() - timedelta(days=90)
-            transits = DailyTransit.objects.filter(
-                user=request.user,
-                transit_date__gte=start_date
-            )
+                for planet_key, planet_name in planet_names.items():
+                    if planet_key in planets:
+                        pos = planets[planet_key]
+                        planetary_data.append({
+                            'planet': planet_name,
+                            'sign': pos.get('sign', 'Unknown'),
+                            'degree': pos.get('degree', 0),
+                            'element': self._get_element(pos.get('sign', 'Unknown'))
+                        })
 
-            theme_counts = {}
-            for transit in transits:
-                for theme in transit.themes or []:
-                    theme_counts[theme] = theme_counts.get(theme, 0) + 1
+                data['planetary_positions'] = planetary_data
+            except NatalChart.DoesNotExist:
+                data['planetary_positions'] = []
 
-            data['themes'] = [
-                {'theme': theme, 'count': count}
-                for theme, count in sorted(theme_counts.items(), key=lambda x: x[1], reverse=True)[:10]
-            ]
+        # ========================================
+        # 3. Element Distribution (Bar Chart)
+        # ========================================
+        if chart_type in ['all', 'element_distribution']:
+            try:
+                natal = NatalChart.objects.get(user=request.user)
+                elements = natal.dominant_elements or {}
 
-        if chart_type in ['all', 'content_distribution']:
-            # Content distribution by platform
-            content_stats = GeneratedContent.objects.filter(
-                user=request.user
-            ).values('platform', 'content_type').annotate(
-                count=Count('id')
-            )
+                data['element_distribution'] = [
+                    {'element': 'Fire', 'count': elements.get('fire', 0), 'color': '#FF6B6B'},
+                    {'element': 'Earth', 'count': elements.get('earth', 0), 'color': '#4ECDC4'},
+                    {'element': 'Air', 'count': elements.get('air', 0), 'color': '#95E1D3'},
+                    {'element': 'Water', 'count': elements.get('water', 0), 'color': '#45B7D1'},
+                ]
+            except NatalChart.DoesNotExist:
+                data['element_distribution'] = []
 
-            data['content_distribution'] = list(content_stats)
+        # ========================================
+        # 4. Weekly Forecast Chart
+        # ========================================
+        if chart_type in ['all', 'weekly_forecast']:
+            # Next 7 days forecast
+            forecast_data = []
+            calculator = MockGCodeCalculator()
+
+            try:
+                natal = NatalChart.objects.get(user=request.user)
+            except NatalChart.DoesNotExist:
+                natal = None
+
+            for i in range(7):
+                future_date = date.today() + timedelta(days=i+1)
+
+                # Try to get existing transit data
+                try:
+                    transit = DailyTransit.objects.get(
+                        user=request.user,
+                        transit_date=future_date
+                    )
+                    forecast_data.append({
+                        'date': future_date.isoformat(),
+                        'score': transit.g_code_score,
+                        'intensity': transit.intensity_level,
+                        'themes': transit.themes or []
+                    })
+                except DailyTransit.DoesNotExist:
+                    # Generate forecast data
+                    if natal:
+                        mock_transit = calculator.calculate_transits(
+                            birth_date=request.user.birth_date,
+                            birth_time=request.user.birth_time.strftime('%H:%M') if request.user.birth_time else None,
+                            birth_location=request.user.birth_location,
+                            target_date=future_date
+                        )
+                        score = calculator.calculate_g_code_intensity(
+                            transit_data=mock_transit['planets'],
+                            aspects=mock_transit['aspects']
+                        )
+                        intensity = 'low' if score < 25 else 'medium' if score < 50 else 'high' if score < 75 else 'intense'
+
+                        # Generate themes based on aspects
+                        themes = self._generate_themes_from_aspects(mock_transit['aspects'][:3])
+
+                        forecast_data.append({
+                            'date': future_date.isoformat(),
+                            'score': score,
+                            'intensity': intensity,
+                            'themes': themes
+                        })
+                    else:
+                        forecast_data.append({
+                            'date': future_date.isoformat(),
+                            'score': 50,
+                            'intensity': 'medium',
+                            'themes': ['#Growth', '#Alignment']
+                        })
+
+            data['weekly_forecast'] = forecast_data
+
+        # ========================================
+        # 5. Aspects Network Data
+        # ========================================
+        if chart_type in ['all', 'aspects_network']:
+            try:
+                natal = NatalChart.objects.get(user=request.user)
+                calculator = MockGCodeCalculator()
+
+                # Get current transits
+                transit_data = calculator.calculate_transits(
+                    birth_date=request.user.birth_date,
+                    birth_time=request.user.birth_time.strftime('%H:%M') if request.user.birth_time else None,
+                    birth_location=request.user.birth_location,
+                    target_date=date.today()
+                )
+
+                # Build network data
+                nodes = []
+                links = []
+
+                # Add planets as nodes
+                planets = transit_data.get('planets', {})
+                for planet_name, planet_data in planets.items():
+                    nodes.append({
+                        'id': planet_name,
+                        'label': planet_name.capitalize(),
+                        'group': self._get_planet_group(planet_name)
+                    })
+
+                # Add aspects as links
+                aspects = transit_data.get('aspects', [])[:10]  # Limit to 10 aspects
+                for aspect in aspects:
+                    links.append({
+                        'source': aspect.get('planet1', ''),
+                        'target': aspect.get('planet2', ''),
+                        'type': aspect.get('aspect', ''),
+                        'value': aspect.get('orb', 1)
+                    })
+
+                data['aspects_network'] = {
+                    'nodes': nodes,
+                    'links': links
+                }
+            except:
+                data['aspects_network'] = {'nodes': [], 'links': []}
 
         return Response(data)
+
+    def _get_element(self, sign):
+        """Get element from zodiac sign."""
+        fire_signs = ['Aries', 'Leo', 'Sagittarius']
+        earth_signs = ['Taurus', 'Virgo', 'Capricorn']
+        air_signs = ['Gemini', 'Libra', 'Aquarius']
+        water_signs = ['Cancer', 'Scorpio', 'Pisces']
+
+        if sign in fire_signs:
+            return 'fire'
+        elif sign in earth_signs:
+            return 'earth'
+        elif sign in air_signs:
+            return 'air'
+        elif sign in water_signs:
+            return 'water'
+        return 'air'  # default
+
+    def _get_planet_group(self, planet_name):
+        """Get planet group for visualization."""
+        personal = ['sun', 'moon', 'mercury', 'venus', 'mars']
+        social = ['jupiter', 'saturn']
+        outer = ['uranus', 'neptune', 'pluto']
+
+        if planet_name.lower() in personal:
+            return 'personal'
+        elif planet_name.lower() in social:
+            return 'social'
+        else:
+            return 'outer'
+
+    def _generate_themes_from_aspects(self, aspects):
+        """Generate themes from aspect data."""
+        theme_pool = [
+            '#Transformation', '#Growth', '#Alignment', '#InnerWisdom',
+            '#CosmicEnergy', '#Intuition', '#Creativity', '#Balance'
+        ]
+        import random
+        random.seed(42)
+        return random.sample(theme_pool, min(len(aspects), 3))
 
 
 # ============================================
