@@ -270,6 +270,13 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Aspects Network Chart - Full Width -->
+            <div class="card card-glow p-6 mt-6">
+                <h3 class="text-lg font-bold text-white mb-2">Planetary Aspects Network</h3>
+                <p class="text-xs text-gray-500 mb-4">Interactive view of planetary aspect relationships (drag nodes, scroll to zoom)</p>
+                <div id="aspects-network-chart" style="height: 500px; width: 100%;"></div>
+            </div>
         </section>
     </div>
 </div>
@@ -282,6 +289,7 @@
 <script src="{% static 'js/components/charts/planetary-chart.js' %}"></script>
 <script src="{% static 'js/components/charts/element-chart.js' %}"></script>
 <script src="{% static 'js/components/charts/forecast-chart.js' %}"></script>
+<script src="{% static 'js/components/charts/aspects-network-chart.js' %}"></script>
 <script src="{% static 'js/components/charts/chart-manager.js' %}"></script>
 
 <script>

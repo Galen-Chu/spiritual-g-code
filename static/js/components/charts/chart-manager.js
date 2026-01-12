@@ -49,6 +49,14 @@ class DashboardChartsManager {
             console.log('✓ Weekly Forecast Chart initialized');
         }
 
+        // Initialize Aspects Network Chart
+        const networkContainer = document.getElementById('aspects-network-chart');
+        if (networkContainer) {
+            this.charts.network = new window.AspectsNetworkChart('aspects-network-chart');
+            await this.charts.network.init();
+            console.log('✓ Aspects Network Chart initialized');
+        }
+
         this.isInitialized = true;
         console.log('All dashboard charts initialized successfully!');
     }
@@ -71,7 +79,11 @@ class DashboardChartsManager {
     destroyAll() {
         // Destroy all charts
         Object.values(this.charts).forEach(chart => {
-            if (chart && chart.chart) {
+            if (chart && chart.cy) {
+                // Cytoscape instance
+                chart.cy.destroy();
+            } else if (chart && chart.chart) {
+                // Chart.js instance
                 chart.chart.destroy();
             }
         });
