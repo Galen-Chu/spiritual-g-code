@@ -44,6 +44,11 @@ CACHES = {
 # CORS - Allow all origins in development
 CORS_ALLOW_ALL_ORIGINS = True
 
+# Security - Disable SSL redirect in development
+SECURE_SSL_REDIRECT = False
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
+
 # Static Files
 STATICFILES_DIRS = [BASE_DIR / 'static']
 

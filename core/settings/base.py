@@ -31,6 +31,7 @@ THIRD_PARTY_APPS = [
     'django_crontab',
     'corsheaders',
     'drf_spectacular',
+    'channels',  # WebSocket support
 ]
 
 LOCAL_APPS = [
@@ -98,6 +99,11 @@ DATABASES = {
 
 # Custom User Model
 AUTH_USER_MODEL = 'api.GCodeUser'
+
+# Authentication URLs
+LOGIN_URL = '/auth/login/'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/auth/login/'
 
 # Password Validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -264,9 +270,8 @@ SPECTACULAR_SETTINGS = {
 }
 
 # Session Configuration
-SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
-SESSION_CACHE_ALIAS = 'default'
-SESSION_COOKIE_AGE = timedelta(days=7)
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+SESSION_COOKIE_AGE = 604800  # 7 days in seconds
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Lax'
 
@@ -282,3 +287,16 @@ else:
     SECURE_SSL_REDIRECT = False
     SESSION_COOKIE_SECURE = False
     CSRF_COOKIE_SECURE = False
+
+# Channels (WebSocket) Configuration
+CHANNEL_LAYERS = {
+    'default': {
+        # Use in-memory channel layer for development
+        # For production, change to 'channels_redis.core.RedisChannelLayer'
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    }
+}
+
+# Channel layer expiration (in seconds)
+# Messages expire after this time if not delivered
+CHANNEL_LAYER_EXPIRE = 3600  # 1 hour

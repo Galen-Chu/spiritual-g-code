@@ -21,7 +21,9 @@ from api.views_html import (
     content_view,
     settings_view,
     login_view,
+    logout_view,
     register_view,
+    test_login_view,
 )
 
 urlpatterns = [
@@ -34,7 +36,9 @@ urlpatterns = [
     path('content/', content_view, name='content'),
     path('settings/', settings_view, name='settings'),
     path('auth/login/', login_view, name='login'),
+    path('auth/logout/', logout_view, name='logout'),
     path('auth/register/', register_view, name='register'),
+    path('auth/test-login/', test_login_view, name='test_login'),
 
     # API - JWT Authentication
     path('api/auth/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
