@@ -63,6 +63,134 @@
     .intensity-medium { --score-color: #00FF41; }
     .intensity-high { --score-color: #F4D03F; }
     .intensity-intense { --score-color: #FF5A5F; }
+
+    /* Chart Action Buttons */
+    .chart-action-btn {
+        padding: 6px 8px;
+        background: rgba(0, 255, 65, 0.1);
+        border: 1px solid rgba(0, 255, 65, 0.3);
+        border-radius: 4px;
+        color: #00FF41;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        transition: all 0.2s;
+    }
+
+    .chart-action-btn:hover {
+        background: rgba(0, 255, 65, 0.2);
+        border-color: #00FF41;
+        box-shadow: 0 0 10px rgba(0, 255, 65, 0.2);
+    }
+
+    .chart-action-btn:active {
+        transform: scale(0.95);
+    }
+
+    /* Global Action Buttons */
+    .global-action-btn {
+        padding: 8px 16px;
+        background: rgba(0, 255, 65, 0.1);
+        border: 1px solid rgba(0, 255, 65, 0.3);
+        border-radius: 6px;
+        color: #00FF41;
+        cursor: pointer;
+        font-size: 14px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s;
+    }
+
+    .global-action-btn:hover {
+        background: rgba(0, 255, 65, 0.2);
+        border-color: #00FF41;
+        box-shadow: 0 0 15px rgba(0, 255, 65, 0.3);
+    }
+
+    .global-action-btn:active {
+        transform: scale(0.98);
+    }
+
+    /* Mobile optimizations */
+    @media (max-width: 768px) {
+        .chart-action-btn {
+            min-width: 40px;
+            min-height: 40px;
+            padding: 8px;
+        }
+
+        .chart-action-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .global-action-btn {
+            padding: 10px 14px;
+            font-size: 13px;
+        }
+
+        /* Larger touch targets for mobile */
+        input[type="date"],
+        select {
+            padding: 10px 12px;
+            font-size: 16px; /* Prevents iOS zoom on focus */
+            min-height: 44px;
+        }
+
+        /* Better spacing for mobile customization controls */
+        .card.p-4 .flex.flex-wrap {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .card.p-4 .flex.flex-wrap > div {
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        /* Checkbox labels more touch-friendly */
+        label {
+            padding: 8px 12px;
+            margin: 4px;
+        }
+
+        label input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        /* Chart cards take full width on mobile */
+        #chart-trend,
+        #chart-planetary,
+        #chart-element,
+        #chart-forecast,
+        #chart-network {
+            width: 100%;
+        }
+
+        /* Charts grid becomes single column on mobile */
+        .grid.grid-cols-1.lg\\:grid-cols-2 {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Touch-friendly hover states for mobile */
+    @media (hover: none) and (pointer: coarse) {
+        .chart-action-btn:hover,
+        .global-action-btn:hover {
+            background: rgba(0, 255, 65, 0.1);
+        }
+
+        .chart-action-btn:active,
+        .global-action-btn:active {
+            background: rgba(0, 255, 65, 0.3);
+            transform: scale(0.95);
+        }
+    }
 </style>
 {% endblock %}
 
@@ -224,6 +352,46 @@
 
         <!-- Charts Section -->
         <section class="space-y-8">
+            <!-- Customization Controls -->
+            <div class="card p-4">
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex items-center gap-4">
+                        <span class="text-sm text-gray-400">Date Range:</span>
+                        <div class="flex items-center gap-2">
+                            <input type="date" id="date-range-start" class="bg-gcode-bg border border-gcode-border rounded px-3 py-2 text-sm text-gcode-green focus:outline-none focus:border-gcode-green" onchange="applyDateRange()">
+                            <span class="text-gray-500">to</span>
+                            <input type="date" id="date-range-end" class="bg-gcode-bg border border-gcode-border rounded px-3 py-2 text-sm text-gcode-green focus:outline-none focus:border-gcode-green" onchange="applyDateRange()">
+                            <button onclick="resetDateRange()" class="global-action-btn">Reset</button>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span class="text-sm text-gray-400">Show Charts:</span>
+                        <div class="flex flex-wrap gap-3">
+                            <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
+                                <input type="checkbox" checked onchange="toggleChart('trend', this.checked)" class="accent-green-500">
+                                Trend
+                            </label>
+                            <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
+                                <input type="checkbox" checked onchange="toggleChart('planetary', this.checked)" class="accent-green-500">
+                                Planetary
+                            </label>
+                            <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
+                                <input type="checkbox" checked onchange="toggleChart('element', this.checked)" class="accent-green-500">
+                                Elements
+                            </label>
+                            <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
+                                <input type="checkbox" checked onchange="toggleChart('forecast', this.checked)" class="accent-green-500">
+                                Forecast
+                            </label>
+                            <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
+                                <input type="checkbox" checked onchange="toggleChart('network', this.checked)" class="accent-green-500">
+                                Network
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="flex items-center justify-between">
                 <h2 class="text-xl font-bold text-white flex items-center">
                     <i data-lucide="activity" class="w-5 h-5 mr-2 terminal-text"></i>
@@ -235,8 +403,18 @@
             <!-- Charts Grid -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <!-- G-Code Trend Chart -->
-                <div class="card card-glow p-6">
-                    <h3 class="text-lg font-bold text-white mb-2">G-Code 7-Day Trend</h3>
+                <div id="chart-trend" class="card card-glow p-6">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-lg font-bold text-white">G-Code 7-Day Trend</h3>
+                        <div class="chart-controls" data-chart="trend">
+                            <button class="chart-action-btn" onclick="window.chartManager.refreshChart('trend')" title="Refresh">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                            </button>
+                            <button class="chart-action-btn" onclick="window.ChartExportUtils.exportChartAsPNG('gcode-trend-chart', 'gcode-trend.png')" title="Export PNG">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l4-4m-4 4h8"></path></svg>
+                            </button>
+                        </div>
+                    </div>
                     <p class="text-xs text-gray-500 mb-4">Your cosmic energy patterns over the last week</p>
                     <div class="h-80">
                         <canvas id="gcode-trend-chart"></canvas>
@@ -244,8 +422,18 @@
                 </div>
 
                 <!-- Planetary Positions Chart -->
-                <div class="card card-glow p-6">
-                    <h3 class="text-lg font-bold text-white mb-2">Planetary Positions</h3>
+                <div id="chart-planetary" class="card card-glow p-6">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-lg font-bold text-white">Planetary Positions</h3>
+                        <div class="chart-controls" data-chart="planetary">
+                            <button class="chart-action-btn" onclick="window.chartManager.refreshChart('planetary')" title="Refresh">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                            </button>
+                            <button class="chart-action-btn" onclick="window.ChartExportUtils.exportChartAsPNG('planetary-chart', 'planetary-positions.png')" title="Export PNG">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l4-4m-4 4h8"></path></svg>
+                            </button>
+                        </div>
+                    </div>
                     <p class="text-xs text-gray-500 mb-4">Current zodiac positions of celestial bodies</p>
                     <div class="h-80">
                         <canvas id="planetary-chart"></canvas>
@@ -253,8 +441,18 @@
                 </div>
 
                 <!-- Element Distribution Chart -->
-                <div class="card card-glow p-6">
-                    <h3 class="text-lg font-bold text-white mb-2">Element Distribution</h3>
+                <div id="chart-element" class="card card-glow p-6">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-lg font-bold text-white">Element Distribution</h3>
+                        <div class="chart-controls" data-chart="element">
+                            <button class="chart-action-btn" onclick="window.chartManager.refreshChart('element')" title="Refresh">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                            </button>
+                            <button class="chart-action-btn" onclick="window.ChartExportUtils.exportChartAsPNG('element-chart', 'element-distribution.png')" title="Export PNG">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l4-4m-4 4h8"></path></svg>
+                            </button>
+                        </div>
+                    </div>
                     <p class="text-xs text-gray-500 mb-4">Balance of Fire, Earth, Air, and Water in your chart</p>
                     <div class="h-80">
                         <canvas id="element-chart"></canvas>
@@ -262,8 +460,18 @@
                 </div>
 
                 <!-- Weekly Forecast Chart -->
-                <div class="card card-glow p-6">
-                    <h3 class="text-lg font-bold text-white mb-2">7-Day Forecast</h3>
+                <div id="chart-forecast" class="card card-glow p-6">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-lg font-bold text-white">7-Day Forecast</h3>
+                        <div class="chart-controls" data-chart="forecast">
+                            <button class="chart-action-btn" onclick="window.chartManager.refreshChart('forecast')" title="Refresh">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                            </button>
+                            <button class="chart-action-btn" onclick="window.ChartExportUtils.exportChartAsPNG('forecast-chart', 'weekly-forecast.png')" title="Export PNG">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l4-4m-4 4h8"></path></svg>
+                            </button>
+                        </div>
+                    </div>
                     <p class="text-xs text-gray-500 mb-4">Predicted G-Code intensity for the coming week</p>
                     <div class="h-80">
                         <canvas id="forecast-chart"></canvas>
@@ -272,10 +480,59 @@
             </div>
 
             <!-- Aspects Network Chart - Full Width -->
-            <div class="card card-glow p-6 mt-6">
-                <h3 class="text-lg font-bold text-white mb-2">Planetary Aspects Network</h3>
+            <div id="chart-network" class="card card-glow p-6 mt-6">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-lg font-bold text-white">Planetary Aspects Network</h3>
+                    <div class="chart-controls" data-chart="network">
+                        <button class="chart-action-btn" onclick="window.chartManager.refreshChart('network')" title="Refresh">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                        </button>
+                        <button class="chart-action-btn" onclick="window.chartManager.exportNetwork('png')" title="Export PNG">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l4-4m-4 4h8"></path></svg>
+                        </button>
+                        <button class="chart-action-btn" onclick="window.chartManager.exportNetwork('svg')" title="Export SVG">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4 4m0 0l4-4m-4 4h8"></path></svg>
+                        </button>
+                    </div>
+                </div>
                 <p class="text-xs text-gray-500 mb-4">Interactive view of planetary aspect relationships (drag nodes, scroll to zoom)</p>
                 <div id="aspects-network-chart" style="height: 500px; width: 100%;"></div>
+            </div>
+
+            <!-- Global Actions Bar -->
+            <div class="card p-4 mt-6">
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm text-gray-400">Global Actions:</span>
+                        <button onclick="window.chartManager.refreshAll()" class="global-action-btn">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                            Refresh All Charts
+                        </button>
+                        <div class="flex items-center gap-2 border-l border-gcode-border pl-3">
+                            <span class="text-sm text-gray-400">Auto-refresh:</span>
+                            <button id="auto-refresh-toggle" onclick="toggleAutoRefresh()" class="global-action-btn">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <span id="auto-refresh-text">Enable</span>
+                            </button>
+                            <select id="auto-refresh-interval" onchange="setAutoRefreshInterval(this.value)" class="bg-gcode-bg border border-gcode-border rounded px-2 py-1 text-sm text-gcode-green focus:outline-none focus:border-gcode-green">
+                                <option value="1">1 min</option>
+                                <option value="5" selected>5 min</option>
+                                <option value="10">10 min</option>
+                                <option value="15">15 min</option>
+                                <option value="30">30 min</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm text-gray-400">Export All:</span>
+                        <button onclick="window.ChartExportUtils.exportAllCharts(window.chartManager, 'png')" class="global-action-btn">
+                            Export PNGs
+                        </button>
+                        <button onclick="window.ChartExportUtils.exportAllCharts(window.chartManager, 'svg')" class="global-action-btn">
+                            Export SVGs
+                        </button>
+                    </div>
+                </div>
             </div>
         </section>
     </div>
@@ -285,6 +542,7 @@
 {% block extra_js %}
 <!-- Chart.js Components -->
 <script src="{% static 'js/components/charts/chart-utils.js' %}"></script>
+<script src="{% static 'js/components/charts/export-utils.js' %}"></script>
 <script src="{% static 'js/components/charts/trend-chart.js' %}"></script>
 <script src="{% static 'js/components/charts/planetary-chart.js' %}"></script>
 <script src="{% static 'js/components/charts/element-chart.js' %}"></script>
@@ -341,8 +599,8 @@ document.addEventListener('DOMContentLoaded', async function() {
 
         // Initialize Charts
         if (window.DashboardChartsManager) {
-            const chartManager = new window.DashboardChartsManager();
-            await chartManager.initAll();
+            window.chartManager = new window.DashboardChartsManager();
+            await window.chartManager.initAll();
         }
 
     } catch (error) {
@@ -466,6 +724,91 @@ function showError(message) {
     setTimeout(() => {
         toast.remove();
     }, 5000);
+}
+
+// Auto-refresh functions
+function toggleAutoRefresh() {
+    if (!window.chartManager) return;
+
+    const interval = parseInt(document.getElementById('auto-refresh-interval').value);
+    const isEnabled = window.chartManager.toggleAutoRefresh(interval);
+
+    const toggleBtn = document.getElementById('auto-refresh-toggle');
+    const toggleText = document.getElementById('auto-refresh-text');
+
+    if (isEnabled) {
+        toggleBtn.style.background = 'rgba(0, 255, 65, 0.25)';
+        toggleBtn.style.borderColor = '#00FF41';
+        toggleText.textContent = 'Disable';
+        console.log('✓ Auto-refresh enabled');
+    } else {
+        toggleBtn.style.background = '';
+        toggleBtn.style.borderColor = '';
+        toggleText.textContent = 'Enable';
+        console.log('✓ Auto-refresh disabled');
+    }
+}
+
+function setAutoRefreshInterval(minutes) {
+    if (!window.chartManager) return;
+
+    window.chartManager.setAutoRefreshInterval(parseInt(minutes));
+    console.log(`✓ Auto-refresh interval set to ${minutes} minutes`);
+}
+
+// Date range functions
+let customDateRange = null;
+
+function applyDateRange() {
+    const startDate = document.getElementById('date-range-start').value;
+    const endDate = document.getElementById('date-range-end').value;
+
+    if (!startDate || !endDate) {
+        console.warn('Please select both start and end dates');
+        return;
+    }
+
+    customDateRange = {
+        start: startDate,
+        end: endDate
+    };
+
+    console.log(`✓ Date range set: ${startDate} to ${endDate}`);
+
+    // Refresh charts with new date range
+    if (window.chartManager) {
+        window.chartManager.refreshAll();
+    }
+}
+
+function resetDateRange() {
+    document.getElementById('date-range-start').value = '';
+    document.getElementById('date-range-end').value = '';
+    customDateRange = null;
+    console.log('✓ Date range reset');
+
+    // Refresh charts with default range
+    if (window.chartManager) {
+        window.chartManager.refreshAll();
+    }
+}
+
+// Chart toggle function
+function toggleChart(chartName, isVisible) {
+    const chartElement = document.getElementById(`chart-${chartName}`);
+
+    if (!chartElement) {
+        console.error(`Chart element not found: chart-${chartName}`);
+        return;
+    }
+
+    if (isVisible) {
+        chartElement.style.display = '';
+        console.log(`✓ Showing ${chartName} chart`);
+    } else {
+        chartElement.style.display = 'none';
+        console.log(`✓ Hiding ${chartName} chart`);
+    }
 }
 </script>
 {% endblock %}

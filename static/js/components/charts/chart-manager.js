@@ -7,6 +7,8 @@ class DashboardChartsManager {
     constructor() {
         this.charts = {};
         this.isInitialized = false;
+        this.autoRefreshInterval = null;
+        this.autoRefreshEnabled = false;
     }
 
     async initAll() {
@@ -76,8 +78,31 @@ class DashboardChartsManager {
         }
     }
 
+    exportNetwork(format) {
+        const network = this.charts.network;
+        if (!network || !network.cy) {
+            console.error('Network chart not found');
+            return false;
+        }
+
+        const timestamp = new Date().toISOString().split('T')[0];
+
+        try {
+            if (format === 'svg') {
+                window.ChartExportUtils.exportCytoscapeAsSVG(network.cy, `aspects-network-${timestamp}.svg`);
+            } else {
+                window.ChartExportUtils.exportCytoscapeAsPNG(network.cy, `aspects-network-${timestamp}.png`);
+            }
+            return true;
+        } catch (error) {
+            console.error('Error exporting network chart:', error);
+            return false;
+        }
+    }
+
     destroyAll() {
         // Destroy all charts
+        this.stopAutoRefresh();
         Object.values(this.charts).forEach(chart => {
             if (chart && chart.cy) {
                 // Cytoscape instance
@@ -89,6 +114,64 @@ class DashboardChartsManager {
         });
         this.charts = {};
         this.isInitialized = false;
+    }
+
+    /**
+     * Enable auto-refresh with configurable interval
+     * @param {number} intervalMinutes - Refresh interval in minutes (default: 5)
+     */
+    startAutoRefresh(intervalMinutes = 5) {
+        if (this.autoRefreshEnabled) {
+            console.warn('Auto-refresh is already enabled');
+            return;
+        }
+
+        const intervalMs = intervalMinutes * 60 * 1000;
+        this.autoRefreshEnabled = true;
+
+        this.autoRefreshInterval = setInterval(() => {
+            console.log(`Auto-refreshing charts (${new Date().toLocaleTimeString()})`);
+            this.refreshAll();
+        }, intervalMs);
+
+        console.log(`✓ Auto-refresh enabled: ${intervalMinutes} minutes`);
+    }
+
+    /**
+     * Disable auto-refresh
+     */
+    stopAutoRefresh() {
+        if (this.autoRefreshInterval) {
+            clearInterval(this.autoRefreshInterval);
+            this.autoRefreshInterval = null;
+            this.autoRefreshEnabled = false;
+            console.log('✓ Auto-refresh disabled');
+        }
+    }
+
+    /**
+     * Toggle auto-refresh on/off
+     * @param {number} intervalMinutes - Refresh interval in minutes
+     */
+    toggleAutoRefresh(intervalMinutes = 5) {
+        if (this.autoRefreshEnabled) {
+            this.stopAutoRefresh();
+        } else {
+            this.startAutoRefresh(intervalMinutes);
+        }
+        return this.autoRefreshEnabled;
+    }
+
+    /**
+     * Set auto-refresh interval
+     * @param {number} intervalMinutes - New interval in minutes
+     */
+    setAutoRefreshInterval(intervalMinutes) {
+        const wasEnabled = this.autoRefreshEnabled;
+        this.stopAutoRefresh();
+        if (wasEnabled) {
+            this.startAutoRefresh(intervalMinutes);
+        }
     }
 }
 
