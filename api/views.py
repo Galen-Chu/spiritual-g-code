@@ -21,6 +21,7 @@ from .models import (
     GCodeTemplate,
     UserActivity,
 )
+from .annotation import ChartAnnotation
 
 # Import AI engine for chart data generation
 from ai_engine.daily_gcode_service import get_daily_gcode_service
@@ -36,6 +37,7 @@ from .serializers import (
     UserActivitySerializer,
     DashboardOverviewSerializer,
     NatalChartCalculationSerializer,
+    ChartAnnotationSerializer,
 )
 from .permissions import IsOwnerOrReadOnly, IsOwner, HasDailyGCodeEnabled
 from .filters import DailyTransitFilter, GeneratedContentFilter, GCodeTemplateFilter
@@ -792,3 +794,64 @@ class HealthCheckView(APIView):
             health_status['status'] = 'degraded'
 
         return Response(health_status)
+
+
+# ============================================
+# Chart Annotation Views
+# ============================================
+
+class ChartAnnotationViewSet(viewsets.ModelViewSet):
+    """ViewSet for ChartAnnotation model."""
+
+    serializer_class = ChartAnnotationSerializer
+    permission_classes = [IsAuthenticated, IsOwner]
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter, DjangoFilterBackend]
+    filterset_fields = ['chart_type']
+    search_fields = ['note']
+    ordering_fields = ['created_at', 'updated_at']
+    ordering = ['-created_at']
+
+    def get_queryset(self):
+        """Return annotations for current user."""
+        return ChartAnnotation.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        """Save annotation with current user."""
+        serializer.save(user=self.request.user)
+
+        # Log activity
+        UserActivity.objects.create(
+            user=self.request.user,
+            activity_type='annotation_created',
+            metadata={
+                'chart_type': serializer.validated_data.get('chart_type'),
+                'data_point': serializer.validated_data.get('data_point'),
+            }
+        )
+
+    def perform_destroy(self, instance):
+        """Log annotation deletion."""
+        UserActivity.objects.create(
+            user=self.request.user,
+            activity_type='annotation_deleted',
+            metadata={
+                'chart_type': instance.chart_type,
+                'data_point': instance.data_point,
+            }
+        )
+        instance.delete()
+
+    @action(detail=False, methods=['get'])
+    def by_chart_type(self, request):
+        """Get annotations filtered by chart type."""
+        chart_type = request.query_params.get('chart_type')
+
+        if not chart_type:
+            return Response(
+                {'error': 'chart_type query parameter is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        annotations = self.get_queryset().filter(chart_type=chart_type)
+        serializer = self.get_serializer(annotations, many=True)
+        return Response(serializer.data)

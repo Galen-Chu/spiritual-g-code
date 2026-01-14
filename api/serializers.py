@@ -11,6 +11,7 @@ from .models import (
     GCodeTemplate,
     UserActivity,
 )
+from .annotation import ChartAnnotation
 
 User = get_user_model()
 
@@ -266,3 +267,27 @@ class NatalChartCalculationSerializer(serializers.Serializer):
     birth_time = serializers.TimeField(required=False, allow_null=True)
     birth_location = serializers.CharField(max_length=255)
     timezone = serializers.CharField(max_length=50, default='UTC')
+
+
+class ChartAnnotationSerializer(serializers.ModelSerializer):
+    """Serializer for ChartAnnotation model."""
+
+    username = serializers.CharField(source='user.username', read_only=True)
+    data_point_display = serializers.ReadOnlyField()
+    chart_type_display = serializers.CharField(source='get_chart_type_display', read_only=True)
+
+    class Meta:
+        model = ChartAnnotation
+        fields = [
+            'id',
+            'user',
+            'username',
+            'chart_type',
+            'chart_type_display',
+            'data_point',
+            'data_point_display',
+            'note',
+            'created_at',
+            'updated_at',
+        ]
+        read_only_fields = ['id', 'created_at', 'updated_at']

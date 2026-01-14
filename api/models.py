@@ -7,6 +7,10 @@ from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 import uuid
 
+# Import annotation model
+from .annotation import ChartAnnotation
+
+
 
 class GCodeUser(AbstractUser):
     """

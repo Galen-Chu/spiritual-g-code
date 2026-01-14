@@ -16,6 +16,8 @@ from .views import (
     GeneratedContentViewSet,
     # Templates
     GCodeTemplateViewSet,
+    # Annotations
+    ChartAnnotationViewSet,
     # Dashboard
     DashboardOverviewView,
     DashboardChartsView,
@@ -29,6 +31,7 @@ router.register(r'natal', NatalChartViewSet, basename='natal-chart')
 router.register(r'gcode', DailyTransitViewSet, basename='daily-transit')
 router.register(r'content', GeneratedContentViewSet, basename='generated-content')
 router.register(r'templates', GCodeTemplateViewSet, basename='gcode-template')
+router.register(r'annotations', ChartAnnotationViewSet, basename='chart-annotation')
 
 urlpatterns = [
     # Authentication

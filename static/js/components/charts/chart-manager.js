@@ -173,6 +173,98 @@ class DashboardChartsManager {
             this.startAutoRefresh(intervalMinutes);
         }
     }
+
+    /**
+     * Get a chart by name
+     * @param {string} chartName - Name of the chart (trend, planetary, element, forecast, network)
+     * @returns {object|null} Chart instance or null
+     */
+    getChart(chartName) {
+        return this.charts[chartName] || null;
+    }
+
+    /**
+     * Enable annotations on a specific chart
+     * @param {string} chartName - Name of the chart
+     */
+    async enableAnnotations(chartName) {
+        const chart = this.getChart(chartName);
+        if (!chart) {
+            console.warn(`Chart '${chartName}' not found`);
+            return;
+        }
+
+        // Get chart type mapping
+        const chartTypeMap = {
+            'trend': 'gcode_trend',
+            'planetary': 'planetary',
+            'element': 'element',
+            'forecast': 'forecast',
+            'network': 'network'
+        };
+
+        const chartType = chartTypeMap[chartName];
+        if (!chartType) {
+            console.warn(`Unknown chart type for '${chartName}'`);
+            return;
+        }
+
+        // Fetch annotations for this chart type
+        if (window.annotationManager) {
+            try {
+                const annotations = await window.annotationManager.fetchAnnotationsByChartType(chartType);
+
+                // Add annotation markers to chart
+                if (window.annotationUI) {
+                    window.annotationUI.addAnnotationMarkers(chartType, annotations, chart);
+                }
+
+                console.log(`✓ Annotations enabled for ${chartName} (${annotations.length} annotations)`);
+            } catch (error) {
+                console.error(`Error enabling annotations for ${chartName}:`, error);
+            }
+        }
+    }
+
+    /**
+     * Enable annotations on all charts
+     */
+    async enableAllAnnotations() {
+        const chartNames = Object.keys(this.charts);
+        for (const chartName of chartNames) {
+            await this.enableAnnotations(chartName);
+        }
+    }
+
+    /**
+     * Handle chart click for annotation
+     * @param {string} chartName - Name of the chart
+     * @param {object} dataPoint - Data point that was clicked
+     * @param {MouseEvent} event - Mouse event
+     */
+    handleChartClickForAnnotation(chartName, dataPoint, event) {
+        const chartTypeMap = {
+            'trend': 'gcode_trend',
+            'planetary': 'planetary',
+            'element': 'element',
+            'forecast': 'forecast',
+            'network': 'network'
+        };
+
+        const chartType = chartTypeMap[chartName];
+        if (!chartType || !window.annotationUI) {
+            return;
+        }
+
+        // Show context menu
+        window.annotationUI.showContextMenu(
+            event.target,
+            chartType,
+            dataPoint,
+            event.clientX,
+            event.clientY
+        );
+    }
 }
 
 // Export for global use

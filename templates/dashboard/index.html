@@ -219,6 +219,7 @@
         }
     }
 </style>
+<link rel="stylesheet" href="{% static 'css/components/annotations.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -584,6 +585,10 @@
 <!-- WebSocket Components -->
 <script src="{% static 'js/components/websocket/dashboard-client.js' %}"></script>
 
+<!-- Annotation Components -->
+<script src="{% static 'js/components/annotations/annotation-manager.js' %}"></script>
+<script src="{% static 'js/components/annotations/annotation-ui.js' %}"></script>
+
 <script>
 // Dashboard JavaScript
 document.addEventListener('DOMContentLoaded', async function() {
@@ -640,6 +645,25 @@ document.addEventListener('DOMContentLoaded', async function() {
         // Initialize WebSocket for real-time updates
         if (window.initDashboardWebSocket) {
             initDashboardWebSocket();
+        }
+
+        // Initialize Annotation system
+        if (window.annotationUI && window.annotationManager) {
+            // Preload annotations for all chart types
+            const chartTypes = ['gcode_trend', 'planetary', 'element', 'forecast', 'network'];
+            for (const chartType of chartTypes) {
+                try {
+                    await window.annotationManager.preloadAnnotations(chartType);
+                } catch (error) {
+                    console.warn(`Failed to preload annotations for ${chartType}:`, error);
+                }
+            }
+            console.log('✓ Annotation system initialized');
+
+            // Enable annotations on all charts
+            if (window.chartManager) {
+                await window.chartManager.enableAllAnnotations();
+            }
         }
 
     } catch (error) {

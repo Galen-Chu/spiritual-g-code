@@ -1,0 +1,411 @@
+/**
+ * Annotation Components Styles
+ * Terminal-chic theme for annotation modals, tooltips, and markers
+ */
+
+/* ============================================
+   Annotation Modal
+============================================ */
+
+.annotation-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.2s ease-in;
+}
+
+.annotation-modal-content {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    animation: slideDown 0.3s ease-out;
+}
+
+.annotation-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #30363d;
+}
+
+.annotation-modal-header h3 {
+    margin: 0;
+    color: #c9d1d9;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.annotation-modal-close {
+    background: none;
+    border: none;
+    color: #8b949e;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.annotation-modal-close:hover {
+    background: #21262d;
+    color: #c9d1d9;
+}
+
+.annotation-modal-body {
+    padding: 20px;
+}
+
+.annotation-data-point-info {
+    background: #0D1117;
+    border: 1px solid #30363d;
+    border-radius: 4px;
+    padding: 12px;
+    margin-bottom: 16px;
+    color: #00FF41;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+}
+
+#annotation-note-input {
+    width: 100%;
+    background: #0D1117;
+    border: 1px solid #30363d;
+    border-radius: 4px;
+    color: #c9d1d9;
+    padding: 12px;
+    font-family: inherit;
+    font-size: 14px;
+    resize: vertical;
+    min-height: 100px;
+    transition: border-color 0.2s;
+}
+
+#annotation-note-input:focus {
+    outline: none;
+    border-color: #00FF41;
+    box-shadow: 0 0 0 3px rgba(0, 255, 65, 0.1);
+}
+
+.annotation-char-count {
+    text-align: right;
+    color: #8b949e;
+    font-size: 12px;
+    margin-top: 8px;
+}
+
+.annotation-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 16px 20px;
+    border-top: 1px solid #30363d;
+}
+
+.annotation-btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid;
+}
+
+.annotation-btn-cancel {
+    background: #21262d;
+    border-color: #30363d;
+    color: #c9d1d9;
+}
+
+.annotation-btn-cancel:hover {
+    background: #30363d;
+    border-color: #8b949e;
+}
+
+.annotation-btn-save {
+    background: rgba(0, 255, 65, 0.1);
+    border-color: rgba(0, 255, 65, 0.3);
+    color: #00FF41;
+}
+
+.annotation-btn-save:hover {
+    background: rgba(0, 255, 65, 0.2);
+    border-color: #00FF41;
+}
+
+/* ============================================
+   Annotation Markers on Charts
+============================================ */
+
+.annotation-marker {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: #00FF41;
+    border: 2px solid #0D1117;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 100;
+    animation: markerPulse 2s infinite;
+    pointer-events: auto;
+}
+
+.annotation-marker:hover {
+    transform: scale(1.3);
+    box-shadow: 0 0 8px #00FF41;
+}
+
+/* ============================================
+   Annotation Tooltip
+============================================ */
+
+.annotation-tooltip {
+    position: fixed;
+    background: #161b22;
+    border: 1px solid #00FF41;
+    border-radius: 6px;
+    padding: 12px;
+    max-width: 300px;
+    z-index: 2000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    animation: tooltipFadeIn 0.2s ease-out;
+}
+
+.annotation-tooltip-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #30363d;
+}
+
+.annotation-tooltip-header button {
+    background: none;
+    border: none;
+    color: #8b949e;
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    padding: 0 4px;
+}
+
+.annotation-tooltip-header button:hover {
+    color: #c9d1d9;
+}
+
+.annotation-tooltip-body {
+    color: #c9d1d9;
+    font-size: 14px;
+}
+
+.annotation-tooltip-body p {
+    margin: 0 0 8px 0;
+    line-height: 1.5;
+}
+
+.annotation-tooltip-date {
+    color: #8b949e;
+    font-size: 12px;
+}
+
+/* ============================================
+   Annotation Context Menu
+============================================ */
+
+.annotation-context-menu {
+    position: fixed;
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 4px 0;
+    min-width: 180px;
+    z-index: 1500;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    animation: menuFadeIn 0.1s ease-out;
+}
+
+.context-menu-item {
+    padding: 8px 16px;
+    color: #c9d1d9;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.1s;
+}
+
+.context-menu-item:hover {
+    background: #21262d;
+}
+
+.context-menu-danger {
+    color: #ff6b6b;
+}
+
+.context-menu-danger:hover {
+    background: rgba(255, 107, 107, 0.1);
+}
+
+/* ============================================
+   Annotation Summary Panel
+============================================ */
+
+.annotation-summary {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 16px;
+    margin-top: 16px;
+}
+
+.annotation-summary h4 {
+    margin: 0 0 12px 0;
+    color: #00FF41;
+    font-size: 16px;
+}
+
+.annotation-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.annotation-summary-item {
+    background: #0D1117;
+    border: 1px solid #21262d;
+    border-radius: 4px;
+    padding: 12px;
+    margin-bottom: 8px;
+}
+
+.annotation-summary-item:last-child {
+    margin-bottom: 0;
+}
+
+.annotation-summary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.annotation-summary-header strong {
+    color: #00FF41;
+    font-size: 13px;
+    font-family: 'Courier New', monospace;
+}
+
+.annotation-summary-header small {
+    color: #8b949e;
+    font-size: 12px;
+}
+
+.annotation-summary-item p {
+    margin: 0;
+    color: #c9d1d9;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.no-annotations {
+    color: #8b949e;
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+}
+
+.error {
+    color: #ff6b6b;
+    font-style: italic;
+}
+
+/* ============================================
+   Animations
+============================================ */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes markerPulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(0, 255, 65, 0.7);
+    }
+    50% {
+        box-shadow: 0 0 0 6px rgba(0, 255, 65, 0);
+    }
+}
+
+@keyframes tooltipFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes menuFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* ============================================
+   Responsive Design
+============================================ */
+
+@media (max-width: 600px) {
+    .annotation-modal-content {
+        width: 95%;
+        max-width: none;
+    }
+
+    .annotation-modal-header,
+    .annotation-modal-body,
+    .annotation-modal-footer {
+        padding: 16px;
+    }
+
+    .annotation-tooltip {
+        max-width: 250px;
+    }
+}
