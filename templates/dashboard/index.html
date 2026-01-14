@@ -141,6 +141,183 @@
         }
     }
 
+    /* Comparison Mode Styles */
+    .comparison-controls {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #30363d;
+    }
+
+    .comparison-date-ranges {
+        margin-top: 1rem;
+        padding: 1rem;
+        background: #0D1117;
+        border: 1px solid #30363d;
+        border-radius: 6px;
+    }
+
+    .comparison-date-input {
+        background: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 4px;
+        color: #c9d1d9;
+        padding: 6px 10px;
+        font-size: 13px;
+        flex: 1;
+    }
+
+    .comparison-date-input:focus {
+        outline: none;
+        border-color: #00FF41;
+        box-shadow: 0 0 0 3px rgba(0, 255, 65, 0.1);
+    }
+
+    .comparison-actions {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .comparison-wrapper {
+        margin-bottom: 1.5rem;
+    }
+
+    .comparison-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .comparison-header h3 {
+        color: #00FF41;
+        margin: 0;
+        font-size: 1.25rem;
+    }
+
+    .comparison-periods {
+        display: flex;
+        gap: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .period-label {
+        color: #8B949E;
+        font-size: 0.875rem;
+    }
+
+    .period-label strong {
+        color: #c9d1d9;
+    }
+
+    .period-date {
+        color: #00FF41;
+        font-family: 'Courier New', monospace;
+    }
+
+    .comparison-charts {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .comparison-chart {
+        background: #0D1117;
+        border: 1px solid #30363d;
+        border-radius: 8px;
+        padding: 1rem;
+    }
+
+    .comparison-chart-title {
+        color: #c9d1d9;
+        font-size: 0.875rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        text-align: center;
+    }
+
+    .comparison-statistics {
+        margin-bottom: 1.5rem;
+    }
+
+    .comparison-statistics h3 {
+        color: #00FF41;
+        margin-bottom: 1rem;
+    }
+
+    .statistics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        align-items: start;
+    }
+
+    .stat-group {
+        padding: 1rem;
+        background: #0D1117;
+        border: 1px solid #30363d;
+        border-radius: 6px;
+    }
+
+    .stat-group h4 {
+        color: #58A6FF;
+        margin: 0 0 1rem 0;
+        font-size: 1rem;
+    }
+
+    .stat-label {
+        color: #8B949E;
+        font-size: 0.75rem;
+        margin: 0.5rem 0 0.25rem 0;
+    }
+
+    .stat-value {
+        color: #c9d1d9;
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin: 0 0 1rem 0;
+        font-family: 'Courier New', monospace;
+    }
+
+    .stat-divider {
+        width: 1px;
+        background: #30363d;
+        align-self: stretch;
+    }
+
+    .stat-diff {
+        background: rgba(0, 255, 65, 0.05);
+        border-color: #00FF41;
+    }
+
+    .text-gcode-green {
+        color: #00FF41 !important;
+    }
+
+    .text-red-500 {
+        color: #FF5A5F !important;
+    }
+
+    .text-yellow-500 {
+        color: #F4D03F !important;
+    }
+
+    .text-blue-500 {
+        color: #58A6FF !important;
+    }
+
+    .text-gray-400 {
+        color: #8B949E !important;
+    }
+
+    .chart-error {
+        color: #FF5A5F;
+        text-align: center;
+        padding: 2rem;
+        font-size: 0.875rem;
+    }
+
     /* Mobile optimizations */
     @media (max-width: 768px) {
         .chart-action-btn {
@@ -588,6 +765,10 @@
 <!-- Annotation Components -->
 <script src="{% static 'js/components/annotations/annotation-manager.js' %}"></script>
 <script src="{% static 'js/components/annotations/annotation-ui.js' %}"></script>
+
+<!-- Comparison Components -->
+<script src="{% static 'js/components/comparison/date-range-picker.js' %}"></script>
+<script src="{% static 'js/components/comparison/chart-comparator.js' %}"></script>
 
 <script>
 // Dashboard JavaScript

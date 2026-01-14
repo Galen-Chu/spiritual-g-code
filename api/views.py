@@ -428,25 +428,66 @@ class DashboardChartsView(APIView):
         """Get data for dashboard charts."""
         chart_type = request.query_params.get('type', 'all')
 
+        # Get custom date range parameters
+        start_date_param = request.query_params.get('start_date')
+        end_date_param = request.query_params.get('end_date')
+
+        # Parse date range if provided
+        custom_start_date = None
+        custom_end_date = None
+
+        if start_date_param:
+            try:
+                custom_start_date = datetime.strptime(start_date_param, '%Y-%m-%d').date()
+            except ValueError:
+                return Response(
+                    {'error': 'Invalid start_date format. Use YYYY-MM-DD.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+        if end_date_param:
+            try:
+                custom_end_date = datetime.strptime(end_date_param, '%Y-%m-%d').date()
+            except ValueError:
+                return Response(
+                    {'error': 'Invalid end_date format. Use YYYY-MM-DD.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+        # Validate date range
+        if custom_start_date and custom_end_date:
+            if custom_start_date > custom_end_date:
+                return Response(
+                    {'error': 'start_date must be before or equal to end_date.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
         data = {}
 
         # ========================================
         # 1. G-Code 7-Day Trend Chart
         # ========================================
         if chart_type in ['all', 'gcode_trend_7d']:
-            # Last 7 days of G-Code scores
-            start_date = date.today() - timedelta(days=6)
+            # Use custom date range or default to last 7 days
+            if custom_start_date and custom_end_date:
+                start_date = custom_start_date
+                end_date = custom_end_date
+            else:
+                end_date = date.today()
+                start_date = end_date - timedelta(days=6)
+
             transits = DailyTransit.objects.filter(
                 user=request.user,
-                transit_date__gte=start_date
+                transit_date__gte=start_date,
+                transit_date__lte=end_date
             ).order_by('transit_date')
 
-            # Generate data for any missing dates
+            # Generate data for all dates in range
             trend_data = []
             current_date = start_date
             transit_dict = {t.transit_date: t for t in transits}
 
-            for i in range(7):
+            while current_date <= end_date:
                 if current_date in transit_dict:
                     t = transit_dict[current_date]
                     trend_data.append({
@@ -547,7 +588,7 @@ class DashboardChartsView(APIView):
         # 4. Weekly Forecast Chart
         # ========================================
         if chart_type in ['all', 'weekly_forecast']:
-            # Next 7 days forecast
+            # Use custom date range or default to next 7 days
             forecast_data = []
             calculator = MockGCodeCalculator()
 
@@ -556,17 +597,27 @@ class DashboardChartsView(APIView):
             except NatalChart.DoesNotExist:
                 natal = None
 
-            for i in range(7):
-                future_date = date.today() + timedelta(days=i+1)
+            # Determine forecast date range
+            if custom_start_date and custom_end_date:
+                # Use custom date range
+                forecast_start = custom_start_date
+                forecast_end = custom_end_date
+            else:
+                # Default to next 7 days
+                forecast_start = date.today() + timedelta(days=1)
+                forecast_end = date.today() + timedelta(days=7)
 
+            # Generate forecast for all dates in range
+            current_date = forecast_start
+            while current_date <= forecast_end:
                 # Try to get existing transit data
                 try:
                     transit = DailyTransit.objects.get(
                         user=request.user,
-                        transit_date=future_date
+                        transit_date=current_date
                     )
                     forecast_data.append({
-                        'date': future_date.isoformat(),
+                        'date': current_date.isoformat(),
                         'score': transit.g_code_score,
                         'intensity': transit.intensity_level,
                         'themes': transit.themes or []
@@ -578,7 +629,7 @@ class DashboardChartsView(APIView):
                             birth_date=request.user.birth_date,
                             birth_time=request.user.birth_time.strftime('%H:%M') if request.user.birth_time else None,
                             birth_location=request.user.birth_location,
-                            target_date=future_date
+                            target_date=current_date
                         )
                         score = calculator.calculate_g_code_intensity(
                             transit_data=mock_transit['planets'],
@@ -590,18 +641,20 @@ class DashboardChartsView(APIView):
                         themes = self._generate_themes_from_aspects(mock_transit['aspects'][:3])
 
                         forecast_data.append({
-                            'date': future_date.isoformat(),
+                            'date': current_date.isoformat(),
                             'score': score,
                             'intensity': intensity,
                             'themes': themes
                         })
                     else:
                         forecast_data.append({
-                            'date': future_date.isoformat(),
+                            'date': current_date.isoformat(),
                             'score': 50,
                             'intensity': 'medium',
                             'themes': ['#Growth', '#Alignment']
                         })
+
+                current_date += timedelta(days=1)
 
             data['weekly_forecast'] = forecast_data
 
