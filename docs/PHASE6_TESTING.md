@@ -636,6 +636,336 @@ from datetime import date, datetime, timedelta
 - ✅ Terminal-Chic 樣式主題
 - ✅ Bug 修復（datetime 導入）
 
+---
+
+## 🚀 Phase 6 MVP.4: Natal Wheel with D3.js (已完成! - 2026-01-14)
+
+**執行時間**: 2026-01-14
+**Phase 類型**: Advanced Features - Visualization
+**狀態**: ✅ 已完成並測試
+
+### 📋 Phase 6 MVP.4 執行紀要
+
+| # | 任務項目 | 狀態 | 完成時間 | 備註 |
+|---|---------|------|----------|------|
+| 1 | 實現 Placidus 房屋計算 | ✅ 完成 | 2026-01-14 | mock_calculator.py +200 lines |
+| 2 | 實現 Equal House 後備系統 | ✅ 完成 | 2026-01-14 | 30° 等分房屋 |
+| 3 | 實現 Natal Wheel Data 計算 | ✅ 完成 | 2026-01-14 | 行星、房屋、相位、符號 |
+| 4 | 創建 NatalWheelView API | ✅ 完成 | 2026-01-14 | api/views.py +40 lines |
+| 5 | 創建 D3WheelRenderer 類 | ✅ 完成 | 2026-01-14 | 518 lines JavaScript |
+| 6 | 創建 Wheel 頁面模板 | ✅ 完成 | 2026-01-14 | wheel.html 412 lines |
+| 7 | 配置 URL 路由 | ✅ 完成 | 2026-01-14 | /natal/wheel/ |
+| 8 | Dashboard 整合 | ✅ 完成 | 2026-01-14 | "View Natal Wheel" 按鈕 |
+| 9 | 全面測試 | ✅ 完成 | 2026-01-14 | 8/8 tests passed |
+
+### 🗂️ 創建的文件結構
+
+```
+ai_engine/
+└── mock_calculator.py             (修改) - Placidus 計算 (+200 lines)
+
+api/
+├── views.py                        (修改) - NatalWheelView (+40 lines)
+├── urls.py                        (修改) - API 路由 (+2 lines)
+└── views_html.py                  (修改) - wheel_view (+7 lines)
+
+static/js/components/wheel/
+└── d3-wheel-renderer.js           (新增) - D3.js 渲染器 (518 lines)
+
+templates/natal/
+└── wheel.html                      (新增) - Wheel 頁面 (412 lines)
+
+core/
+└── urls.py                        (修改) - URL 路由 (+2 lines)
+
+templates/dashboard/
+└── index.html                      (修改) - Dashboard 連結 (+8 lines)
+
+test_mvp4.py                        (新增) - 測試套件 (362 lines)
+NATAL_WHEEL_TEST_REPORT.md          (新增) - 測試報告
+```
+
+### 🔧 技術實現細節
+
+#### 1. Placidus 房屋計算 (ai_engine/mock_calculator.py)
+
+**新增方法**:
+```python
+def calculate_placidus_houses(
+    self,
+    birth_date: date,
+    birth_time: Optional[str] = None,
+    birth_location: str = 'Unknown',
+    timezone: str = 'UTC'
+) -> Dict:
+    """
+    計算 Placidus 房屋（簡化近似算法）。
+    返回具有不同大小（20-40度）的房屋 - Placidus 特徵。
+    """
+    # 計算上升點
+    ascendant_sign = self._calculate_ascendant(birth_date, birth_time, seed)
+    ascendant_degree = (seed * 30) % 30
+    ascendant_longitude = zodiac_signs.index(ascendant_sign) * 30 + ascendant_degree
+
+    # 計算 MC（中天）
+    mc_longitude = (ascendant_longitude + 90 + seed * 10) % 360
+
+    # 計算房屋大小（Placidus 變化）
+    house_sizes = self._calculate_placidus_house_sizes(
+        ascendant_longitude, mc_longitude, seed
+    )
+
+    # 生成 12 個房屋
+    for i in range(1, 13):
+        # 每個房屋大小不同（20-40度）
+        # 房屋 1 = 上升點
+        # ...
+    return houses
+
+def _calculate_equal_houses(self, ...) -> Dict:
+    """後備系統：等分房屋（每個 30°）"""
+    # 當 Placidus 計算失敗時使用
+```
+
+**特點**:
+- ✅ 房屋大小變化（20-40 度）- Placidus 特徵
+- ✅ 基於上升點的房屋 1
+- ✅ MC（中天）計算
+- ✅ Equal House 後備系統（每個 30°）
+
+#### 2. D3.js 輪渲染器 (static/js/components/wheel/d3-wheel-renderer.js)
+
+**核心類**:
+```javascript
+class D3WheelRenderer {
+    constructor(containerId, options = {}) {
+        this.width = 700;
+        this.height = 700;
+        this.radius = Math.min(this.width, this.height) / 2 - 50;
+
+        // Terminal-Chic 顏色
+        this.colors = {
+            fire: '#FF6B6B',      // 火：Aries, Leo, Sagittarius
+            earth: '#4ECDC4',     // 土：Taurus, Virgo, Capricorn
+            air: '#95E1D3',       // 風：Gemini, Libra, Aquarius
+            water: '#45B7D1',     // 水：Cancer, Scorpio, Pisces
+            house: '#00FF41',     // 房屋線（綠色）
+            aspect: {
+                conjunction: '#FFD93D',   // 合相（黃色）
+                sextile: '#4ECDC4',       // 六分相（青色）
+                square: '#FF6B6B',        # 四分相（珊瑚色）
+                trine: '#00FF41',         # 三分相（綠色）
+                opposition: '#FF5A5F'     # 對分相（紅色）
+            }
+        };
+    }
+
+    render(wheelData) {
+        // 1. 繪製黃道帶輪（12 個星座）
+        this.drawZodiacWheel();
+
+        // 2. 繪製房屋線
+        this.drawHouses();
+
+        // 3. 繪製行星
+        this.drawPlanets();
+
+        // 4. 繪製相位線
+        this.drawAspects();
+
+        // 5. 繪製中心信息
+        this.drawCenter();
+    }
+
+    drawZodiacWheel() {
+        // 12 個 30° 的扇形
+        // 按元素著色
+        // 顯示星座符號
+    }
+
+    drawPlanets() {
+        // 根據黃經度定位
+        // angle = (longitude - 90) * (π / 180)
+        // x = r * cos(angle)
+        // y = r * sin(angle)
+    }
+
+    drawAspects() {
+        // 連接相位行星對
+        // 顏色編碼相位類型
+        // 虛線樣式區分
+    }
+
+    exportAsPNG() {
+        // 導出為 PNG
+    }
+
+    exportAsSVG() {
+        // 導出為 SVG
+    }
+}
+```
+
+**渲染方法**:
+- ✅ `drawZodiacWheel()` - 12 星座扇形，元素顏色編碼
+- ✅ `drawHouses()` - 房屋線（綠色虛線）
+- ✅ `drawPlanets()` - 10 個行星符號定位
+- ✅ `drawAspects()` - 5 種相位線顏色編碼
+- ✅ `drawCenter()` - Sun/Moon/Ascendant 顯示
+- ✅ `exportAsPNG()` / `exportAsSVG()` - 導出功能
+
+#### 3. API 端點 (api/views.py)
+
+**NatalWheelView**:
+```python
+class NatalWheelView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        """獲取 natal wheel 數據"""
+        # 1. 獲取用戶的 natal chart
+        # 2. 計算 wheel 數據
+        # 3. 返回 JSON（planets, houses, aspects, symbols）
+```
+
+**API 端點**:
+```
+GET /api/natal/wheel/
+Authentication: JWT Bearer Token
+Response: {
+    "planets": {...},
+    "planet_symbols": {...},
+    "houses": {...},
+    "aspects": [...],
+    "zodiac_symbols": {...},
+    "ascendant": "...",
+    "sun_sign": "...",
+    "moon_sign": "..."
+}
+```
+
+#### 4. Wheel 頁面 (templates/natal/wheel.html)
+
+**組件**:
+- ✅ 加載狀態（spinner + "Calculating natal wheel..."）
+- ✅ 錯誤狀態（錯誤消息 + 重試按鈕）
+- ✅ 控制按鈕（導出 PNG、導出 SVG、刷新）
+- ✅ 圖例（元素、相位、房屋、行星）
+- ✅ 快速解釋部分
+- ✅ 返回 Dashboard 連結
+- ✅ D3.js v7 CDN 集成
+
+### 📊 測試結果
+
+#### 測試套件 (test_mvp4.py)
+
+| 測試類別 | 總測試 | 通過 | 失敗 | 通過率 |
+|----------|--------|------|------|--------|
+| 後端計算 | 3 | 3 | 0 | 100% |
+| 數據完整性 | 1 | 1 | 0 | 100% |
+| JavaScript 組件 | 1 | 1 | 0 | 100% |
+| 模板文件 | 1 | 1 | 0 | 100% |
+| URL 路由 | 1 | 1 | 0 | 100% |
+| API 配置 | 1 | 1 | 0 | 100% |
+| **總計** | **8** | **8** | **0** | **100%** |
+
+#### 測試案例
+1. ✅ Placidus 房屋計算 - 12 個房屋，大小變化（20-40°）
+2. ✅ Equal House 後備 - 30° 等分，正確運行
+3. ✅ Natal Wheel 數據 - 所有 8 個必需字段存在
+4. ✅ JavaScript 文件 - d3-wheel-renderer.js (518 lines)
+5. ✅ 模板文件 - 所有組件存在
+6. ✅ URL 路由 - wheel_view 和路由配置
+7. ✅ API 端點 - NatalWheelView 實現
+
+**數據驗證**:
+- ✅ 10 個行星計算（Sun, Moon, Mercury, Venus, Mars, Jupiter, Saturn, Uranus, Neptune, Pluto）
+- ✅ 12 個星座符號
+- ✅ 19 個相位（5 種類型）
+- ✅ 12 個 Placidus 房屋
+- ✅ Unicode 符號正確渲染
+
+### 📊 Phase 6 MVP.4 成果統計
+
+**代碼量**:
+- 新增 Python: ~251 lines
+  - mock_calculator.py: +200 lines (Placidus 計算)
+  - api/views.py: +40 lines (NatalWheelView)
+  - api/urls.py: +2 lines
+  - api/views_html.py: +7 lines
+  - core/urls.py: +2 lines
+
+- 新增 JavaScript: 518 lines
+  - d3-wheel-renderer.js: 518 lines
+
+- 新增 HTML: 412 lines
+  - wheel.html: 412 lines
+
+- 修改 HTML: 8 lines
+  - dashboard/index.html: +8 lines (wheel link)
+
+- 測試代碼: 362 lines
+  - test_mvp4.py: 362 lines
+
+**總計**: ~1,181 lines (Python + JavaScript + HTML + 測試)
+
+**功能實現**:
+- ✅ Placidus 房屋計算（簡化算法）
+- ✅ Equal House 後備系統
+- ✅ D3.js 圓形黃道帶輪
+- ✅ 12 星座扇形（元素顏色編碼）
+- ✅ 10 個行星定位（符號 + 黃經度）
+- ✅ 19 條相位線（5 種類型）
+- ✅ 12 條房屋線（Placidus 大小）
+- ✅ 交互式懸停提示
+- ✅ 導出功能（PNG/SVG）
+- ✅ Terminal-Chic 暗色主題
+- ✅ API 端點（JWT 認證）
+- ✅ Dashboard 整合
+
+### 🎨 Terminal-Chic 配色方案
+
+**黃道帶元素**:
+- 🔥 火象星座：#FF6B6B (Aries, Leo, Sagittarius)
+- 🌍 土象星座：#4ECDC4 (Taurus, Virgo, Capricorn)
+- 💨 風象星座：#95E1D3 (Gemini, Libra, Aquarius)
+- 💧 水象星座：#45B7D1 (Cancer, Scorpio, Pisces)
+
+**相位線**:
+- Conjunction (0°): #FFD93D (黃色)
+- Sextile (60°): #4ECDC4 (青色)
+- Square (90°): #FF6B6B (珊瑚色)
+- Trine (120°): #00FF41 (綠色)
+- Opposition (180°): #FF5A5F (紅色)
+
+**輪組件**:
+- 背景：#0D1117 (深色)
+- 邊框：#30363d (灰色)
+- 房屋線：#00FF41 (綠色，虛線)
+- 文字：#E6EDF3 (淺灰色)
+
+### ⚠️ 已知限制
+
+1. **簡化 Placidus 計算**：使用近似算法
+   - 生產環境：應使用 pyswiss 或 swisseph 提高精度
+   - 當前：基於出生數據種子的確定性算法
+
+2. **無縮放/平移**：靜態輪大小（700x700）
+   - 增強：添加縮放/平移交互
+   - 增強：觸摸手勢移動支持
+
+3. **無 Transit Overlay**：僅顯示 natal 位置
+   - 增強：添加 transit overlay 切換
+   - 增強：顯示當前行星位置
+
+4. **有限的相位過濾**：顯示所有相位
+   - 增強：添加相位類型過濾器
+   - 增強：按 orb 距離切換
+
+5. **無相位 Orb**：固定 8 度 orb
+   - 增強：可調整 orb 設置
+   - 增強：每種相位類型的自定義 orb
+
 ### 🚀 Phase 6 整體進度
 
 #### 已完成 ✅
@@ -643,14 +973,18 @@ from datetime import date, datetime, timedelta
 - **MVP.2**: Chart Annotations (2026-01-14)
 - **MVP.3**: Date Range Comparison (2026-01-14)
 
-#### 待完成 ⏳
-- **MVP.4**: Natal Wheel with D3.js
+#### 已完成 ✅
+- **MVP.1**: WebSocket Infrastructure (2026-01-13)
+- **MVP.2**: Chart Annotations (2026-01-14)
+- **MVP.3**: Date Range Comparison (2026-01-14)
+- **MVP.4**: Natal Wheel with D3.js (2026-01-14)
 
 ---
 
-**文檔版本**: 6.1
-**最後更新**: 2026-01-14 14:00
+**文檔版本**: 6.2
+**最後更新**: 2026-01-14 18:00
 **Phase 6 MVP.1 狀態**: ✅ 已完成
 **Phase 6 MVP.2 狀態**: ✅ 已完成
 **Phase 6 MVP.3 狀態**: ✅ 已完成並測試
-**下次審查**: Phase 6 MVP.4 完成後
+**Phase 6 MVP.4 狀態**: ✅ 已完成並測試
+**Phase 6 整體狀態**: ✅ 100% 完成
