@@ -187,7 +187,7 @@ open http://localhost:8000
 
 - [**Brand Story**](./docs/BRAND_STORY.md) - The philosophy and vision behind G-Code
 - [**Technical Architecture**](./docs/TECHNICAL_ARCHITECTURE.md) - System design and implementation details
-- [**Testing Record**](./docs/TESTING_RECORD.md) - Complete testing record and execution notes (✅ Updated 2026-01-12 - Phase 4 Complete)
+- [**Testing Record**](./docs/TESTING_RECORD.md) - Complete testing record and execution notes (✅ Updated 2026-01-14 - Phase 6 MVP.2 Complete)
 - [**Troubleshooting Guide**](./docs/TROUBLESHOOTING.md) - Common issues and solutions for development setup
 - [**API Documentation**](./docs/API.md) - (Coming Soon) Complete API reference
 - [**User Guide**](./docs/USER_GUIDE.md) - (Coming Soon) How to use the platform
@@ -424,12 +424,39 @@ pytest --integration
 - Mobile-responsive customization controls
 - All features fully functional across desktop and mobile
 
-### 🚀 Phase 6: Advanced Features (Next Phase)
-- [ ] **Real-time updates** - WebSocket for live data
+### 🚧 Phase 6: Advanced Features (In Progress - 2026-01-14)
+
+#### MVP.1: WebSocket Infrastructure ✅ (Completed 2026-01-13)
+- ✅ Django Channels 4.0.0 installed
+- ✅ ASGI application configured
+- ✅ WebSocket consumer created
+- ✅ Dashboard WebSocket client (JavaScript)
+- ✅ Connection status indicator
+- ✅ Auto-reconnect mechanism
+
+#### MVP.2: Chart Annotations ✅ (Completed 2026-01-14)
+- ✅ ChartAnnotation data model
+- ✅ RESTful API endpoints (CRUD)
+- ✅ Frontend annotation manager
+- ✅ Annotation UI (modal, tooltips, context menu)
+- ✅ Visual markers on charts
+- ✅ Cache mechanism
+
+#### MVP.3: Date Range Comparison (Next)
+- [ ] Side-by-side chart comparison
+- [ ] Statistics panel (avg, min, max)
+- [ ] Custom date range inputs
+- [ ] Comparison mode toggle
+
+#### MVP.4: Natal Wheel with D3.js
+- [ ] D3.js circular zodiac wheel
+- [ ] Placidus house calculation
+- [ ] Planet positioning
+- [ ] Aspect lines
+
+#### Future Enhancements
 - [ ] **PDF Reports** - Generate downloadable PDF reports
 - [ ] **CSV Export** - Export raw data as CSV
-- [ ] **Advanced natal chart display** - Visual wheel with aspects
-- [ ] **Chart comparison** - Side-by-side date range comparison
 - [ ] **Mobile app** - React Native or PWA
 - [ ] Multi-language support - Chinese, Spanish, etc.
 - [ ] Community features - Share, Comment, Like
@@ -444,7 +471,7 @@ pytest --integration
 
 ---
 
-## 📊 Current Status (2026-01-13)
+## 📊 Current Status (2026-01-14)
 
 **Server**: ✅ Running at http://127.0.0.1:8000
 **Database**: SQLite (Development)
@@ -464,16 +491,20 @@ pytest --integration
 - ✅ Chart Refresh: Manual and auto-refresh working
 - ✅ Customization: Date range and chart toggle working
 - ✅ Mobile Optimization: Touch-friendly and responsive
+- ✅ WebSocket Infrastructure: Real-time updates ready (NEW!)
+- ✅ Chart Annotations: User notes on data points (NEW!)
 
-**Latest Achievement**: Phase 5 Chart Enhancements Complete
+**Latest Achievement**: Phase 6 MVP.2 Complete
+- WebSocket Infrastructure ✅ (NEW!)
+- Chart Annotations ✅ (NEW!)
 - G-Code 7-Day Trend Chart ✅
 - Planetary Positions Chart ✅
 - Element Distribution Chart ✅
 - Weekly Forecast Chart ✅
 - Planetary Aspects Network Chart ✅
-- Chart Export (PNG/SVG) ✅ (NEW!)
-- Auto-Refresh Timer ✅ (NEW!)
-- Date Range Picker ✅ (NEW!)
+- Chart Export (PNG/SVG) ✅
+- Auto-Refresh Timer ✅
+- Date Range Picker ✅
 - Chart Visibility Toggle ✅ (NEW!)
 - Mobile Optimization ✅ (NEW!)
 
