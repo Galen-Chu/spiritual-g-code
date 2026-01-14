@@ -18,6 +18,7 @@ from drf_spectacular.views import (
 from api.views_html import (
     dashboard_view,
     natal_view,
+    wheel_view,
     content_view,
     settings_view,
     login_view,
@@ -33,6 +34,7 @@ urlpatterns = [
     # Frontend Pages
     path('', dashboard_view, name='dashboard'),
     path('natal/', natal_view, name='natal'),
+    path('natal/wheel/', wheel_view, name='wheel'),
     path('content/', content_view, name='content'),
     path('settings/', settings_view, name='settings'),
     path('auth/login/', login_view, name='login'),

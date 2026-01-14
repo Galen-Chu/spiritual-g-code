@@ -368,6 +368,200 @@ class MockGCodeCalculator:
 
         return aspects
 
+    def calculate_placidus_houses(
+        self,
+        birth_date: date,
+        birth_time: Optional[str] = None,
+        birth_location: str = 'Unknown',
+        timezone: str = 'UTC'
+    ) -> Dict:
+        """
+        Calculate Placidus house cusps (simplified approximation for MVP).
+
+        Args:
+            birth_date: User's birth date
+            birth_time: User's birth time (optional)
+            birth_location: Birth location
+            timezone: Timezone
+
+        Returns:
+            Dictionary with house cusp positions
+        """
+        try:
+            # Create seed for consistency
+            seed = self._create_seed(birth_date, birth_time, birth_location)
+
+            # Calculate ascendant
+            ascendant_sign = self._calculate_ascendant(birth_date, birth_time, seed)
+            ascendant_degree = (seed * 30) % 30  # Simplified degree calculation
+
+            # Convert sign to degree offset
+            sign_degrees = self.zodiac_signs.index(ascendant_sign) * 30
+            ascendant_longitude = sign_degrees + ascendant_degree
+
+            # Calculate MC (Medium Coeli) - simplified
+            mc_longitude = (ascendant_longitude + 90 + seed * 10) % 360
+
+            # Calculate house sizes
+            house_sizes = self._calculate_placidus_house_sizes(ascendant_longitude, mc_longitude, seed)
+
+            # Calculate house cusps
+            houses = {}
+            current_longitude = ascendant_longitude
+
+            for i in range(1, 13):
+                house_size = house_sizes[i]
+                cusp_longitude = current_longitude % 360
+
+                # Get sign and degree
+                sign_index = int(cusp_longitude / 30) % 12
+                sign = self.zodiac_signs[sign_index]
+                degree = cusp_longitude % 30
+
+                houses[i] = {
+                    'cusp': round(degree, 2),
+                    'sign': sign,
+                    'longitude': round(cusp_longitude, 2)
+                }
+
+                # Move to next house
+                current_longitude += house_size
+
+            return houses
+
+        except Exception as e:
+            # Fallback to equal houses if calculation fails
+            return self._calculate_equal_houses(birth_date, birth_time, birth_location, timezone)
+
+    def _calculate_placidus_house_sizes(
+        self,
+        ascendant_longitude: float,
+        mc_longitude: float,
+        seed: float
+    ) -> Dict:
+        """Calculate house sizes for Placidus system (simplified)."""
+        base_size = 30
+        variation = (seed - 0.5) * 10  # -5 to +5 degrees variation
+
+        house_sizes = {}
+
+        for i in range(1, 13):
+            if i <= 6:
+                # Vary sizes for houses 1-6
+                if i in [1, 7]:
+                    size = base_size + variation * 0.5  # Angular houses
+                elif i in [4, 10]:
+                    size = base_size + variation * 0.3  # Succedent houses
+                else:
+                    size = base_size + variation * 0.2  # Cadent houses
+            else:
+                # Mirror for houses 7-12
+                size = house_sizes[i - 6]
+
+            # Ensure minimum and maximum sizes
+            size = max(20, min(40, size))
+            house_sizes[i] = size
+
+        return house_sizes
+
+    def _calculate_equal_houses(
+        self,
+        birth_date: date,
+        birth_time: Optional[str] = None,
+        birth_location: str = 'Unknown',
+        timezone: str = 'UTC'
+    ) -> Dict:
+        """Calculate equal house cusps as fallback (30 degrees each)."""
+        seed = self._create_seed(birth_date, birth_time, birth_location)
+        ascendant_sign = self._calculate_ascendant(birth_date, birth_time, seed)
+        ascendant_degree = (seed * 30) % 30
+
+        # Convert to longitude
+        sign_degrees = self.zodiac_signs.index(ascendant_sign) * 30
+        ascendant_longitude = sign_degrees + ascendant_degree
+
+        houses = {}
+        for i in range(1, 13):
+            cusp_longitude = (ascendant_longitude + (i - 1) * 30) % 360
+            sign_index = int(cusp_longitude / 30) % 12
+            sign = self.zodiac_signs[sign_index]
+            degree = cusp_longitude % 30
+
+            houses[i] = {
+                'cusp': round(degree, 2),
+                'sign': sign,
+                'longitude': round(cusp_longitude, 2)
+            }
+
+        return houses
+
+    def calculate_natal_wheel_data(
+        self,
+        birth_date: date,
+        birth_time: Optional[str] = None,
+        birth_location: str = 'Unknown',
+        timezone: str = 'UTC'
+    ) -> Dict:
+        """
+        Calculate complete natal wheel data for D3.js rendering.
+
+        Returns:
+            Dictionary with planets, houses, and aspects
+        """
+        # Calculate natal chart
+        natal_chart = self.calculate_natal_chart(
+            birth_date, birth_time, birth_location, timezone
+        )
+
+        # Calculate houses
+        houses = self.calculate_placidus_houses(
+            birth_date, birth_time, birth_location, timezone
+        )
+
+        # Calculate aspects between planets
+        aspects = self._calculate_aspects(natal_chart['chart_data'])
+
+        # Get planet symbols
+        planet_symbols = {
+            'sun': '☉',
+            'moon': '☽',
+            'mercury': '☿',
+            'venus': '♀',
+            'mars': '♂',
+            'jupiter': '♃',
+            'saturn': '♄',
+            'uranus': '♅',
+            'neptune': '♆',
+            'pluto': '♇'
+        }
+
+        # Get zodiac symbols
+        zodiac_symbols = {
+            'Aries': '♈',
+            'Taurus': '♉',
+            'Gemini': '♊',
+            'Cancer': '♋',
+            'Leo': '♌',
+            'Virgo': '♍',
+            'Libra': '♎',
+            'Scorpio': '♏',
+            'Sagittarius': '♐',
+            'Capricorn': '♑',
+            'Aquarius': '♒',
+            'Pisces': '♓'
+        }
+
+        return {
+            'planets': natal_chart['chart_data'],
+            'planet_symbols': planet_symbols,
+            'houses': houses,
+            'aspects': aspects,
+            'zodiac_symbols': zodiac_symbols,
+            'ascendant': natal_chart['ascendant'],
+            'sun_sign': natal_chart['sun_sign'],
+            'moon_sign': natal_chart['moon_sign']
+        }
+
 
 # Convenience function to get calculator
 def get_calculator():

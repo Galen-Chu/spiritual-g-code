@@ -409,7 +409,12 @@
             </h1>
             <p class="text-gray-400 typing-cursor">Loading cosmic data...</p>
         </div>
-        <div id="ws-status-indicator" class="ws-status ws-disconnected" title="WebSocket connection status">
+        <div class="flex items-center gap-4">
+            <a href="{% url 'wheel' %}" class="global-action-btn" style="text-decoration: none;">
+                🌙 View Natal Wheel
+            </a>
+            <div id="ws-status-indicator" class="ws-status ws-disconnected" title="WebSocket connection status">
+            </div>
         </div>
     </div>
 

@@ -25,6 +25,12 @@ def natal_view(request):
 
 
 @login_required
+def wheel_view(request):
+    """Render natal wheel page."""
+    return render(request, 'natal/wheel.html')
+
+
+@login_required
 def content_view(request):
     """Render content page."""
     return render(request, 'content/index.html')

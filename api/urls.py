@@ -21,6 +21,8 @@ from .views import (
     # Dashboard
     DashboardOverviewView,
     DashboardChartsView,
+    # Natal Wheel
+    NatalWheelView,
     # Health Check
     HealthCheckView,
 )
@@ -41,6 +43,9 @@ urlpatterns = [
     # Dashboard
     path('dashboard/overview/', DashboardOverviewView.as_view(), name='dashboard-overview'),
     path('dashboard/charts/', DashboardChartsView.as_view(), name='dashboard-charts'),
+
+    # Natal Wheel
+    path('natal/wheel/', NatalWheelView.as_view(), name='natal-wheel'),
 
     # ViewSet Routes
     path('', include(router.urls)),

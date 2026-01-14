@@ -1,0 +1,357 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Natal Wheel | Spiritual G-Code{% endblock %}
+
+{% block content %}
+<div class="min-h-screen" style="background-color: #0D1117;">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-white mb-2" style="color: #E6EDF3;">
+                🌙 Natal Wheel
+            </h1>
+            <p class="text-gray-400" style="color: #8B949E;">
+                Traditional circular zodiac wheel with Placidus houses
+            </p>
+        </div>
+
+        <!-- Loading State -->
+        <div id="wheel-loading" class="text-center py-20">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-green-500" style="border-color: #00FF41;"></div>
+            <p class="mt-4 text-gray-400">Calculating natal wheel...</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="wheel-error" class="hidden text-center py-20">
+            <div class="text-6xl mb-4">⚠️</div>
+            <h2 class="text-2xl font-bold text-red-500 mb-2">Error Loading Wheel</h2>
+            <p id="error-message" class="text-gray-400 mb-6"></p>
+            <button onclick="window.location.reload()" class="global-action-btn">
+                Retry
+            </button>
+        </div>
+
+        <!-- Wheel Container -->
+        <div id="wheel-container" class="hidden">
+            <!-- Controls -->
+            <div class="card p-4 mb-6 flex flex-wrap items-center justify-between gap-4" style="background-color: #161b22; border: 1px solid #30363d; border-radius: 8px;">
+                <div class="flex items-center gap-4">
+                    <h2 class="text-lg font-semibold" style="color: #E6EDF3;">Your Natal Wheel</h2>
+                    <div id="wheel-info" class="text-sm text-gray-400" style="color: #8B949E;"></div>
+                </div>
+
+                <div class="flex gap-2">
+                    <button onclick="window.natalWheel.exportAsPNG()" class="global-action-btn">
+                        📷 Export PNG
+                    </button>
+                    <button onclick="window.natalWheel.exportAsSVG()" class="global-action-btn">
+                        📄 Export SVG
+                    </button>
+                    <button onclick="window.natalWheel.refresh()" class="global-action-btn">
+                        🔄 Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Legend -->
+            <div class="card p-4 mb-6" style="background-color: #161b22; border: 1px solid #30363d; border-radius: 8px;">
+                <h3 class="text-md font-semibold mb-3" style="color: #E6EDF3;">Legend</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+                    <!-- Zodiac Elements -->
+                    <div>
+                        <h4 class="font-semibold mb-2" style="color: #00FF41;">Zodiac Elements</h4>
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full" style="background-color: #FF6B6B;"></span>
+                                <span class="text-gray-400">Fire (Aries, Leo, Sagittarius)</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full" style="background-color: #4ECDC4;"></span>
+                                <span class="text-gray-400">Earth (Taurus, Virgo, Capricorn)</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full" style="background-color: #95E1D3;"></span>
+                                <span class="text-gray-400">Air (Gemini, Libra, Aquarius)</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full" style="background-color: #45B7D1;"></span>
+                                <span class="text-gray-400">Water (Cancer, Scorpio, Pisces)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Aspects -->
+                    <div>
+                        <h4 class="font-semibold mb-2" style="color: #00FF41;">Aspects</h4>
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2">
+                                <span class="w-8 h-0.5" style="background-color: #FFD93D;"></span>
+                                <span class="text-gray-400">Conjunction (0°)</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="w-8 h-0.5" style="background-color: #4ECDC4;"></span>
+                                <span class="text-gray-400">Sextile (60°)</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="w-8 h-0.5" style="background-color: #FF6B6B;"></span>
+                                <span class="text-gray-400">Square (90°)</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="w-8 h-0.5" style="background-color: #00FF41;"></span>
+                                <span class="text-gray-400">Trine (120°)</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="w-8 h-0.5" style="background-color: #FF5A5F;"></span>
+                                <span class="text-gray-400">Opposition (180°)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Houses -->
+                    <div>
+                        <h4 class="font-semibold mb-2" style="color: #00FF41;">Houses</h4>
+                        <div class="text-gray-400">
+                            <p>Green dashed lines = House cusps</p>
+                            <p>Numbers = House 1-12</p>
+                            <p class="mt-2 text-xs" style="color: #8B949E;">Placidus house system</p>
+                        </div>
+                    </div>
+
+                    <!-- Planets -->
+                    <div>
+                        <h4 class="font-semibold mb-2" style="color: #00FF41;">Planets</h4>
+                        <div class="text-gray-400">
+                            <p>☉ Sun ☽ Moon ☿ Mercury</p>
+                            <p>♀ Venus ♂ Mars ♃ Jupiter</p>
+                            <p>♄ Saturn ♅ Uranus ♆ Neptune</p>
+                            <p>♇ Pluto</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Wheel Display -->
+            <div class="card p-8" style="background-color: #161b22; border: 1px solid #30363d; border-radius: 8px;">
+                <div id="natal-wheel" class="flex justify-center items-center" style="min-height: 700px;">
+                    <!-- D3 wheel will be rendered here -->
+                </div>
+            </div>
+
+            <!-- Interpretation -->
+            <div class="card p-6 mt-6" style="background-color: #161b22; border: 1px solid #30363d; border-radius: 8px;">
+                <h3 class="text-lg font-semibold mb-4" style="color: #E6EDF3;">Quick Interpretation</h3>
+                <div id="interpretation" class="text-gray-400 space-y-2">
+                    <!-- Will be populated dynamically -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Back to Dashboard -->
+        <div class="mt-8 text-center">
+            <a href="{% url 'dashboard' %}" class="global-action-btn">
+                ← Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+.wheel-tooltip {
+    position: absolute;
+    background-color: #161b22;
+    border: 1px solid #30363d;
+    color: #E6EDF3;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    pointer-events: none;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.natal-wheel-svg {
+    border-radius: 8px;
+}
+
+.zodiac-segment:hover {
+    opacity: 0.6 !important;
+    cursor: pointer;
+}
+
+.planet-marker:hover {
+    stroke-width: 3 !important;
+    cursor: pointer;
+}
+
+.aspect-line:hover {
+    stroke-width: 2.5 !important;
+    opacity: 1 !important;
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="{% static 'js/components/wheel/d3-wheel-renderer.js' %}"></script>
+<script>
+/**
+ * Natal Wheel Page Controller
+ */
+class NatalWheelController {
+    constructor() {
+        this.renderer = null;
+        this.wheelData = null;
+        this.init();
+    }
+
+    async init() {
+        console.log('Initializing Natal Wheel...');
+
+        try {
+            // Initialize renderer
+            this.renderer = new D3WheelRenderer('natal-wheel');
+            this.renderer.init();
+
+            // Fetch wheel data
+            await this.fetchWheelData();
+
+            // Render wheel
+            this.renderer.render(this.wheelData);
+
+            // Update UI
+            this.updateWheelInfo();
+            this.generateInterpretation();
+
+            // Show wheel container
+            document.getElementById('wheel-loading').classList.add('hidden');
+            document.getElementById('wheel-container').classList.remove('hidden');
+
+            console.log('✓ Natal wheel loaded successfully');
+
+        } catch (error) {
+            console.error('Error loading wheel:', error);
+            this.showError(error.message);
+        }
+    }
+
+    async fetchWheelData() {
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+            throw new Error('No authentication token found');
+        }
+
+        const response = await fetch('/api/natal/wheel/', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to load wheel data');
+        }
+
+        this.wheelData = await response.json();
+    }
+
+    updateWheelInfo() {
+        const info = document.getElementById('wheel-info');
+        if (this.wheelData.sun_sign && this.wheelData.moon_sign) {
+            info.textContent = `Sun in ${this.wheelData.sun_sign} | Moon in ${this.wheelData.moon_sign}`;
+        }
+    }
+
+    generateInterpretation() {
+        const container = document.getElementById('interpretation');
+        if (!this.wheelData) return;
+
+        let html = '';
+
+        // Sun sign interpretation
+        if (this.wheelData.sun_sign) {
+            html += `<p><strong style="color: #FFD93D;">☉ Sun in ${this.wheelData.sun_sign}:</strong> Your core identity and life purpose express through the ${this.wheelData.sun_sign.toLowerCase()} qualities.</p>`;
+        }
+
+        // Moon sign interpretation
+        if (this.wheelData.moon_sign) {
+            html += `<p><strong style="color: #C0C0C0;">☽ Moon in ${this.wheelData.moon_sign}:</strong> Your emotions and inner world are influenced by ${this.wheelData.moon_sign.toLowerCase()} energy.</p>`;
+        }
+
+        // Ascendant interpretation
+        if (this.wheelData.ascendant) {
+            html += `<p><strong style="color: #00FF41;">↑ Ascendant in ${this.wheelData.ascendant}:</strong> This is your rising sign, representing how others perceive you and your approach to life.</p>`;
+        }
+
+        // Dominant elements
+        const elementCounts = { fire: 0, earth: 0, air: 0, water: 0 };
+        Object.values(this.wheelData.planets || {}).forEach(planet => {
+            const sign = planet.sign;
+            if (['Aries', 'Leo', 'Sagittarius'].includes(sign)) elementCounts.fire++;
+            else if (['Taurus', 'Virgo', 'Capricorn'].includes(sign)) elementCounts.earth++;
+            else if (['Gemini', 'Libra', 'Aquarius'].includes(sign)) elementCounts.air++;
+            else if (['Cancer', 'Scorpio', 'Pisces'].includes(sign)) elementCounts.water++;
+        });
+
+        const dominantElement = Object.keys(elementCounts).reduce((a, b) =>
+            elementCounts[a] > elementCounts[b] ? a : b
+        );
+
+        const elementDescriptions = {
+            fire: 'You have a fiery nature with strong initiative and passion.',
+            earth: 'You are grounded and practical, with a strong connection to material reality.',
+            air: 'You are intellectual and communicative, with a gift for abstract thinking.',
+            water: 'You are emotionally sensitive and intuitive, with deep emotional depth.'
+        };
+
+        html += `<p><strong>Dominant Element:</strong> ${elementDescriptions[dominantElement]}</p>`;
+
+        // Aspect summary
+        if (this.wheelData.aspects && this.wheelData.aspects.length > 0) {
+            const majorAspects = this.wheelData.aspects.filter(a =>
+                ['conjunction', 'opposition', 'square', 'trine'].includes(a.aspect)
+            );
+
+            if (majorAspects.length > 0) {
+                html += `<p><strong>Notable Aspects:</strong> `;
+                const aspects = majorAspects.slice(0, 3).map(a =>
+                    `${a.planet1} ${a.aspect} ${a.planet2}`
+                ).join(', ');
+                html += aspects;
+                html += '</p>';
+            }
+        }
+
+        container.innerHTML = html;
+    }
+
+    showError(message) {
+        document.getElementById('wheel-loading').classList.add('hidden');
+        document.getElementById('wheel-error').classList.remove('hidden');
+        document.getElementById('error-message').textContent = message;
+    }
+
+    refresh() {
+        window.location.reload();
+    }
+
+    exportAsPNG() {
+        if (this.renderer) {
+            this.renderer.exportAsPNG('natal-wheel.png');
+        }
+    }
+
+    exportAsSVG() {
+        if (this.renderer) {
+            this.renderer.exportAsSVG('natal-wheel.svg');
+        }
+    }
+}
+
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    window.natalWheel = new NatalWheelController();
+});
+</script>
+{% endblock %}

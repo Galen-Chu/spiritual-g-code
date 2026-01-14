@@ -908,3 +908,42 @@ class ChartAnnotationViewSet(viewsets.ModelViewSet):
         annotations = self.get_queryset().filter(chart_type=chart_type)
         serializer = self.get_serializer(annotations, many=True)
         return Response(serializer.data)
+
+
+# ============================================
+# Natal Wheel View
+# ============================================
+
+class NatalWheelView(APIView):
+    """API endpoint for natal wheel data."""
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        """Get natal wheel data for D3.js rendering."""
+        try:
+            # Get user's natal chart
+            try:
+                natal_chart = NatalChart.objects.get(user=request.user)
+            except NatalChart.DoesNotExist:
+                return Response(
+                    {'error': 'Natal chart not found. Please calculate your natal chart first.'},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+
+            # Calculate wheel data
+            calculator = MockGCodeCalculator()
+            wheel_data = calculator.calculate_natal_wheel_data(
+                birth_date=natal_chart.birth_date,
+                birth_time=natal_chart.birth_time.strftime('%H:%M') if natal_chart.birth_time else None,
+                birth_location=natal_chart.birth_location,
+                timezone=natal_chart.timezone
+            )
+
+            return Response(wheel_data)
+
+        except Exception as e:
+            return Response(
+                {'error': f'Error calculating wheel data: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
