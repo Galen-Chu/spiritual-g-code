@@ -185,12 +185,33 @@ open http://localhost:8000
 
 ## 📖 Documentation
 
+### Project-Level Documentation
 - [**Brand Story**](./docs/BRAND_STORY.md) - The philosophy and vision behind G-Code
 - [**Technical Architecture**](./docs/TECHNICAL_ARCHITECTURE.md) - System design and implementation details
 - [**Testing Record**](./docs/TESTING_RECORD.md) - Complete testing record and execution notes (✅ Updated 2026-01-14 - Phase 6 MVP.4 Complete)
 - [**Troubleshooting Guide**](./docs/TROUBLESHOOTING.md) - Common issues and solutions for development setup
-- [**API Documentation**](./docs/API.md) - (Coming Soon) Complete API reference
-- [**User Guide**](./docs/USER_GUIDE.md) - (Coming Soon) How to use the platform
+
+### Hierarchical Documentation
+Documentation is organized at every directory level for easy navigation:
+
+#### Backend Documentation
+- [**API Application**](./api/README_API_Application.md) - Models, views, serializers, endpoints
+- [**AI Engine**](./ai_engine/README_AI_Engine.md) - Calculator and AI services
+- [**Django Core**](./core/README_Django_Core.md) - Django project configuration
+- [**Automation Scripts**](./scripts/README_Automation_Scripts.md) - Scheduled tasks and crontab
+
+#### Frontend Documentation
+- [**JavaScript Architecture**](./static/js/README_Frontend_JS.md) - Overall JS structure and utilities
+- [**Chart Components**](./static/js/components/charts/README_Chart_Components.md) - Chart.js visualizations
+- [**Annotation System**](./static/js/components/annotations/README_Annotation_System.md) - User annotations
+- [**Comparison Feature**](./static/js/components/comparison/README_Comparison_Feature.md) - Date range comparison
+- [**WebSocket Client**](./static/js/components/websocket/README_WebSocket_Client.md) - Real-time updates
+- [**Natal Wheel**](./static/js/components/wheel/README_Natal_Wheel.md) - D3.js wheel visualization
+- [**Templates**](./templates/README_Templates.md) - Django template structure
+- [**Static Assets**](./static/README_Static_Assets.md) - CSS, images, fonts
+
+#### Testing Documentation
+- [**Testing Guide**](./tests/README_Testing.md) - Pytest configuration and testing guide
 
 ---
 
