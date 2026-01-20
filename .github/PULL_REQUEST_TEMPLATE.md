@@ -29,10 +29,15 @@ Please ensure all checks pass before requesting review.
 
 <!-- List the specific changes made in this PR -->
 
--
+Example format:
+- Added `new_feature.py` module to handle X
+- Modified `api/views.py` to add Y endpoint
+- Updated `README.md` with new installation steps
+- Fixed bug in calculator.py where Z was incorrect
 
+Your changes:
 -
-
+-
 -
 
 ## Django-Specific Changes
@@ -65,10 +70,16 @@ pytest --cov=api --cov=ai_engine --cov-report=html
 ```
 
 Tests performed:
--
 
--
+Example:
+- [x] Ran `pytest` - all tests passed
+- [x] Tested locally with Docker Compose
+- [x] Manually tested the API endpoint in browser
+- [ ] Added new test cases for this feature
 
+Your tests:
+-
+-
 -
 
 ## Code Quality Checklist
