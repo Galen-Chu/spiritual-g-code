@@ -31,10 +31,17 @@ assignees: ''
 
 ## Environment
 
-- OS: [e.g., Windows, macOS, Linux]
-- Browser: [e.g., Chrome, Firefox, Safari]
-- Python Version: [e.g., 3.11]
+- OS: [e.g., Windows 11, macOS 14, Ubuntu 22.04]
+- Browser: [e.g., Chrome 120, Firefox 121, Safari 17] (if applicable)
+- Python Version: [e.g., 3.11.5]
 - Django Version: [e.g., 5.0.1]
+- Installation Method: [Docker / pip install / from source]
+
+## Configuration
+
+- Using Docker: [Yes / No]
+- Database: [PostgreSQL / SQLite / Other]
+- Redis: [Yes / No]
 
 ## Logs
 

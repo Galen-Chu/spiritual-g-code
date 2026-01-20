@@ -2,6 +2,16 @@
 
 <!-- Provide a brief description of the changes in this PR -->
 
+## CI/CD Status
+
+> **Note**: Automated checks will run when this PR is submitted:
+> - **Tests**: pytest with coverage
+> - **Linting**: Black, isort, flake8
+> - **Docker**: Build verification
+> - **Documentation**: Markdown linting
+
+Please ensure all checks pass before requesting review.
+
 ## Type of Change
 
 - [ ] Bug fix (non-breaking change which fixes an issue)
@@ -13,7 +23,7 @@
 
 ## Related Issue
 
-<!-- Closes #issue_number -->
+<!-- Closes #issue_number or Fixes #issue_number -->
 
 ## Changes Made
 
@@ -25,6 +35,15 @@
 
 -
 
+## Django-Specific Changes
+
+<!-- Check if your PR affects any of these -->
+
+- [ ] Database migrations created and tested (`python manage.py makemigrations`, `python manage.py migrate`)
+- [ ] Static files collected (`python manage.py collectstatic`)
+- [ ] Settings changes documented in `core/settings/`
+- [ ] New dependencies added to `requirements.txt`
+
 ## Screenshots (if applicable)
 
 <!-- Add screenshots to help explain the changes (especially for UI changes) -->
@@ -33,23 +52,58 @@
 
 <!-- Describe the tests you ran and how to reproduce them -->
 
+Example:
+```bash
+# Run all tests
+pytest
+
+# Run specific tests
+pytest tests/test_api.py
+
+# Run with coverage
+pytest --cov=api --cov=ai_engine --cov-report=html
+```
+
+Tests performed:
 -
 
 -
 
 -
 
-## Checklist
+## Code Quality Checklist
 
-- [ ] My code follows the style guidelines of this project
-- [ ] I have performed a self-review of my own code
-- [ ] I have commented my code, particularly in hard-to-understand areas
-- [ ] I have made corresponding changes to the documentation
-- [ ] My changes generate no new warnings
-- [ ] I have added tests that prove my fix is effective or that my feature works
-- [ ] New and existing tests pass locally with my changes
-- [ ] I have updated the README.md (if applicable)
+- [ ] Code formatted with `black .`
+- [ ] Imports sorted with `isort .`
+- [ ] No flake8 errors (`flake8 .`)
+- [ ] All pytest tests pass locally
+- [ ] Code follows project style guidelines (see [CONTRIBUTING.md](../CONTRIBUTING.md))
+- [ ] Self-reviewed code and added comments for complex logic
+- [ ] Updated relevant documentation (README, docs/, API docs)
+- [ ] No new warnings introduced
+
+## Commit Message Convention
+
+> **Tip**: Use [Conventional Commits](../CONTRIBUTING.md#commit-convention) format:
+> - `feat:` for new features
+> - `fix:` for bug fixes
+> - `docs:` for documentation
+> - `refactor:` for refactoring
+> - `test:` for tests
+> - `chore:` for maintenance
+
+## Co-authors
+
+<!-- If you worked with someone, add them as co-authors -->
+
+```
+Co-authored-by: Name <email@example.com>
+```
 
 ## Additional Notes
 
-<!-- Any additional information or context -->
+<!-- Any additional information or context, such as: -->
+<!-- - Breaking changes documentation -->
+<!-- - Migration steps required -->
+<!-- - Configuration changes needed -->
+<!-- - Known limitations -->
