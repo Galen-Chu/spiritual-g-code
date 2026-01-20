@@ -44,12 +44,14 @@ class D3WheelRenderer {
             'Capricorn': '♑', 'Aquarius': '♒', 'Pisces': '♓'
         };
 
-        // Planet symbols
+        // Planet symbols (including Earth, asteroids, and centaurs)
         this.planetSymbols = {
             'sun': '☉', 'moon': '☽', 'mercury': '☿',
-            'venus': '♀', 'mars': '♂', 'jupiter': '♃',
-            'saturn': '♄', 'uranus': '♅', 'neptune': '♆',
-            'pluto': '♇'
+            'venus': '♀', 'earth': '🌍', 'mars': '♂',
+            'jupiter': '♃', 'saturn': '♄', 'uranus': '♅',
+            'neptune': '♆', 'pluto': '♇',
+            'ceres': '⚳', 'pallas': '⚴', 'juno': '⚵', 'vesta': '⚶',
+            'chiron': '⚷'
         };
 
         // Sign colors

@@ -23,6 +23,8 @@ from .views import (
     DashboardChartsView,
     # Natal Wheel
     NatalWheelView,
+    # Solar System
+    SolarSystemTransitView,
     # Health Check
     HealthCheckView,
 )
@@ -46,6 +48,9 @@ urlpatterns = [
 
     # Natal Wheel
     path('natal/wheel/', NatalWheelView.as_view(), name='natal-wheel'),
+
+    # Solar System
+    path('solar-system/transits/', SolarSystemTransitView.as_view(), name='solar-system-transits'),
 
     # ViewSet Routes
     path('', include(router.urls)),

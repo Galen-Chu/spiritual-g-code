@@ -785,6 +785,59 @@ class DashboardChartsView(APIView):
 
 
 # ============================================
+# Solar System Transit View
+# ============================================
+
+class SolarSystemTransitView(APIView):
+    """API endpoint for solar system transit visualization."""
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        """Get solar system transit data for D3.js visualization."""
+        try:
+            from ai_engine.calculator import GCodeCalculator
+
+            # Get target date from query params (default to today)
+            date_param = request.query_params.get('date')
+            if date_param:
+                try:
+                    target_date = datetime.strptime(date_param, '%Y-%m-%d').date()
+                except ValueError:
+                    return Response(
+                        {'error': 'Invalid date format. Use YYYY-MM-DD.'},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+            else:
+                target_date = date.today()
+
+            # Calculate solar system transits
+            try:
+                calculator = GCodeCalculator()
+                solar_system_data = calculator.calculate_solar_system_transits(target_date)
+            except Exception as e:
+                # Fall back to mock calculator if PyEphem fails
+                from ai_engine.mock_calculator import MockGCodeCalculator
+                calculator = MockGCodeCalculator()
+                solar_system_data = calculator.calculate_solar_system_transits(target_date)
+
+            # Log activity
+            UserActivity.objects.create(
+                user=request.user,
+                activity_type='solar_system_viewed',
+                metadata={'target_date': target_date.isoformat()}
+            )
+
+            return Response(solar_system_data)
+
+        except Exception as e:
+            return Response(
+                {'error': f'Error calculating solar system transits: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+# ============================================
 # Health Check View
 # ============================================
 

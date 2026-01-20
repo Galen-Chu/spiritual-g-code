@@ -28,16 +28,53 @@ class MockGCodeCalculator:
 
         # Planets with their approximate orbital periods (in days)
         self.planet_periods = {
+            # Classical Planets
             'sun': 365.25,
             'moon': 27.32,
             'mercury': 87.97,
             'venus': 224.7,
+            'earth': 365.25,  # NEW
             'mars': 687,
             'jupiter': 4332.59,
             'saturn': 10759.22,
             'uranus': 30685.4,
             'neptune': 60189,
-            'pluto': 90560
+            'pluto': 90560,
+
+            # Major Asteroids (NEW)
+            'ceres': 1682,      # 4.6 years
+            'pallas': 1686,     # 4.6 years
+            'juno': 1594,       # 4.4 years
+            'vesta': 1325,      # 3.6 years
+
+            # Centaurs (NEW)
+            'chiron': 18548,    # 50.8 years
+        }
+
+        # Orbital radii in AU (for visualization)
+        self.orbital_radii = {
+            'mercury': 0.39, 'venus': 0.72, 'earth': 1.0, 'mars': 1.52,
+            'ceres': 2.77, 'pallas': 2.77, 'juno': 2.77, 'vesta': 2.77,
+            'jupiter': 5.2, 'saturn': 9.58, 'chiron': 13.7,
+            'uranus': 19.2, 'neptune': 30.05, 'pluto': 39.48
+        }
+
+        # Category mapping
+        self.celestial_categories = {
+            'sun': 'star', 'moon': 'satellite',
+            'mercury': 'personal', 'venus': 'personal', 'earth': 'personal', 'mars': 'personal',
+            'ceres': 'asteroid', 'pallas': 'asteroid', 'juno': 'asteroid', 'vesta': 'asteroid',
+            'jupiter': 'social', 'saturn': 'social', 'chiron': 'centaur',
+            'uranus': 'outer', 'neptune': 'outer', 'pluto': 'outer'
+        }
+
+        # Planet symbols
+        self.planet_symbols = {
+            'sun': '☉', 'moon': '☽', 'mercury': '☿', 'venus': '♀',
+            'earth': '🌍', 'mars': '♂', 'jupiter': '♃', 'saturn': '♄',
+            'uranus': '♅', 'neptune': '♆', 'pluto': '♇',
+            'ceres': '⚳', 'pallas': '⚴', 'juno': '⚵', 'vesta': '⚶',
+            'chiron': '⚷'
         }
 
     def calculate_natal_chart(
@@ -368,6 +405,100 @@ class MockGCodeCalculator:
 
         return aspects
 
+    def calculate_extended_aspects(
+        self,
+        natal_data: Dict,
+        transit_data: Dict = None
+    ) -> Dict:
+        """
+        Calculate extended aspects including asteroids and lunar nodes.
+
+        Args:
+            natal_data: Natal chart data
+            transit_data: Current transit data (optional)
+
+        Returns:
+            Dictionary with all aspect categories
+        """
+        all_aspects = {
+            'natal_aspects': [],  # Between natal planets (classic)
+            'asteroid_aspects': [],  # Asteroid-to-asteroid and asteroid-to-natal
+            'node_aspects': [],  # Lunar node aspects
+            'extended_transit_aspects': []  # Transit asteroids/nodes to natal
+        }
+
+        aspect_types = {
+            'conjunction': 0,
+            'opposition': 180,
+            'trine': 120,
+            'square': 90,
+            'sextile': 60
+        }
+
+        # Calculate natal aspects with all celestial bodies (including asteroids)
+        for planet1_name in self.planet_periods.keys():
+            for planet2_name in self.planet_periods.keys():
+                if planet1_name >= planet2_name:  # Avoid duplicates
+                    continue
+
+                # Get positions from natal_data
+                if planet1_name in natal_data and planet2_name in natal_data:
+                    lon1 = natal_data[planet1_name]['longitude']
+                    lon2 = natal_data[planet2_name]['longitude']
+
+                    # Calculate aspect
+                    diff = abs(lon1 - lon2) % 360
+                    if diff > 180:
+                        diff = 360 - diff
+
+                    for aspect_name, aspect_angle in aspect_types.items():
+                        if abs(diff - aspect_angle) <= 8:
+                            all_aspects['natal_aspects'].append({
+                                'body1': planet1_name,
+                                'body2': planet2_name,
+                                'aspect': aspect_name,
+                                'orb': round(abs(diff - aspect_angle), 2)
+                            })
+
+        # Calculate lunar node aspects to natal
+        if natal_data:
+            # Calculate current node positions
+            node_data = self.calculate_lunar_nodes(date.today())
+            nn_lon = node_data['north_node']['longitude']
+            sn_lon = node_data['south_node']['longitude']
+
+            # Check node aspects to natal planets
+            for natal_planet, natal_pos in natal_data.items():
+                # North Node aspects
+                diff_nn = abs(nn_lon - natal_pos['longitude']) % 360
+                if diff_nn > 180:
+                    diff_nn = 360 - diff_nn
+
+                for aspect_name, aspect_angle in aspect_types.items():
+                    if abs(diff_nn - aspect_angle) <= 8:
+                        all_aspects['node_aspects'].append({
+                            'node': 'north_node',
+                            'natal_planet': natal_planet,
+                            'aspect': aspect_name,
+                            'orb': round(abs(diff_nn - aspect_angle), 2)
+                        })
+
+                # South Node aspects
+                diff_sn = abs(sn_lon - natal_pos['longitude']) % 360
+                if diff_sn > 180:
+                    diff_sn = 360 - diff_sn
+
+                for aspect_name, aspect_angle in aspect_types.items():
+                    if abs(diff_sn - aspect_angle) <= 8:
+                        all_aspects['node_aspects'].append({
+                            'node': 'south_node',
+                            'natal_planet': natal_planet,
+                            'aspect': aspect_name,
+                            'orb': round(abs(diff_sn - aspect_angle), 2)
+                        })
+
+        return all_aspects
+
     def calculate_placidus_houses(
         self,
         birth_date: date,
@@ -518,22 +649,11 @@ class MockGCodeCalculator:
             birth_date, birth_time, birth_location, timezone
         )
 
-        # Calculate aspects between planets
+        # Calculate aspects between planets (including asteroids)
         aspects = self._calculate_aspects(natal_chart['chart_data'])
 
-        # Get planet symbols
-        planet_symbols = {
-            'sun': '☉',
-            'moon': '☽',
-            'mercury': '☿',
-            'venus': '♀',
-            'mars': '♂',
-            'jupiter': '♃',
-            'saturn': '♄',
-            'uranus': '♅',
-            'neptune': '♆',
-            'pluto': '♇'
-        }
+        # Get planet symbols (including Earth, asteroids, and centaurs)
+        planet_symbols = self.planet_symbols
 
         # Get zodiac symbols
         zodiac_symbols = {
@@ -561,6 +681,90 @@ class MockGCodeCalculator:
             'sun_sign': natal_chart['sun_sign'],
             'moon_sign': natal_chart['moon_sign']
         }
+
+    def calculate_solar_system_transits(self, target_date: date) -> Dict:
+        """
+        Calculate heliocentric positions for all celestial bodies (mock).
+        """
+        seed = self._create_seed(target_date)
+        epoch = date(2000, 1, 1)
+        days_since_epoch = (target_date - epoch).days
+
+        solar_system_data = {
+            'date': target_date.isoformat(),
+            'bodies': []
+        }
+
+        for planet_name, period in self.planet_periods.items():
+            # Calculate heliocentric longitude
+            planet_seed = seed * sum(ord(c) for c in planet_name) / 1000.0
+            helio_longitude = (days_since_epoch / period * 360 + planet_seed * 360) % 360
+
+            # Calculate geocentric longitude (add offset for inner planets)
+            if planet_name in ['mercury', 'venus', 'earth']:
+                geocentric_offset = (days_since_epoch / period * 180) % 360
+                geo_longitude = (helio_longitude + geocentric_offset) % 360
+            else:
+                geo_longitude = helio_longitude
+
+            solar_system_data['bodies'].append({
+                'name': planet_name,
+                'symbol': self.planet_symbols.get(planet_name, planet_name[0].upper()),
+                'category': self.celestial_categories.get(planet_name, 'unknown'),
+                'heliocentric_longitude': round(helio_longitude, 2),
+                'geocentric_longitude': round(geo_longitude, 2),
+                'orbital_radius_au': self.orbital_radii.get(planet_name, 1.0),
+                'zodiac_sign': self._get_zodiac_sign_from_degree(helio_longitude),
+                'degree_in_sign': round(helio_longitude % 30, 2)
+            })
+
+        # Calculate lunar nodes (geocentric)
+        lunar_nodes = self.calculate_lunar_nodes(target_date)
+        solar_system_data['lunar_nodes'] = lunar_nodes
+
+        return solar_system_data
+
+    def calculate_lunar_nodes(self, target_date: date) -> Dict:
+        """
+        Calculate lunar nodes (mock implementation).
+        Nodes move in retrograde with 18.6 year period.
+        """
+        seed = self._create_seed(target_date)
+        epoch = date(2000, 1, 1)
+        days_since_epoch = (target_date - epoch).days
+
+        # Lunar nodal period: 18.6 years = 6793.5 days
+        nodal_period = 6793.5
+
+        # Nodes move in retrograde (backwards through zodiac)
+        node_offset = (days_since_epoch / nodal_period * 360 + seed * 360) % 360
+
+        # North Node (always moves retrograde)
+        north_node_longitude = (360 - node_offset) % 360
+        south_node_longitude = (north_node_longitude + 180) % 360
+
+        return {
+            'north_node': {
+                'name': 'north_node',
+                'symbol': '☊',
+                'longitude': round(north_node_longitude, 2),
+                'zodiac_sign': self._get_zodiac_sign_from_degree(north_node_longitude),
+                'degree_in_sign': round(north_node_longitude % 30, 2)
+            },
+            'south_node': {
+                'name': 'south_node',
+                'symbol': '☋',
+                'longitude': round(south_node_longitude, 2),
+                'zodiac_sign': self._get_zodiac_sign_from_degree(south_node_longitude),
+                'degree_in_sign': round(south_node_longitude % 30, 2)
+            }
+        }
+
+    def _get_zodiac_sign_from_degree(self, longitude: float) -> str:
+        """Get zodiac sign from longitude degree."""
+        lon = longitude % 360
+        index = int(lon / 30)
+        return self.zodiac_signs[index]
 
 
 # Convenience function to get calculator

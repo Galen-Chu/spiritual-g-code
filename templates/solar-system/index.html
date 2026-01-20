@@ -1,0 +1,281 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Solar System Transits | Spiritual G-Code{% endblock %}
+
+{% block extra_css %}
+<style>
+    .solar-system-container {
+        background: #0D1117;
+        border: 1px solid #30363d;
+        border-radius: 12px;
+        padding: 2rem;
+        min-height: 900px;
+    }
+
+    .controls-section {
+        background: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .control-group {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .control-label {
+        color: #8B949E;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+    .control-checkbox {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #c9d1d9;
+        font-size: 0.875rem;
+        cursor: pointer;
+    }
+
+    .control-checkbox input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+        accent-color: #00FF41;
+    }
+
+    .date-input, .node-display-select {
+        background: #0D1117;
+        border: 1px solid #30363d;
+        border-radius: 6px;
+        color: #00FF41;
+        padding: 8px 12px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 14px;
+        min-width: 150px;
+    }
+
+    .date-input:focus, .node-display-select:focus {
+        outline: none;
+        border-color: #00FF41;
+        box-shadow: 0 0 0 3px rgba(0, 255, 65, 0.1);
+    }
+
+    .action-btn {
+        padding: 8px 16px;
+        background: rgba(0, 255, 65, 0.1);
+        border: 1px solid rgba(0, 255, 65, 0.3);
+        border-radius: 6px;
+        color: #00FF41;
+        cursor: pointer;
+        font-size: 14px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+
+    .action-btn:hover {
+        background: rgba(0, 255, 65, 0.2);
+        border-color: #00FF41;
+        box-shadow: 0 0 15px rgba(0, 255, 65, 0.3);
+    }
+
+    @media (max-width: 768px) {
+        .solar-system-container {
+            padding: 1rem;
+        }
+
+        .control-group {
+            flex-direction: column;
+            align-items: stretch;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-white mb-2">
+            <span class="terminal-text">root@spiritual-gcode</span>:~# ./solar-system.sh
+        </h1>
+        <p class="text-gray-400">Real-time heliocentric planetary positions with lunar nodes</p>
+    </div>
+
+    <!-- Controls Section -->
+    <div class="controls-section">
+        <div class="control-group">
+            <!-- Date Picker -->
+            <div class="flex items-center gap-2">
+                <span class="control-label">Date:</span>
+                <input type="date"
+                       id="solar-date-input"
+                       class="date-input"
+                       onchange="updateSolarDate(this.value)">
+                <button onclick="resetSolarDate()" class="action-btn">Today</button>
+            </div>
+
+            <!-- Visibility Toggles -->
+            <div class="flex items-center gap-4 border-l border-gcode-border pl-4">
+                <span class="control-label">Show:</span>
+                <label class="control-checkbox">
+                    <input type="checkbox"
+                           id="show-asteroids"
+                           checked
+                           onchange="toggleAsteroids(this.checked)">
+                    Asteroids
+                </label>
+                <label class="control-checkbox">
+                    <input type="checkbox"
+                           id="show-centaurs"
+                           checked
+                           onchange="toggleCentaurs(this.checked)">
+                    Centaurs
+                </label>
+                <label class="control-checkbox">
+                    <input type="checkbox"
+                           id="show-orbits"
+                           checked
+                           onchange="toggleOrbits(this.checked)">
+                    Orbits
+                </label>
+                <label class="control-checkbox">
+                    <input type="checkbox"
+                           id="show-lunar-nodes"
+                           checked
+                           onchange="toggleLunarNodes(this.checked)">
+                    Lunar Nodes
+                </label>
+            </div>
+
+            <!-- Lunar Node Display Mode -->
+            <div class="flex items-center gap-2 border-l border-gcode-border pl-4">
+                <span class="control-label">Node Display:</span>
+                <select id="lunar-node-display"
+                        class="node-display-select"
+                        onchange="setLunarNodeDisplay(this.value)">
+                    <option value="all">All Methods</option>
+                    <option value="overlay">Overlay Ring</option>
+                    <option value="markers">Zodiac Markers</option>
+                    <option value="tooltip">Tooltip Only</option>
+                    <option value="none">Hidden</option>
+                </select>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex items-center gap-2 border-l border-gcode-border pl-4">
+                <button onclick="refreshSolarSystem()" class="action-btn">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    Refresh
+                </button>
+                <button onclick="exportSolarSystem()" class="action-btn">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    </svg>
+                    Export PNG
+                </button>
+                <a href="{% url 'dashboard' %}" class="action-btn">
+                    Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Solar System Visualization -->
+    <div id="solar-system-container" class="solar-system-container">
+        <div class="flex flex-col items-center justify-center py-20">
+            <div class="w-64 h-2 bg-gcode-border rounded-full overflow-hidden">
+                <div class="loading-bar h-full rounded-full"></div>
+            </div>
+            <p class="mt-4 text-gcode-green text-sm">Initializing solar system...</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- D3.js -->
+<script src="https://d3js.org/d3.v7.min.js"></script>
+
+<!-- Solar System Components -->
+<script src="{% static 'js/components/solar-system/solar-system-renderer.js' %}"></script>
+<script src="{% static 'js/components/solar-system/solar-system-manager.js' %}"></script>
+
+<script>
+let solarSystemManager = null;
+
+document.addEventListener('DOMContentLoaded', async function() {
+    // Initialize Lucide icons
+    lucide.createIcons();
+
+    // Initialize solar system manager
+    solarSystemManager = new SolarSystemManager('solar-system-container', {
+        width: 800,
+        height: 800,
+        showAsteroids: true,
+        showCentaurs: true,
+        showOrbits: true,
+        showLunarNodes: true,
+        lunarNodeDisplay: 'all'
+    });
+
+    // Load today's transits
+    await solarSystemManager.init();
+
+    // Set today's date in input
+    document.getElementById('solar-date-input').valueAsDate = new Date();
+});
+
+async function updateSolarDate(dateStr) {
+    if (!dateStr) return;
+    await solarSystemManager.refresh(dateStr);
+}
+
+async function resetSolarDate() {
+    document.getElementById('solar-date-input').valueAsDate = new Date();
+    await solarSystemManager.refresh();
+}
+
+async function refreshSolarSystem() {
+    const dateInput = document.getElementById('solar-date-input').value;
+    await solarSystemManager.refresh(dateInput || null);
+}
+
+function toggleAsteroids(show) {
+    solarSystemManager.toggleAsteroids(show);
+}
+
+function toggleCentaurs(show) {
+    solarSystemManager.toggleCentaurs(show);
+}
+
+function toggleOrbits(show) {
+    solarSystemManager.toggleOrbits(show);
+}
+
+function toggleLunarNodes(show) {
+    solarSystemManager.toggleLunarNodes(show);
+}
+
+function setLunarNodeDisplay(mode) {
+    solarSystemManager.setLunarNodeDisplay(mode);
+}
+
+function exportSolarSystem() {
+    solarSystemManager.exportAsPNG();
+}
+</script>
+{% endblock %}

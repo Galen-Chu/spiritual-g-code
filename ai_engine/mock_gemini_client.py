@@ -55,6 +55,16 @@ class MockGeminiGCodeClient:
                 sun_sign, moon_sign, themes, score
             )
 
+            # Generate asteroid interpretations
+            asteroid_insights = self._generate_asteroid_insights(
+                natal_data, transit_data
+            )
+
+            # Generate lunar node interpretations
+            node_insights = self._generate_lunar_node_insights(
+                natal_data, transit_data
+            )
+
             # Generate affirmation
             affirmation = self._generate_affirmation(sun_sign, themes)
 
@@ -67,6 +77,8 @@ class MockGeminiGCodeClient:
                 'affirmation': affirmation,
                 'practical_guidance': guidance,
                 'g_code_score': score,
+                'asteroid_insights': asteroid_insights,
+                'node_insights': node_insights,
             }
 
         except Exception as e:
@@ -393,6 +405,183 @@ Repeat this affirmation throughout the day, especially when you feel uncertain o
 
 Remember: You are exactly where you need to be.
 """
+
+    def _generate_asteroid_insights(
+        self,
+        natal_data: Dict,
+        transit_data: Dict
+    ) -> Dict:
+        """
+        Generate interpretations for the four major asteroids.
+
+        Returns insights for Ceres, Pallas, Juno, and Vesta.
+        """
+        asteroids = ['ceres', 'pallas', 'juno', 'vesta']
+        insights = {}
+
+        # Asteroid archetype interpretations
+        asteroid_meanings = {
+            'ceres': {
+                'name': 'Ceres',
+                'symbol': '⚳',
+                'themes': ['nurturing', 'abundance', 'grief', 'mother-child bonds'],
+                'interpretation': 'Ceres represents how you nurture and care for others, as well as your relationship with abundance and loss. This asteroid shows where you find fulfillment through caregiving and what你必须 release to experience renewal.'
+            },
+            'pallas': {
+                'name': 'Pallas Athena',
+                'symbol': '⚴',
+                'themes': ['wisdom', 'strategy', 'justice', 'creative intelligence'],
+                'interpretation': 'Pallas Athena reveals your strategic mind and problem-solving abilities. This asteroid shows how you channel wisdom into creative action and fight for justice in your unique way.'
+            },
+            'juno': {
+                'name': 'Juno',
+                'symbol': '⚵',
+                'themes': ['partnership', 'commitment', 'equality', 'soul contracts'],
+                'interpretation': 'Juno illuminates your approach to committed partnerships and what you need in relationships to feel truly seen and valued. She reveals the balance between independence and intimacy.'
+            },
+            'vesta': {
+                'name': 'Vesta',
+                'symbol': '⚶',
+                'themes': ['devotion', 'sacred work', 'focus', 'inner fire'],
+                'interpretation': 'Vesta represents your sacred devotion and what you\'re willing to dedicate yourself to completely. This asteroid shows where you find meaning through focused service and keeping your inner flame alive.'
+            }
+        }
+
+        natal_chart = natal_data.get('chart_data', {})
+        transit_planets = transit_data.get('planets', {})
+
+        for asteroid_key in asteroids:
+            if asteroid_key in natal_chart:
+                natal_pos = natal_chart[asteroid_key]
+                meaning = asteroid_meanings.get(asteroid_key, {})
+
+                insights[asteroid_key] = {
+                    'name': meaning.get('name', asteroid_key.title()),
+                    'symbol': meaning.get('symbol', ''),
+                    'natal_sign': natal_pos.get('sign', 'Unknown'),
+                    'natal_degree': natal_pos.get('degree', 0),
+                    'themes': meaning.get('themes', []),
+                    'interpretation': meaning.get('interpretation', ''),
+                }
+
+                # Check for transits to asteroid
+                if asteroid_key in transit_planets:
+                    transit_pos = transit_planets[asteroid_key]
+                    insights[asteroid_key]['transit_sign'] = transit_pos.get('sign', 'Unknown')
+                    insights[asteroid_key]['transit_activation'] = self._get_asteroid_transit_message(asteroid_key, transit_pos.get('sign'))
+
+        return insights
+
+    def _get_asteroid_transit_message(self, asteroid: str, sign: str) -> str:
+        """Generate transit activation message for asteroid."""
+        messages = {
+            'ceres': f'Ceres in {sign} activates your nurturing energy. Focus on self-care and supporting others while maintaining healthy boundaries.',
+            'pallas': f'Pallas in {sign} sharpens your strategic mind. Trust your creative intelligence to solve problems and see patterns others miss.',
+            'juno': f'Juno in {sign} highlights relationship dynamics. Examine your commitments and ensure your partnerships reflect your true needs.',
+            'vesta': f'Vesta in {sign} focuses your devotion. Clarify what truly matters to you and dedicate yourself wholeheartedly to your sacred work.'
+        }
+        return messages.get(asteroid, f'{asteroid.title()} is active in {sign}.')
+
+    def _generate_lunar_node_insights(
+        self,
+        natal_data: Dict,
+        transit_data: Dict
+    ) -> Dict:
+        """
+        Generate interpretations for the lunar nodes.
+
+        Returns insights for North Node (life path) and South Node (past karma).
+        """
+        insights = {
+            'north_node': {
+                'name': 'North Node',
+                'symbol': '☊',
+                'themes': ['life purpose', 'destiny', 'growth', 'soul evolution'],
+                'interpretation': self._generate_north_node_message(natal_data)
+            },
+            'south_node': {
+                'name': 'South Node',
+                'symbol': '☋',
+                'themes': ['past karma', 'comfort zone', 'old patterns', 'release'],
+                'interpretation': self._generate_south_node_message(natal_data)
+            }
+        }
+
+        # Check for nodal transits
+        aspects = transit_data.get('aspects', [])
+        nodal_transits = [a for a in aspects if a.get('natal_planet') in ['sun', 'moon', 'ascendant']
+                         and a.get('transit_planet') in ['north_node', 'south_node']]
+
+        if nodal_transits:
+            insights['nodal_transits'] = [
+                {
+                    'aspect': t['aspect'],
+                    'orb': t['orb'],
+                    'meaning': self._get_nodal_transit_meaning(t)
+                } for t in nodal_transits[:3]  # Top 3 most significant
+            ]
+
+        return insights
+
+    def _generate_north_node_message(self, natal_data: Dict) -> str:
+        """Generate North Node interpretation based on sign."""
+        # In a real implementation, this would use the actual nodal position
+        # For now, generate based on Sun sign (simplified)
+        sun_sign = natal_data.get('sun_sign', 'Unknown')
+
+        nodal_guidance = {
+            'Aries': 'Your destiny calls you to embrace courageous leadership and initiate new beginnings. Trust your instincts and pioneer your own path.',
+            'Taurus': 'Your path forward involves building stability and cultivating self-worth. Create lasting value through patience and persistence.',
+            'Gemini': 'Your soul\'s journey involves communication and learning. Share your ideas and stay curious about the world.',
+            'Cancer': 'Your destiny lies in emotional intelligence and creating family. Nurture others while honoring your own need for security.',
+            'Leo': 'Your path involves creative self-expression and leadership. Shine your light and inspire others through authenticity.',
+            'Virgo': 'Your growth comes through service and refinement. Use your analytical skills to improve systems and help others.',
+            'Libra': 'Your destiny involves partnership and harmony. Create balance in your relationships and seek fairness in all interactions.',
+            'Scorpio': 'Your path involves transformation and depth. Embrace change and trust the process of death and rebirth.',
+            'Sagittarius': 'Your soul\'s journey involves expansion and wisdom. Seek truth, explore philosophy, and share your knowledge.',
+            'Capricorn': 'Your destiny involves mastery and achievement. Build structures that last and take responsibility for your ambitions.',
+            'Aquarius': 'Your path involves innovation and humanitarian service. Break free from convention and envision new possibilities.',
+            'Pisces': 'Your growth comes through compassion and transcendence. Trust your intuition and merge with something greater than yourself.'
+        }
+
+        return nodal_guidance.get(sun_sign, 'Your North Node reveals your soul\'s direction for growth and fulfillment in this lifetime.')
+
+    def _generate_south_node_message(self, natal_data: Dict) -> str:
+        """Generate South Node interpretation based on sign."""
+        # In a real implementation, this would use the actual nodal position
+        # For now, generate based on Sun sign (simplified, opposite sign)
+        sun_sign = natal_data.get('sun_sign', 'Unknown')
+
+        past_pattern_guidance = {
+            'Aries': 'You\'re mastering the art of cooperation. Release the need to always lead first and learn to consider others\' needs.',
+            'Taurus': 'You\'re learning to embrace change. Let go of attachment to material security and trust in transformation.',
+            'Gemini': 'You\'re deepening your emotional understanding. Move beyond superficial connections and explore the depths of feeling.',
+            'Cancer': 'You\'re developing independence. Release over-identification with others\' emotions and claim your own identity.',
+            'Leo': 'You\'re learning humility and service. Let go of constant need for recognition and find value in quiet contribution.',
+            'Virgo': 'You\'re embracing wholeness. Release perfectionism and accept yourself and others with all your humanity.',
+            'Libra': 'You\'re cultivating self-reliance. Let go of excessive people-pleasing and develop your own inner compass.',
+            'Scorpio': 'You\'re learning to lighten up. Release intensity and control, embrace peace and openness.',
+            'Sagittarius': 'You\'re developing focus and commitment. Let go of scattered interests and dedicate yourself to what truly matters.',
+            'Capricorn': 'You\'re learning to play and trust. Release over-identification with achievement and allow yourself to rest.',
+            'Aquarius': 'You\'re deepening your emotional connections. Let go of detachment and embrace vulnerability and intimacy.',
+            'Pisces': 'You\'re developing discernment and practical action. Release escapism and engage with reality directly.'
+        }
+
+        return past_pattern_guidance.get(sun_sign, 'Your South Node reveals past patterns and gifts you\'re being asked to transcend in this lifetime.')
+
+    def _get_nodal_transit_meaning(self, transit_aspect: Dict) -> str:
+        """Generate interpretation for nodal transit aspect."""
+        aspect = transit_aspect.get('aspect', 'conjunction')
+        planet = transit_aspect.get('natal_planet', 'sun')
+
+        meanings = {
+            'conjunction': f'North Node conjunct your {planet} marks a powerful destiny activation. Pay attention to synchronicities and opportunities aligned with your life path.',
+            'square': f'North Node square your {planet} indicates tension between old patterns and soul growth. Embrace the discomfort as you evolve.',
+            'trine': f'North Node trine your {planet} brings flow to your life path. Opportunities for growth arise naturally—trust and say yes.',
+            'opposition': f'North Node opposite your {planet} highlights the balance between past and future. Release South Node patterns to embrace your destiny.'
+        }
+
+        return meanings.get(aspect, f'Nodal activation involving {planet} supports your soul\'s evolution.')
 
 
 # Convenience function

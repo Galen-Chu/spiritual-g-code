@@ -31,6 +31,12 @@ def wheel_view(request):
 
 
 @login_required
+def solar_system_view(request):
+    """Render solar system transit visualization page."""
+    return render(request, 'solar-system/index.html')
+
+
+@login_required
 def content_view(request):
     """Render content page."""
     return render(request, 'content/index.html')

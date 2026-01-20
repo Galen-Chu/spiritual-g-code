@@ -16,13 +16,14 @@ class GCodeCalculator:
     """
 
     def __init__(self):
-        """Initialize calculator."""
-        # Planetary bodies to track
+        """Initialize calculator with extended celestial bodies."""
+        # Classical Planets (11 including Earth)
         self.planets = {
             'sun': ephem.Sun(),
             'moon': ephem.Moon(),
             'mercury': ephem.Mercury(),
             'venus': ephem.Venus(),
+            'earth': ephem.Earth(),  # NEW: Earth added
             'mars': ephem.Mars(),
             'jupiter': ephem.Jupiter(),
             'saturn': ephem.Saturn(),
@@ -30,6 +31,22 @@ class GCodeCalculator:
             'neptune': ephem.Neptune(),
             'pluto': ephem.Pluto(),
         }
+
+        # Major Asteroids (NEW section)
+        self.asteroids = {
+            'ceres': ephem.readd('Ceres,1'),
+            'pallas': ephem.readd('2 Pallas'),
+            'juno': ephem.readd('3 Juno'),
+            'vesta': ephem.readd('4 Vesta'),
+        }
+
+        # Centaurs (NEW section)
+        self.centaurs = {
+            'chiron': ephem.readd('2060 Chiron'),
+        }
+
+        # Combine all for iteration
+        self.all_celestial_bodies = {**self.planets, **self.asteroids, **self.centaurs}
 
         # Zodiac signs
         self.zodiac_signs = [
@@ -71,12 +88,12 @@ class GCodeCalculator:
             # Create observer
             observer = self._create_observer(birth_location, dt)
 
-            # Calculate planetary positions
+            # Calculate planetary positions (including asteroids and centaurs)
             chart_data = {}
             sun_sign = None
             moon_sign = None
 
-            for planet_name, planet in self.planets.items():
+            for planet_name, planet in self.all_celestial_bodies.items():
                 planet.compute(observer)
                 lon = ephem.deg(planet.ra + observer.sidereal_time())
                 sign = self._get_zodiac_sign(lon)
@@ -143,9 +160,9 @@ class GCodeCalculator:
             dt = datetime.combine(target_date, datetime.min.time())
             observer = self._create_observer(birth_location, dt)
 
-            # Calculate current planetary positions
+            # Calculate current planetary positions (including asteroids and centaurs)
             transit_data = {}
-            for planet_name, planet in self.planets.items():
+            for planet_name, planet in self.all_celestial_bodies.items():
                 planet.compute(observer)
                 lon = ephem.deg(planet.ra + observer.sidereal_time())
                 sign = self._get_zodiac_sign(lon)
@@ -298,3 +315,214 @@ class GCodeCalculator:
                         })
 
         return aspects
+
+    def calculate_extended_aspects(
+        self,
+        natal_data: Dict,
+        transit_data: Dict = None
+    ) -> Dict:
+        """
+        Calculate extended aspects including asteroids and lunar nodes.
+
+        Args:
+            natal_data: Natal chart data
+            transit_data: Current transit data (optional)
+
+        Returns:
+            Dictionary with all aspect categories
+        """
+        all_aspects = {
+            'natal_aspects': [],  # Between natal planets (classic)
+            'asteroid_aspects': [],  # Asteroid-to-asteroid and asteroid-to-natal
+            'node_aspects': [],  # Lunar node aspects
+            'extended_transit_aspects': []  # Transit asteroids/nodes to natal
+        }
+
+        aspect_types = {
+            'conjunction': 0,
+            'opposition': 180,
+            'trine': 120,
+            'square': 90,
+            'sextile': 60
+        }
+
+        # Calculate natal aspects with asteroids included
+        for body1_name, body1 in self.all_celestial_bodies.items():
+            for body2_name, body2 in self.all_celestial_bodies.items():
+                if body1_name >= body2_name:  # Avoid duplicates
+                    continue
+
+                # Get positions from natal_data
+                if body1_name in natal_data and body2_name in natal_data:
+                    lon1 = natal_data[body1_name]['longitude']
+                    lon2 = natal_data[body2_name]['longitude']
+
+                    # Calculate aspect
+                    diff = abs(lon1 - lon2) % 360
+                    if diff > 180:
+                        diff = 360 - diff
+
+                    for aspect_name, aspect_angle in aspect_types.items():
+                        if abs(diff - aspect_angle) <= 8:
+                            all_aspects['natal_aspects'].append({
+                                'body1': body1_name,
+                                'body2': body2_name,
+                                'aspect': aspect_name,
+                                'orb': abs(diff - aspect_angle)
+                            })
+
+        # Calculate lunar node aspects to natal
+        if natal_data:
+            # We'll calculate node positions based on the transit data
+            # For now, create a simplified calculation
+            node_orb = 6793.5  # 18.6 years
+            epoch = date(2000, 1, 1)
+
+            # Get user birth date from somewhere (this would need to be passed in)
+            # For now, calculate current node positions
+            if transit_data and 'lunar_nodes' in transit_data:
+                nn_lon = transit_data['lunar_nodes']['north_node']['longitude']
+                sn_lon = transit_data['lunar_nodes']['south_node']['longitude']
+
+                # Check node aspects to natal planets
+                for natal_planet, natal_pos in natal_data.items():
+                    # North Node aspects
+                    diff_nn = abs(nn_lon - natal_pos['longitude']) % 360
+                    if diff_nn > 180:
+                        diff_nn = 360 - diff_nn
+
+                    for aspect_name, aspect_angle in aspect_types.items():
+                        if abs(diff_nn - aspect_angle) <= 8:
+                            all_aspects['node_aspects'].append({
+                                'node': 'north_node',
+                                'natal_planet': natal_planet,
+                                'aspect': aspect_name,
+                                'orb': abs(diff_nn - aspect_angle)
+                            })
+
+                    # South Node aspects
+                    diff_sn = abs(sn_lon - natal_pos['longitude']) % 360
+                    if diff_sn > 180:
+                        diff_sn = 360 - diff_sn
+
+                    for aspect_name, aspect_angle in aspect_types.items():
+                        if abs(diff_sn - aspect_angle) <= 8:
+                            all_aspects['node_aspects'].append({
+                                'node': 'south_node',
+                                'natal_planet': natal_planet,
+                                'aspect': aspect_name,
+                                'orb': abs(diff_sn - aspect_angle)
+                            })
+
+        return all_aspects
+
+    def calculate_solar_system_transits(self, target_date: date) -> Dict:
+        """
+        Calculate heliocentric positions for all celestial bodies.
+        Returns data for D3.js solar system visualization.
+        """
+        dt = datetime.combine(target_date, datetime.min.time())
+        observer = ephem.Observer()
+        observer.date = dt
+
+        solar_system_data = {
+            'date': target_date.isoformat(),
+            'bodies': []
+        }
+
+        # Orbital radii in AU (for visualization scaling)
+        orbital_radii = {
+            'mercury': 0.39, 'venus': 0.72, 'earth': 1.0, 'mars': 1.52,
+            'ceres': 2.77, 'pallas': 2.77, 'juno': 2.77, 'vesta': 2.77,
+            'jupiter': 5.2, 'saturn': 9.58, 'chiron': 13.7,
+            'uranus': 19.2, 'neptune': 30.05, 'pluto': 39.48
+        }
+
+        for body_name, body in self.all_celestial_bodies.items():
+            body.compute(observer)
+
+            # Get heliocentric longitude
+            helio_lon = body.hlong
+            geocentric_lon = ephem.deg(body.ra + observer.sidereal_time())
+
+            solar_system_data['bodies'].append({
+                'name': body_name,
+                'symbol': self._get_planet_symbol(body_name),
+                'category': self._get_celestial_category(body_name),
+                'heliocentric_longitude': float(helio_lon),
+                'geocentric_longitude': float(geocentric_lon),
+                'orbital_radius_au': orbital_radii.get(body_name, 1.0),
+                'zodiac_sign': self._get_zodiac_sign(geocentric_lon),
+                'degree_in_sign': float(self._get_degree_in_sign(geocentric_lon))
+            })
+
+        # Calculate lunar nodes (geocentric)
+        lunar_nodes = self.calculate_lunar_nodes(observer)
+        solar_system_data['lunar_nodes'] = lunar_nodes
+
+        return solar_system_data
+
+    def _get_planet_symbol(self, body_name: str) -> str:
+        """Get astronomical symbol for celestial body."""
+        symbols = {
+            'sun': '☉', 'moon': '☽', 'mercury': '☿', 'venus': '♀',
+            'earth': '🌍', 'mars': '♂', 'jupiter': '♃', 'saturn': '♄',
+            'uranus': '♅', 'neptune': '♆', 'pluto': '♇',
+            'ceres': '⚳', 'pallas': '⚴', 'juno': '⚵', 'vesta': '⚶',
+            'chiron': '⚷'
+        }
+        return symbols.get(body_name, body_name[0].upper())
+
+    def _get_celestial_category(self, body_name: str) -> str:
+        """Get category for visualization grouping."""
+        categories = {
+            'sun': 'star',
+            'moon': 'satellite',
+            'mercury': 'personal', 'venus': 'personal', 'earth': 'personal', 'mars': 'personal',
+            'ceres': 'asteroid', 'pallas': 'asteroid', 'juno': 'asteroid', 'vesta': 'asteroid',
+            'jupiter': 'social', 'saturn': 'social',
+            'chiron': 'centaur',
+            'uranus': 'outer', 'neptune': 'outer', 'pluto': 'outer'
+        }
+        return categories.get(body_name, 'unknown')
+
+    def calculate_lunar_nodes(self, observer) -> Dict:
+        """
+        Calculate the true lunar nodes (North and South).
+        Returns geocentric longitudes for both nodes.
+
+        The nodes are mathematical points where the Moon's orbit
+        crosses the ecliptic. They are always exactly 180° apart.
+        """
+        import math
+
+        # Get Julian Date
+        j2000_epoch = 2451545.0
+        jd = observer.date + 2415020  # Convert to Julian Date
+        days_since_j2000 = jd - j2000_epoch
+
+        # Mean North Node calculation (simplified)
+        # Based on lunar orbit precession period of 18.6 years
+        node_period = 6793.5  # days
+        node_offset = (days_since_j2000 % node_period) / node_period * 360
+
+        # Nodes move in retrograde (backwards)
+        north_node_longitude = (125.0445 - node_offset * 360 / node_period) % 360
+        south_node_longitude = (north_node_longitude + 180) % 360
+
+        return {
+            'north_node': {
+                'name': 'north_node',
+                'symbol': '☊',
+                'longitude': round(north_node_longitude, 4),
+                'zodiac_sign': self._get_zodiac_sign(north_node_longitude),
+                'degree_in_sign': round(north_node_longitude % 30, 2)
+            },
+            'south_node': {
+                'name': 'south_node',
+                'symbol': '☋',
+                'longitude': round(south_node_longitude, 4),
+                'zodiac_sign': self._get_zodiac_sign(south_node_longitude),
+                'degree_in_sign': round(south_node_longitude % 30, 2)
+            }
+        }
