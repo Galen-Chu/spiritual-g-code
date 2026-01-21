@@ -59,6 +59,88 @@ class UserSerializer(serializers.ModelSerializer):
         except:
             return None
 
+    def validate_birth_date(self, value):
+        """Ensure birth date is not in the future."""
+        from datetime import date
+        if value > date.today():
+            raise serializers.ValidationError(
+                "Birth date cannot be in the future."
+            )
+        return value
+
+    def validate_birth_location(self, value):
+        """Ensure birth location is provided."""
+        if not value or not value.strip():
+            raise serializers.ValidationError(
+                "Birth location is required."
+            )
+        return value
+
+    def update(self, instance, validated_data):
+        """Update user and recalculate natal chart if birth data changed."""
+        from .models import NatalChart, UserActivity
+        import logging
+
+        # Check if birth data changed
+        birth_data_changed = (
+            ('birth_date' in validated_data and validated_data['birth_date'] != instance.birth_date) or
+            ('birth_time' in validated_data and validated_data['birth_time'] != instance.birth_time) or
+            ('birth_location' in validated_data and validated_data['birth_location'] != instance.birth_location) or
+            ('timezone' in validated_data and validated_data['timezone'] != instance.timezone)
+        )
+
+        # Store old data for logging
+        old_data = {
+            'birth_date': str(instance.birth_date),
+            'birth_time': str(instance.birth_time) if instance.birth_time else None,
+            'birth_location': instance.birth_location,
+            'timezone': instance.timezone
+        }
+
+        # Update user instance
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        # Recalculate natal chart if birth data changed
+        if birth_data_changed:
+            try:
+                from ai_engine.mock_calculator import MockGCodeCalculator
+                calculator = MockGCodeCalculator()
+
+                new_chart_data = calculator.calculate_natal_chart(
+                    birth_date=instance.birth_date,
+                    birth_time=instance.birth_time.strftime('%H:%M') if instance.birth_time else None,
+                    birth_location=instance.birth_location,
+                    timezone=instance.timezone
+                )
+
+                # Update or create natal chart
+                NatalChart.objects.update_or_create(
+                    user=instance,
+                    defaults=new_chart_data
+                )
+
+                # Log activity
+                UserActivity.objects.create(
+                    user=instance,
+                    activity_type='birth_data_updated',
+                    metadata={
+                        'old_data': old_data,
+                        'new_data': {
+                            'birth_date': str(instance.birth_date),
+                            'birth_location': instance.birth_location
+                        }
+                    }
+                )
+
+            except Exception as e:
+                logging.getLogger(__name__).error(
+                    f"Failed to recalculate natal chart: {str(e)}"
+                )
+
+        return instance
+
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     """Serializer for user registration."""

@@ -98,37 +98,230 @@
 
         <!-- Birth Information -->
         <div class="card">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-white flex items-center">
+                    <i data-lucide="calendar" class="w-5 h-5 mr-2 terminal-text"></i>
+                    Birth Information
+                </h2>
+                <div class="flex gap-2">
+                    <button id="export-data-btn"
+                            onclick="exportUserData()"
+                            class="text-blue-400 hover:text-blue-300 text-sm font-medium">
+                        <i data-lucide="download" class="w-4 h-4 inline mr-1"></i>
+                        Export
+                    </button>
+                    <button id="edit-birth-data-btn"
+                            onclick="showBirthDataEditForm()"
+                            class="text-gcode-green hover:text-gcode-greenDim text-sm font-medium">
+                        <i data-lucide="edit-2" class="w-4 h-4 inline mr-1"></i>
+                        Edit
+                    </button>
+                </div>
+            </div>
+
+            <!-- Display Mode -->
+            <div id="birth-data-display" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <p class="text-sm text-gray-400">Birth Date</p>
+                        <p class="text-white font-medium">{{ user.birth_date|date:"F d, Y" }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-400">Birth Time</p>
+                        <p class="text-white font-medium">{{ user.birth_time|time:"H:i"|default:"Not specified" }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-400">Birth Location</p>
+                        <p class="text-white font-medium">{{ user.birth_location }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-400">Timezone</p>
+                        <p class="text-white font-medium">{{ user.timezone }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Edit Mode -->
+            <form id="birth-data-form" class="hidden space-y-6 mt-6">
+                <!-- Warning Box -->
+                <div class="p-4 bg-yellow-900/20 border border-yellow-600 rounded-lg mb-4">
+                    <div class="flex items-start">
+                        <i data-lucide="alert-triangle" class="w-5 h-5 text-yellow-500 mr-2 mt-0.5"></i>
+                        <div class="text-sm">
+                            <p class="text-yellow-500 font-medium mb-1">Important: Birth Data Change</p>
+                            <p class="text-yellow-200/80">
+                                Updating your birth data will automatically recalculate your natal chart.
+                                Your previous chart data will be replaced. This action cannot be undone.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Fields -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-2">
+                            Birth Date <span class="text-red-500">*</span>
+                        </label>
+                        <input type="date" name="birth_date" required
+                               value="{{ user.birth_date|date:'Y-m-d' }}"
+                               class="w-full bg-gcode-bg border border-gcode-border rounded-lg px-4 py-3 text-white focus:outline-none focus:border-gcode-green transition-colors">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Birth Time</label>
+                        <input type="time" name="birth_time"
+                               value="{% if user.birth_time %}{{ user.birth_time|time:'H:i' }}{% endif %}"
+                               class="w-full bg-gcode-bg border border-gcode-border rounded-lg px-4 py-3 text-white focus:outline-none focus:border-gcode-green transition-colors">
+                        <p class="text-xs text-gray-500 mt-1">Optional but recommended</p>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-2">
+                        Birth Location <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" name="birth_location" required
+                           value="{{ user.birth_location }}"
+                           class="w-full bg-gcode-bg border border-gcode-border rounded-lg px-4 py-3 text-white focus:outline-none focus:border-gcode-green transition-colors"
+                           placeholder="e.g., Taipei, Taiwan">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-2">
+                        Timezone <span class="text-red-500">*</span>
+                    </label>
+                    <select name="timezone"
+                            class="w-full bg-gcode-bg border border-gcode-border rounded-lg px-4 py-3 text-white focus:outline-none focus:border-gcode-green transition-colors">
+                        <option value="UTC" {% if user.timezone == 'UTC' %}selected{% endif %}>UTC</option>
+                        <option value="Asia/Taipei" {% if user.timezone == 'Asia/Taipei' %}selected{% endif %}>Asia/Taipei (UTC+8)</option>
+                        <option value="Asia/Hong_Kong" {% if user.timezone == 'Asia/Hong_Kong' %}selected{% endif %}>Asia/Hong_Kong (UTC+8)</option>
+                        <option value="Asia/Singapore" {% if user.timezone == 'Asia/Singapore' %}selected{% endif %}>Asia/Singapore (UTC+8)</option>
+                        <option value="Asia/Shanghai" {% if user.timezone == 'Asia/Shanghai' %}selected{% endif %}>Asia/Shanghai (UTC+8)</option>
+                        <option value="Asia/Tokyo" {% if user.timezone == 'Asia/Tokyo' %}selected{% endif %}>Asia/Tokyo (UTC+9)</option>
+                        <option value="America/New_York" {% if user.timezone == 'America/New_York' %}selected{% endif %}>America/New_York (UTC-5)</option>
+                        <option value="America/Los_Angeles" {% if user.timezone == 'America/Los_Angeles' %}selected{% endif %}>America/Los_Angeles (UTC-8)</option>
+                        <option value="America/Chicago" {% if user.timezone == 'America/Chicago' %}selected{% endif %}>America/Chicago (UTC-6)</option>
+                        <option value="Europe/London" {% if user.timezone == 'Europe/London' %}selected{% endif %}>Europe/London (UTC+0)</option>
+                        <option value="Europe/Paris" {% if user.timezone == 'Europe/Paris' %}selected{% endif %}>Europe/Paris (UTC+1)</option>
+                        <option value="Europe/Berlin" {% if user.timezone == 'Europe/Berlin' %}selected{% endif %}>Europe/Berlin (UTC+1)</option>
+                        <option value="Australia/Sydney" {% if user.timezone == 'Australia/Sydney' %}selected{% endif %}>Australia/Sydney (UTC+10)</option>
+                    </select>
+                </div>
+
+                <div class="flex gap-3">
+                    <button type="submit"
+                            class="bg-gcode-green text-gcode-bg font-bold px-6 py-2 rounded-lg hover:bg-gcode-greenDim transition-colors">
+                        Save Changes
+                    </button>
+                    <button type="button"
+                            onclick="cancelBirthDataEdit()"
+                            class="bg-gray-700 text-white font-bold px-6 py-2 rounded-lg hover:bg-gray-600 transition-colors">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Data Management -->
+        <div class="card">
             <h2 class="text-xl font-bold text-white mb-6 flex items-center">
-                <i data-lucide="calendar" class="w-5 h-5 mr-2 terminal-text"></i>
-                Birth Information
+                <i data-lucide="database" class="w-5 h-5 mr-2 terminal-text"></i>
+                Data Management
             </h2>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <p class="text-sm text-gray-400">Birth Date</p>
-                    <p class="text-white font-medium">{{ user.birth_date|date:"F d, Y" }}</p>
+            <div class="space-y-4">
+                <!-- Delete Natal Chart -->
+                <div class="p-4 bg-gcode-bg border border-gcode-border rounded-lg">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-white font-medium mb-1">Delete Natal Chart</h3>
+                            <p class="text-sm text-gray-400">
+                                Remove your calculated natal chart. Your birth data will be kept.
+                                You can calculate a new chart anytime.
+                            </p>
+                        </div>
+                        <button onclick="deleteNatalChart()"
+                                class="bg-orange-600 hover:bg-orange-700 text-white font-medium px-4 py-2 rounded-lg transition-colors">
+                            <i data-lucide="trash-2" class="w-4 h-4 inline mr-1"></i>
+                            Delete Chart
+                        </button>
+                    </div>
                 </div>
 
-                <div>
-                    <p class="text-sm text-gray-400">Birth Time</p>
-                    <p class="text-white font-medium">{{ user.birth_time|default:"Not specified" }}</p>
-                </div>
-
-                <div>
-                    <p class="text-sm text-gray-400">Birth Location</p>
-                    <p class="text-white font-medium">{{ user.birth_location }}</p>
-                </div>
-
-                <div>
-                    <p class="text-sm text-gray-400">Timezone</p>
-                    <p class="text-white font-medium">{{ user.timezone }}</p>
+                <!-- Account Actions -->
+                <div class="p-4 bg-red-900/10 border border-red-600 rounded-lg">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-red-400 font-medium mb-1">Delete Account</h3>
+                            <p class="text-sm text-gray-400">
+                                Permanently delete your account and all data. This cannot be undone.
+                            </p>
+                        </div>
+                        <button onclick="showDeleteAccountDialog()"
+                                class="bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded-lg transition-colors">
+                            <i data-lucide="user-x" class="w-4 h-4 inline mr-1"></i>
+                            Delete Account
+                        </button>
+                    </div>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
 
-            <div class="mt-6 p-4 bg-gcode-bg border border-gcode-border rounded-lg">
-                <p class="text-sm text-gray-500 mb-2">⚠️ To update birth information, please contact support.</p>
-                <p class="text-xs text-gray-600">Accurate birth data is essential for precise natal chart calculations.</p>
+<!-- Delete Account Modal -->
+<div id="delete-account-modal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+    <div class="bg-[#161b22] border border-[#30363d] rounded-lg p-6 max-w-lg w-full">
+        <h2 class="text-xl font-bold text-white mb-4 flex items-center">
+            <i data-lucide="alert-triangle" class="w-6 h-6 text-red-500 mr-2"></i>
+            Delete Account
+        </h2>
+
+        <div class="space-y-4 mb-6">
+            <p class="text-gray-300">
+                This action <span class="text-red-400 font-bold">cannot be undone</span>.
+            </p>
+
+            <div class="p-4 bg-red-900/20 border border-red-600 rounded-lg">
+                <h3 class="text-red-400 font-medium mb-2">This will permanently delete:</h3>
+                <ul class="text-sm text-gray-300 space-y-1">
+                    <li>• Your profile and birth data</li>
+                    <li>• Your natal chart</li>
+                    <li>• All daily transit calculations</li>
+                    <li>• Generated content and notes</li>
+                    <li>• Activity history</li>
+                </ul>
             </div>
+
+            <div class="p-4 bg-blue-900/20 border border-blue-600 rounded-lg">
+                <h3 class="text-blue-400 font-medium mb-2">Before deleting:</h3>
+                <ul class="text-sm text-gray-300 space-y-1">
+                    <li>• Export your data (click "Export" button above)</li>
+                    <li>• Save any important information</li>
+                </ul>
+            </div>
+
+            <div class="flex items-start">
+                <input type="checkbox" id="delete-confirmation" class="mt-1 mr-2"
+                       class="w-4 h-4 bg-gcode-border border-gcode-border rounded focus:outline-none focus:border-gcode-green">
+                <label for="delete-confirmation" class="text-sm text-gray-400">
+                    I understand that this action cannot be undone and want to delete my account
+                </label>
+            </div>
+        </div>
+
+        <div class="flex gap-3">
+            <button onclick="confirmAccountDeletion()"
+                    id="confirm-delete-btn"
+                    disabled
+                    class="bg-red-600 hover:bg-red-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-white font-bold px-6 py-2 rounded-lg transition-colors">
+                Yes, Delete My Account
+            </button>
+            <button onclick="closeDeleteAccountDialog()"
+                    class="bg-gray-700 hover:bg-gray-600 text-white font-bold px-6 py-2 rounded-lg transition-colors">
+                Cancel
+            </button>
         </div>
     </div>
 </div>
@@ -139,61 +332,259 @@
 document.addEventListener('DOMContentLoaded', function() {
     lucide.createIcons();
 
-    // Profile form
-    document.getElementById('profile-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const formData = new FormData(e.target);
-        const data = Object.fromEntries(formData);
-
-        try {
-            const response = await fetch('/api/auth/profile/', {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                },
-                body: JSON.stringify(data),
-            });
-
-            if (response.ok) {
-                showToast('Profile updated successfully!', 'success');
-            } else {
-                showToast('Failed to update profile', 'error');
-            }
-        } catch (error) {
-            showToast('An error occurred', 'error');
-        }
+    // Enable/disable delete button based on checkbox
+    document.getElementById('delete-confirmation')?.addEventListener('change', function() {
+        document.getElementById('confirm-delete-btn').disabled = !this.checked;
     });
+});
 
-    // Preferences form
-    document.getElementById('preferences-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const formData = new FormData(e.target);
-        const data = Object.fromEntries(formData);
+// ==================== Birth Data Edit Functions ====================
 
-        // Convert checkboxes
-        data.email_notifications = e.target.querySelector('[name="email_notifications"]').checked;
-        data.daily_gcode_enabled = e.target.querySelector('[name="daily_gcode_enabled"]').checked;
+function showBirthDataEditForm() {
+    const confirmed = confirm(
+        '⚠️ Editing your birth data will recalculate your natal chart.\n\n' +
+        'Your current natal chart will be replaced.\n\n' +
+        'Do you want to continue?'
+    );
 
-        try {
-            const response = await fetch('/api/auth/profile/', {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                },
-                body: JSON.stringify(data),
-            });
+    if (confirmed) {
+        document.getElementById('birth-data-display').classList.add('hidden');
+        document.getElementById('birth-data-form').classList.remove('hidden');
+        document.getElementById('edit-birth-data-btn').classList.add('hidden');
+        lucide.createIcons();
+    }
+}
 
-            if (response.ok) {
-                showToast('Preferences saved successfully!', 'success');
-            } else {
-                showToast('Failed to save preferences', 'error');
-            }
-        } catch (error) {
-            showToast('An error occurred', 'error');
+function cancelBirthDataEdit() {
+    document.getElementById('birth-data-form').classList.add('hidden');
+    document.getElementById('birth-data-display').classList.remove('hidden');
+    document.getElementById('edit-birth-data-btn').classList.remove('hidden');
+    document.getElementById('birth-data-form').reset();
+}
+
+// Birth Data Form Submit
+document.getElementById('birth-data-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData);
+
+    // Validate birth date
+    const birthDate = new Date(data.birth_date);
+    if (birthDate > new Date()) {
+        showToast('Birth date cannot be in the future', 'error');
+        return;
+    }
+
+    // Validate birth location
+    if (!data.birth_location?.trim()) {
+        showToast('Birth location is required', 'error');
+        return;
+    }
+
+    try {
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        submitBtn.textContent = 'Saving...';
+        submitBtn.disabled = true;
+
+        const response = await fetch('/api/auth/profile/', {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+            },
+            body: JSON.stringify(data),
+        });
+
+        if (response.ok) {
+            showToast('Birth data updated! Natal chart recalculated.', 'success');
+            setTimeout(() => window.location.reload(), 2000);
+        } else {
+            const error = await response.json();
+            const errorMsg = error.birth_date?.[0] || error.birth_location?.[0] || error.detail || 'Update failed';
+            showToast(errorMsg, 'error');
         }
-    });
+    } catch (error) {
+        showToast('An error occurred', 'error');
+    } finally {
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        submitBtn.textContent = 'Save Changes';
+        submitBtn.disabled = false;
+    }
+});
+
+// ==================== Export Data Function ====================
+
+async function exportUserData() {
+    try {
+        const response = await fetch('/api/profile/export/', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+            }
+        });
+
+        if (response.ok) {
+            const contentDisposition = response.headers.get('Content-Disposition');
+            const filenameMatch = contentDisposition && contentDisposition.match(/filename="(.+)"/);
+            const filename = filenameMatch ? filenameMatch[1] : 'spiritual_gcode_data.json';
+
+            // Download file
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+
+            showToast('Data exported successfully!', 'success');
+        } else {
+            showToast('Failed to export data', 'error');
+        }
+    } catch (error) {
+        showToast('An error occurred', 'error');
+    }
+}
+
+// ==================== Delete Natal Chart Function ====================
+
+async function deleteNatalChart() {
+    const confirmed = confirm(
+        '⚠️ Delete your natal chart?\n\n' +
+        'This will remove your calculated natal chart data.\n' +
+        'Your birth information will be kept.\n\n' +
+        'You can calculate a new chart anytime.\n\n' +
+        'Do you want to continue?'
+    );
+
+    if (!confirmed) return;
+
+    try {
+        const response = await fetch('/api/auth/profile/', {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+            }
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            showToast('Natal chart deleted successfully', 'success');
+            setTimeout(() => window.location.reload(), 2000);
+        } else {
+            const error = await response.json();
+            showToast(error.detail || 'Failed to delete natal chart', 'error');
+        }
+    } catch (error) {
+        showToast('An error occurred', 'error');
+    }
+}
+
+// ==================== Account Deletion Functions ====================
+
+function showDeleteAccountDialog() {
+    document.getElementById('delete-account-modal').classList.remove('hidden');
+    lucide.createIcons();
+}
+
+function closeDeleteAccountDialog() {
+    document.getElementById('delete-account-modal').classList.add('hidden');
+    document.getElementById('delete-confirmation').checked = false;
+    document.getElementById('confirm-delete-btn').disabled = true;
+}
+
+async function confirmAccountDeletion() {
+    const finalConfirmed = confirm(
+        '⚠️ FINAL CONFIRMATION ⚠️\n\n' +
+        'Are you ABSOLUTELY sure you want to delete your account?\n\n' +
+        'All data will be permanently lost.\n\n' +
+        'Type "DELETE" to confirm.'
+    );
+
+    if (!finalConfirmed) return;
+
+    try {
+        const response = await fetch('/api/account/delete/', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+            }
+        });
+
+        if (response.ok) {
+            // Clear local storage
+            localStorage.clear();
+
+            // Redirect to home
+            window.location.href = '/';
+        } else {
+            const error = await response.json();
+            showToast(error.detail || 'Failed to delete account', 'error');
+        }
+    } catch (error) {
+        showToast('An error occurred', 'error');
+    }
+}
+
+// ==================== Existing Functions ====================
+
+// Profile form
+document.getElementById('profile-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData);
+
+    try {
+        const response = await fetch('/api/auth/profile/', {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+            },
+            body: JSON.stringify(data),
+        });
+
+        if (response.ok) {
+            showToast('Profile updated successfully!', 'success');
+        } else {
+            showToast('Failed to update profile', 'error');
+        }
+    } catch (error) {
+        showToast('An error occurred', 'error');
+    }
+});
+
+// Preferences form
+document.getElementById('preferences-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData);
+
+    // Convert checkboxes
+    data.email_notifications = e.target.querySelector('[name="email_notifications"]').checked;
+    data.daily_gcode_enabled = e.target.querySelector('[name="daily_gcode_enabled"]').checked;
+
+    try {
+        const response = await fetch('/api/auth/profile/', {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+            },
+            body: JSON.stringify(data),
+        });
+
+        if (response.ok) {
+            showToast('Preferences saved successfully!', 'success');
+        } else {
+            showToast('Failed to save preferences', 'error');
+        }
+    } catch (error) {
+        showToast('An error occurred', 'error');
+    }
 });
 </script>
 {% endblock %}

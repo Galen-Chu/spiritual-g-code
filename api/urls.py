@@ -8,6 +8,10 @@ from .views import (
     # Authentication
     RegisterView,
     UserProfileView,
+    # Export Data
+    ExportDataView,
+    # Account Deletion
+    AccountDeletionView,
     # Natal Charts
     NatalChartViewSet,
     # Daily Transits
@@ -41,6 +45,10 @@ urlpatterns = [
     # Authentication
     path('auth/register/', RegisterView.as_view(), name='register'),
     path('auth/profile/', UserProfileView.as_view(), name='profile'),
+    path('auth/profile/export/', ExportDataView.as_view(), name='user-export-data'),
+
+    # Account Deletion
+    path('account/delete/', AccountDeletionView.as_view(), name='account-delete'),
 
     # Dashboard
     path('dashboard/overview/', DashboardOverviewView.as_view(), name='dashboard-overview'),

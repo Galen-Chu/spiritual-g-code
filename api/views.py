@@ -104,6 +104,206 @@ class UserProfileView(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def delete(self, request):
+        """Delete user's natal chart (not the account)."""
+        from .models import NatalChart
+
+        try:
+            # Check if natal chart exists
+            natal_chart = NatalChart.objects.filter(user=request.user).first()
+
+            if not natal_chart:
+                return Response(
+                    {'detail': 'No natal chart found for this user.'},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+
+            # Store chart data for logging before deletion
+            chart_summary = {
+                'sun_sign': natal_chart.sun_sign,
+                'moon_sign': natal_chart.moon_sign,
+                'ascendant': natal_chart.ascendant,
+                'calculated_at': natal_chart.calculated_at.isoformat()
+            }
+
+            # Delete the natal chart
+            natal_chart.delete()
+
+            # Log activity
+            UserActivity.objects.create(
+                user=request.user,
+                activity_type='natal_chart_deleted',
+                metadata=chart_summary
+            )
+
+            return Response(
+                {
+                    'message': 'Natal chart deleted successfully.',
+                    'deleted_chart': chart_summary
+                },
+                status=status.HTTP_200_OK
+            )
+
+        except Exception as e:
+            return Response(
+                {'detail': f'Error deleting natal chart: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+# ============================================
+# Export Data View
+# ============================================
+
+class ExportDataView(APIView):
+    """Export user data as JSON (GDPR compliance)."""
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        """Export all user data as JSON."""
+        from .models import NatalChart, DailyTransit, GeneratedContent, UserActivity
+        import json
+        from datetime import datetime
+
+        # Collect all user data
+        export_data = {
+            'export_date': datetime.now().isoformat(),
+            'user_profile': {
+                'username': request.user.username,
+                'email': request.user.email,
+                'birth_date': str(request.user.birth_date),
+                'birth_time': str(request.user.birth_time) if request.user.birth_time else None,
+                'birth_location': request.user.birth_location,
+                'timezone': request.user.timezone,
+                'preferred_tone': request.user.preferred_tone,
+                'created_at': request.user.created_at.isoformat(),
+            },
+            'natal_chart': None,
+            'daily_transits': [],
+            'generated_content': [],
+            'activities': [],
+        }
+
+        # Get natal chart
+        try:
+            natal_chart = NatalChart.objects.get(user=request.user)
+            export_data['natal_chart'] = {
+                'sun_sign': natal_chart.sun_sign,
+                'moon_sign': natal_chart.moon_sign,
+                'ascendant': natal_chart.ascendant,
+                'dominant_elements': natal_chart.dominant_elements,
+                'key_aspects': natal_chart.key_aspects,
+                'calculated_at': natal_chart.calculated_at.isoformat(),
+            }
+        except NatalChart.DoesNotExist:
+            pass
+
+        # Get recent daily transits (last 30)
+        recent_transits = DailyTransit.objects.filter(
+            user=request.user
+        ).order_by('-transit_date')[:30]
+
+        export_data['daily_transits'] = [
+            {
+                'date': str(transit.transit_date),
+                'g_code_score': transit.g_code_score,
+                'intensity_level': transit.intensity_level,
+                'themes': transit.themes,
+                'calculated_at': transit.created_at.isoformat(),
+            }
+            for transit in recent_transits
+        ]
+
+        # Get generated content
+        content = GeneratedContent.objects.filter(user=request.user)[:10]
+        export_data['generated_content'] = [
+            {
+                'content_type': item.content_type,
+                'title': item.title,
+                'status': item.status,
+                'created_at': item.generated_at.isoformat(),
+            }
+            for item in content
+        ]
+
+        # Get recent activity
+        activities = UserActivity.objects.filter(
+            user=request.user
+        ).order_by('-created_at')[:50]
+
+        export_data['activities'] = [
+            {
+                'activity_type': activity.activity_type,
+                'metadata': activity.metadata,
+                'timestamp': activity.created_at.isoformat(),
+            }
+            for activity in activities
+        ]
+
+        # Create response
+        response = Response(
+            json.dumps(export_data, indent=2),
+            content_type='application/json',
+            headers={
+                'Content-Disposition': f'attachment; filename="spiritual_gcode_data_{request.user.username}_{datetime.now().strftime("%Y%m%d")}.json"'
+            }
+        )
+
+        # Log export
+        UserActivity.objects.create(
+            user=request.user,
+            activity_type='data_exported',
+            metadata={'export_type': 'full_user_data'}
+        )
+
+        return response
+
+
+# ============================================
+# Account Deletion View
+# ============================================
+
+class AccountDeletionView(APIView):
+    """Handle account deletion requests."""
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        """Delete user account and all associated data."""
+        from django.contrib.auth import logout
+
+        username = request.user.username
+        email = request.user.email
+
+        # Log deletion before deleting user
+        try:
+            UserActivity.objects.create(
+                user=request.user,
+                activity_type='account_deleted',
+                metadata={
+                    'username': username,
+                    'email': email,
+                    'deleted_at': timezone.now().isoformat()
+                }
+            )
+        except:
+            pass  # Proceed even if logging fails
+
+        # Delete user (CASCADE will delete all related data)
+        request.user.delete()
+
+        # Logout user
+        logout(request)
+
+        return Response(
+            {
+                'message': f'Account for {username} has been permanently deleted.',
+                'deleted_at': timezone.now().isoformat()
+            },
+            status=status.HTTP_200_OK
+        )
+
 
 # ============================================
 # Natal Chart Views
