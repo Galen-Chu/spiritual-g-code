@@ -241,14 +241,13 @@ class ExportDataView(APIView):
             for activity in activities
         ]
 
-        # Create response
-        response = Response(
+        # Create response with file download
+        from django.http import HttpResponse
+        response = HttpResponse(
             json.dumps(export_data, indent=2),
-            content_type='application/json',
-            headers={
-                'Content-Disposition': f'attachment; filename="spiritual_gcode_data_{request.user.username}_{datetime.now().strftime("%Y%m%d")}.json"'
-            }
+            content_type='application/json'
         )
+        response['Content-Disposition'] = f'attachment; filename="spiritual_gcode_data_{request.user.username}_{datetime.now().strftime("%Y%m%d")}.json"'
 
         # Log export
         UserActivity.objects.create(
