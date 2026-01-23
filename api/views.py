@@ -47,16 +47,94 @@ from .filters import DailyTransitFilter, GeneratedContentFilter, GCodeTemplateFi
 # Authentication Views
 # ============================================
 
+from django.contrib.auth import authenticate, login as auth_login
+from rest_framework_simplejwt.tokens import RefreshToken
+
+
+class CustomLoginView(APIView):
+    """Custom login view that creates both JWT token and Django session."""
+
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        """Handle login - returns JWT tokens and creates Django session."""
+        from .serializers import UserSerializer
+
+        username = request.data.get('username')
+        password = request.data.get('password')
+
+        if not username or not password:
+            return Response(
+                {'detail': 'Username and password are required.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Authenticate user
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            # Create Django session
+            auth_login(request, user)
+
+            # Generate JWT tokens
+            refresh = RefreshToken.for_user(user)
+
+            # Log activity
+            UserActivity.objects.create(
+                user=user,
+                activity_type='user_logged_in',
+                metadata={'ip_address': self.get_client_ip(request)}
+            )
+
+            return Response({
+                'access': str(refresh.access_token),
+                'refresh': str(refresh),
+                'user': UserSerializer(user).data
+            })
+
+        return Response(
+            {'detail': 'No active account found with the given credentials.'},
+            status=status.HTTP_401_UNAUTHORIZED
+        )
+
+    def get_client_ip(self, request):
+        """Get client IP address."""
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        return ip
+
+
 class RegisterView(APIView):
     """User registration endpoint."""
 
     permission_classes = [AllowAny]
 
+    def get(self, request):
+        """Return helpful message for GET requests."""
+        return Response(
+            {
+                'message': 'Please use POST request to register.',
+                'registration_page': '/auth/register/',
+                'usage': 'POST /api/auth/register/ with JSON body containing: username, email, password, password_confirm, birth_date, birth_location'
+            },
+            status=status.HTTP_200_OK
+        )
+
     def post(self, request):
-        """Register a new user."""
+        """Register a new user and create session."""
         serializer = UserRegistrationSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
+
+            # Create Django session for new user
+            auth_login(request, user)
+
+            # Generate JWT tokens
+            refresh = RefreshToken.for_user(user)
+
             # Log activity
             UserActivity.objects.create(
                 user=user,
@@ -66,6 +144,8 @@ class RegisterView(APIView):
             return Response(
                 {
                     'message': 'User registered successfully',
+                    'access': str(refresh.access_token),
+                    'refresh': str(refresh),
                     'user': UserSerializer(user).data
                 },
                 status=status.HTTP_201_CREATED

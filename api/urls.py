@@ -43,7 +43,7 @@ router.register(r'annotations', ChartAnnotationViewSet, basename='chart-annotati
 
 urlpatterns = [
     # Authentication
-    path('auth/register/', RegisterView.as_view(), name='register'),
+    path('auth/register/', RegisterView.as_view(), name='api-register'),
     path('auth/profile/', UserProfileView.as_view(), name='profile'),
     path('auth/profile/export/', ExportDataView.as_view(), name='user-export-data'),
 

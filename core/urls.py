@@ -27,6 +27,7 @@ from api.views_html import (
     register_view,
     test_login_view,
 )
+from api.views import CustomLoginView
 
 urlpatterns = [
     # Admin
@@ -44,8 +45,8 @@ urlpatterns = [
     path('auth/register/', register_view, name='register'),
     path('auth/test-login/', test_login_view, name='test_login'),
 
-    # API - JWT Authentication
-    path('api/auth/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    # API - JWT Authentication with Session support
+    path('api/auth/login/', CustomLoginView.as_view(), name='token_obtain_pair'),
     path('api/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/auth/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
 

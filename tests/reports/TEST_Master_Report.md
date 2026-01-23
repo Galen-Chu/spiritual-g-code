@@ -1,26 +1,30 @@
 # TEST_Master_Report
 
-**Date Range:** 2025-01-08 to 2026-01-21
+**Date Range:** 2025-01-08 to 2026-01-23
 **Project:** Spiritual G-Code
 **Tester:** Claude Code Assistant
-**Python Version:** 3.14.0
+**Python Version:** 3.11+
 **Django Version:** 5.0.1
 
 ---
 
 ## 📊 Test Report Summary
 
-This master report provides an index of all test reports for the Spiritual G-Code project.
+This master report provides an index of all test and debugging reports for the Spiritual G-Code project.
 
 ### Overall Statistics
 - **Total Test Reports:** 9
+- **Debugging Reports:** 2 (1 template + 1 session)
+- **Total Reports:** 11
 - **Test Categories:** 6
 - **Languages:** English, Traditional Chinese
 - **Status:** All Tests Passed ✓
 
 ---
 
-## 📚 Test Reports Index
+## 📚 Reports Index
+
+### Test Reports
 
 | # | Report Name | Date | Category | Status | Link |
 |---|-------------|------|----------|--------|------|
@@ -32,7 +36,14 @@ This master report provides an index of all test reports for the Spiritual G-Cod
 | 6 | Interactive Dashboard Features | 2025-01-14 | Features | ✅ Pass | [TEST_Interactive_Dashboard_Features_Report.md](./TEST_Interactive_Dashboard_Features_Report.md) |
 | 7 | Solar System Dashboard | 2025-01-20 | Dashboard | ✅ Pass | [TEST_Solar_System_Dashboard_Report.md](./TEST_Solar_System_Dashboard_Report.md) |
 | 8 | Birth Data Management | 2026-01-21 | Features | ✅ Pass | [TEST_Birth_Data_Management_Report.md](./TEST_Birth_Data_Management_Report.md) |
-| 9 | Master Report | 2026-01-21 | Index | ✅ Current | [This Document](./TEST_Master_Report.md) |
+| 9 | Master Report | 2026-01-23 | Index | ✅ Current | [This Document](./TEST_Master_Report.md) |
+
+### Debugging Reports
+
+| # | Report Name | Date | Issue | Status | Link |
+|---|-------------|------|-------|--------|------|
+| 1 | Authentication Session Fix | 2026-01-23 | Login/Registration not working | ✅ Resolved | [DEBUG_2026-01-23_Authentication_Session_Fix.md](./DEBUG_2026-01-23_Authentication_Session_Fix.md) |
+| 2 | Debugging Template | N/A | Template for future sessions | 📋 Template | [DEBUG_Template.md](./DEBUG_Template.md) |
 
 ---
 
@@ -168,12 +179,21 @@ This master report provides an index of all test reports for the Spiritual G-Cod
 5. **Security Testing:** Authentication and authorization
 6. **Performance Testing:** Load and response times
 
+### Debugging Approach
+1. **Issue Identification:** Review server logs and error messages
+2. **Root Cause Analysis:** Trace code flow and identify underlying problem
+3. **Solution Design:** Evaluate alternatives and select best approach
+4. **Implementation:** Make minimal, targeted changes
+5. **Verification:** Comprehensive testing of fix
+6. **Documentation:** Record debugging session for future reference
+
 ### Test Tools Used
 - Django Test Framework
 - cURL for API testing
 - Manual browser testing
 - Django development server
 - SQLite test database
+- Background task monitoring for server logs
 
 ---
 
@@ -192,7 +212,20 @@ This master report provides an index of all test reports for the Spiritual G-Cod
 - ✅ Security measures verified
 
 ### Bug Fixes Applied
-1. **Python 3.14 Compatibility** (2026-01-21)
+1. **Authentication Session Fix** (2026-01-23)
+   - Issue: Login returned JWT tokens but didn't create Django session
+   - Fix: Created CustomLoginView that handles both JWT and session auth
+   - Impact: Users can now successfully login and access dashboard
+   - Files Modified: `api/views.py`, `core/urls.py`, `api/urls.py`
+   - See: [DEBUG_2026-01-23_Authentication_Session_Fix.md](./DEBUG_2026-01-23_Authentication_Session_Fix.md)
+
+2. **URL Name Conflict** (2026-01-23)
+   - Issue: Both HTML and API registration routes used same URL name `'register'`
+   - Fix: Renamed API route to `'api-register'`
+   - Impact: Navigation links now correctly point to HTML pages
+   - See: [DEBUG_2026-01-23_Authentication_Session_Fix.md](./DEBUG_2026-01-23_Authentication_Session_Fix.md)
+
+3. **Python 3.14 Compatibility** (2026-01-21)
    - Fixed ExportDataView Response handling
    - Changed from DRF Response to Django HttpResponse
 
@@ -247,6 +280,6 @@ For questions about testing or to report issues, please refer to:
 
 ---
 
-**Last Updated:** 2026-01-21
+**Last Updated:** 2026-01-23
 **Next Review:** After next major feature release
-**Report Version:** 2.0
+**Report Version:** 2.1
