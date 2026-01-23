@@ -42,7 +42,7 @@ This master report provides an index of all test and debugging reports for the S
 
 | # | Report Name | Date | Issue | Status | Link |
 |---|-------------|------|-------|--------|------|
-| 1 | Authentication Session Fix | 2026-01-23 | Login/Registration not working | ✅ Resolved | [DEBUG_2026-01-23_Authentication_Session_Fix.md](./DEBUG_2026-01-23_Authentication_Session_Fix.md) |
+| 1 | Authentication Session Fix | 2026-01-23 | Login/Registration not working | ✅ Resolved | [DEBUG_2026-01-23_Authentication_Session_Fix_report.md](./DEBUG_2026-01-23_Authentication_Session_Fix_report.md) |
 | 2 | Debugging Template | N/A | Template for future sessions | 📋 Template | [DEBUG_Template.md](./DEBUG_Template.md) |
 
 ---
@@ -217,13 +217,13 @@ This master report provides an index of all test and debugging reports for the S
    - Fix: Created CustomLoginView that handles both JWT and session auth
    - Impact: Users can now successfully login and access dashboard
    - Files Modified: `api/views.py`, `core/urls.py`, `api/urls.py`
-   - See: [DEBUG_2026-01-23_Authentication_Session_Fix.md](./DEBUG_2026-01-23_Authentication_Session_Fix.md)
+   - See: [DEBUG_2026-01-23_Authentication_Session_Fix_report.md](./DEBUG_2026-01-23_Authentication_Session_Fix_report.md)
 
 2. **URL Name Conflict** (2026-01-23)
    - Issue: Both HTML and API registration routes used same URL name `'register'`
    - Fix: Renamed API route to `'api-register'`
    - Impact: Navigation links now correctly point to HTML pages
-   - See: [DEBUG_2026-01-23_Authentication_Session_Fix.md](./DEBUG_2026-01-23_Authentication_Session_Fix.md)
+   - See: [DEBUG_2026-01-23_Authentication_Session_Fix_report.md](./DEBUG_2026-01-23_Authentication_Session_Fix_report.md)
 
 3. **Python 3.14 Compatibility** (2026-01-21)
    - Fixed ExportDataView Response handling

@@ -1,4 +1,4 @@
-# DEBUG_[Date]_[Brief_Title]
+# DEBUG_[Date]_[Brief_Title]_report
 
 **Date:** YYYY-MM-DD
 **Session:** Debugging with User
