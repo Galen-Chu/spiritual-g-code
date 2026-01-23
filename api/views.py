@@ -129,6 +129,26 @@ class RegisterView(APIView):
         if serializer.is_valid():
             user = serializer.save()
 
+            # Auto-create natal chart if birth data provided
+            if user.birth_date and user.birth_location:
+                try:
+                    from ai_engine.mock_calculator import MockGCodeCalculator
+                    calculator = MockGCodeCalculator()
+                    chart_data = calculator.calculate_natal_chart(
+                        birth_date=user.birth_date,
+                        birth_time=user.birth_time.strftime('%H:%M') if user.birth_time else None,
+                        birth_location=user.birth_location,
+                        timezone=user.timezone
+                    )
+                    # Create natal chart
+                    from .models import NatalChart
+                    NatalChart.objects.create(user=user, **chart_data)
+                except Exception as e:
+                    # Log error but don't fail registration
+                    import logging
+                    logger = logging.getLogger(__name__)
+                    logger.warning(f"Failed to auto-create natal chart for user {user.username}: {e}")
+
             # Create Django session for new user
             auth_login(request, user)
 

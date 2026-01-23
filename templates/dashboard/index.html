@@ -801,9 +801,11 @@ document.addEventListener('DOMContentLoaded', async function() {
 
         const data = await response.json();
 
-        // Hide loading, show content
-        document.getElementById('dashboard-loading').classList.add('hidden');
-        document.getElementById('dashboard-content').classList.remove('hidden');
+        // Hide loading, show content (do this first)
+        const loadingEl = document.getElementById('dashboard-loading');
+        const contentEl = document.getElementById('dashboard-content');
+        if (loadingEl) loadingEl.classList.add('hidden');
+        if (contentEl) contentEl.classList.remove('hidden');
 
         // Update today's G-Code
         if (data.today_gcode) {

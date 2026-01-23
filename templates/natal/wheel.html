@@ -233,7 +233,12 @@ class NatalWheelController {
 
         } catch (error) {
             console.error('Error loading wheel:', error);
-            this.showError(error.message);
+            // Ensure loading is hidden and error is shown
+            const loadingEl = document.getElementById('wheel-loading');
+            const errorEl = document.getElementById('wheel-error');
+            if (loadingEl) loadingEl.classList.add('hidden');
+            if (errorEl) errorEl.classList.remove('hidden');
+            this.showError(error.message || 'Failed to load natal wheel');
         }
     }
 
@@ -328,9 +333,14 @@ class NatalWheelController {
     }
 
     showError(message) {
-        document.getElementById('wheel-loading').classList.add('hidden');
-        document.getElementById('wheel-error').classList.remove('hidden');
-        document.getElementById('error-message').textContent = message;
+        const loadingEl = document.getElementById('wheel-loading');
+        const errorEl = document.getElementById('wheel-error');
+        const msgEl = document.getElementById('error-message');
+
+        if (loadingEl) loadingEl.classList.add('hidden');
+        if (errorEl) errorEl.classList.remove('hidden');
+        if (msgEl) msgEl.textContent = message;
+        console.error('Natal wheel error:', message);
     }
 
     refresh() {

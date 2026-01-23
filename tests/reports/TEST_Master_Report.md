@@ -43,7 +43,8 @@ This master report provides an index of all test and debugging reports for the S
 | # | Report Name | Date | Issue | Status | Link |
 |---|-------------|------|-------|--------|------|
 | 1 | Authentication Session Fix | 2026-01-23 | Login/Registration not working | ✅ Resolved | [DEBUG_2026-01-23_Authentication_Session_Fix_report.md](./DEBUG_2026-01-23_Authentication_Session_Fix_report.md) |
-| 2 | Debugging Template | N/A | Template for future sessions | 📋 Template | [DEBUG_Template.md](./DEBUG_Template.md) |
+| 2 | Dashboard & Natal Wheel Fixes | 2026-01-23 | Dashboard loading, Wheel calculating stuck | ✅ Resolved | [DEBUG_2026-01-23_Dashboard_Natal_Wheel_Fixes_report.md](./DEBUG_2026-01-23_Dashboard_Natal_Wheel_Fixes_report.md) |
+| 3 | Debugging Template | N/A | Template for future sessions | 📋 Template | [DEBUG_Template.md](../DEBUG_Template.md) |
 
 ---
 
@@ -212,20 +213,27 @@ This master report provides an index of all test and debugging reports for the S
 - ✅ Security measures verified
 
 ### Bug Fixes Applied
-1. **Authentication Session Fix** (2026-01-23)
+1. **Dashboard & Natal Wheel Data Missing** (2026-01-23)
+   - Issue: Users didn't have natal charts, causing loading states to hang
+   - Fix: Auto-create natal chart on registration
+   - Impact: All users now have natal charts automatically
+   - Files Modified: `api/views.py` (RegisterView), `templates/dashboard/index.html`, `templates/natal/wheel.html`
+   - See: [DEBUG_2026-01-23_Dashboard_Natal_Wheel_Fixes_report.md](./DEBUG_2026-01-23_Dashboard_Natal_Wheel_Fixes_report.md)
+
+2. **Authentication Session Fix** (2026-01-23)
    - Issue: Login returned JWT tokens but didn't create Django session
    - Fix: Created CustomLoginView that handles both JWT and session auth
    - Impact: Users can now successfully login and access dashboard
    - Files Modified: `api/views.py`, `core/urls.py`, `api/urls.py`
    - See: [DEBUG_2026-01-23_Authentication_Session_Fix_report.md](./DEBUG_2026-01-23_Authentication_Session_Fix_report.md)
 
-2. **URL Name Conflict** (2026-01-23)
+3. **URL Name Conflict** (2026-01-23)
    - Issue: Both HTML and API registration routes used same URL name `'register'`
    - Fix: Renamed API route to `'api-register'`
    - Impact: Navigation links now correctly point to HTML pages
    - See: [DEBUG_2026-01-23_Authentication_Session_Fix_report.md](./DEBUG_2026-01-23_Authentication_Session_Fix_report.md)
 
-3. **Python 3.14 Compatibility** (2026-01-21)
+4. **Python 3.14 Compatibility** (2026-01-21)
    - Fixed ExportDataView Response handling
    - Changed from DRF Response to Django HttpResponse
 
@@ -282,4 +290,4 @@ For questions about testing or to report issues, please refer to:
 
 **Last Updated:** 2026-01-23
 **Next Review:** After next major feature release
-**Report Version:** 2.1
+**Report Version:** 2.2
