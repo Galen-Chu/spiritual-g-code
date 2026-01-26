@@ -7,6 +7,7 @@ class PlanetaryPositionsChart {
     constructor(canvasId) {
         this.canvas = document.getElementById(canvasId);
         this.chart = null;
+        this.rawData = null;  // Store original data for legend generation
     }
 
     async loadChartData() {
@@ -44,6 +45,9 @@ class PlanetaryPositionsChart {
             return;
         }
 
+        // Store raw data for use in legend generation
+        this.rawData = data;
+
         const ctx = this.canvas.getContext('2d');
 
         // Destroy existing chart if any
@@ -58,6 +62,9 @@ class PlanetaryPositionsChart {
             const element = d.element || 'air';
             return window.GcodeChartUtils.ELEMENT_COLORS[element] || '#999';
         });
+
+        // Capture rawData in a closure for use in generateLabels
+        const rawData = data;
 
         // Create chart
         this.chart = new Chart(ctx, {
@@ -91,9 +98,17 @@ class PlanetaryPositionsChart {
                                 const data = chart.data;
                                 if (data.labels.length && data.datasets.length) {
                                     return data.labels.map((label, i) => {
-                                        const planet = data.labels[i];
-                                        const sign = data.datasets[0].data[i];
-                                        return `${planet} (${sign}°)`;
+                                        const meta = chart.getDatasetMeta(0);
+                                        const style = meta.controller.getStyle(i);
+
+                                        return {
+                                            text: `${rawData[i].planet} in ${rawData[i].sign} (${rawData[i].degree}°)`,
+                                            fillStyle: style.backgroundColor,
+                                            strokeStyle: style.borderColor,
+                                            lineWidth: style.borderWidth,
+                                            hidden: isNaN(data.datasets[0].data[i]) || meta.data[i].hidden,
+                                            index: i
+                                        };
                                     });
                                 }
                                 return [];

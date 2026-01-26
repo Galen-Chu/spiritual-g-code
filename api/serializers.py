@@ -340,6 +340,7 @@ class DashboardOverviewSerializer(serializers.Serializer):
     weekly_transits = DailyTransitSerializer(many=True, read_only=True)
     recent_content = GeneratedContentSerializer(many=True, read_only=True)
     user_stats = serializers.DictField(read_only=True)
+    natal_chart = NatalChartSerializer(read_only=True)
 
 
 class NatalChartCalculationSerializer(serializers.Serializer):

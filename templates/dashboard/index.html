@@ -407,7 +407,7 @@
             <h1 class="text-3xl font-bold text-white mb-2">
                 <span class="terminal-text">root@spiritual-gcode</span>:~# ./dashboard.sh
             </h1>
-            <p class="text-gray-400 typing-cursor">Loading cosmic data...</p>
+            <p id="cosmic-status" class="text-gray-400 typing-cursor">Loading cosmic data...</p>
         </div>
         <div class="flex items-center gap-4">
             <a href="{% url 'wheel' %}" class="global-action-btn" style="text-decoration: none;">
@@ -795,51 +795,84 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     try {
+        console.log('[Dashboard] Starting initialization...');
         // Fetch dashboard data
+        console.log('[Dashboard] Fetching data from /api/dashboard/overview/...');
         const response = await fetch('/api/dashboard/overview/');
         if (!response.ok) throw new Error('Failed to fetch dashboard data');
 
         const data = await response.json();
+        console.log('[Dashboard] Data received:', data);
+
+        // Update cosmic status text
+        const statusEl = document.getElementById('cosmic-status');
+        if (statusEl) {
+            if (data.today_gcode) {
+                statusEl.textContent = `✓ Cosmic data loaded for ${new Date().toLocaleDateString()}`;
+                statusEl.classList.remove('typing-cursor');
+                statusEl.classList.add('text-gcode-green');
+            } else {
+                statusEl.textContent = '⚠ No cosmic data available - Calculate your natal chart to see daily transits';
+                statusEl.classList.remove('typing-cursor');
+                statusEl.classList.add('text-yellow-500');
+            }
+        }
 
         // Hide loading, show content (do this first)
+        console.log('[Dashboard] Hiding loading, showing content...');
         const loadingEl = document.getElementById('dashboard-loading');
         const contentEl = document.getElementById('dashboard-content');
         if (loadingEl) loadingEl.classList.add('hidden');
         if (contentEl) contentEl.classList.remove('hidden');
+        console.log('[Dashboard] Loading hidden, content shown');
 
         // Update today's G-Code
         if (data.today_gcode) {
+            console.log('[Dashboard] Updating today\'s G-Code...');
             updateTodayGCode(data.today_gcode);
         }
 
         // Update weekly forecast
         if (data.weekly_transits && data.weekly_transits.length > 0) {
+            console.log('[Dashboard] Updating weekly forecast...');
             updateWeeklyForecast(data.weekly_transits);
         }
 
         // Update recent content
         if (data.recent_content && data.recent_content.length > 0) {
+            console.log('[Dashboard] Updating recent content...');
             updateRecentContent(data.recent_content);
         }
 
         // Update user stats
         if (data.user_stats) {
+            console.log('[Dashboard] Updating user stats...');
             updateUserStats(data.user_stats);
+        }
+
+        // Update natal chart signs
+        if (data.natal_chart) {
+            console.log('[Dashboard] Updating natal chart signs...');
+            updateNatalChartSigns(data.natal_chart);
         }
 
         // Initialize Charts
         if (window.DashboardChartsManager) {
+            console.log('[Dashboard] Initializing charts...');
             window.chartManager = new window.DashboardChartsManager();
             await window.chartManager.initAll();
+            console.log('[Dashboard] Charts initialized');
         }
 
         // Initialize WebSocket for real-time updates
         if (window.initDashboardWebSocket) {
+            console.log('[Dashboard] Initializing WebSocket...');
             initDashboardWebSocket();
         }
 
         // Initialize Annotation system
         if (window.annotationUI && window.annotationManager) {
+            console.log('[Dashboard] Initializing annotation system...');
             // Preload annotations for all chart types
             const chartTypes = ['gcode_trend', 'planetary', 'element', 'forecast', 'network'];
             for (const chartType of chartTypes) {
@@ -857,8 +890,11 @@ document.addEventListener('DOMContentLoaded', async function() {
             }
         }
 
+        console.log('[Dashboard] ✓ Initialization complete!');
+
     } catch (error) {
-        console.error('Error loading dashboard:', error);
+        console.error('[Dashboard] Error loading dashboard:', error);
+        console.error('[Dashboard] Error stack:', error.stack);
         showError('Failed to load dashboard data. Please try again.');
     }
 });
@@ -966,6 +1002,28 @@ function updateUserStats(stats) {
     document.getElementById('stat-content').textContent = stats.total_content || 0;
     document.getElementById('stat-avg-score').textContent = stats.avg_gcode_score || '--';
     document.getElementById('stat-days').textContent = Math.floor(stats.total_transits / 7) || 0;
+}
+
+function updateNatalChartSigns(natalChart) {
+    const sunSignEl = document.getElementById('sun-sign');
+    const moonSignEl = document.getElementById('moon-sign');
+    const ascendantEl = document.getElementById('ascendant');
+
+    if (sunSignEl && natalChart.sun_sign) {
+        sunSignEl.textContent = natalChart.sun_sign;
+    }
+    if (moonSignEl && natalChart.moon_sign) {
+        moonSignEl.textContent = natalChart.moon_sign;
+    }
+    if (ascendantEl && natalChart.ascendant) {
+        ascendantEl.textContent = natalChart.ascendant;
+    }
+
+    console.log('[Dashboard] Natal chart signs updated:',
+        'Sun:', natalChart.sun_sign,
+        'Moon:', natalChart.moon_sign,
+        'Ascendant:', natalChart.ascendant
+    );
 }
 
 function showError(message) {

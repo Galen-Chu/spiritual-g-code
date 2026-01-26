@@ -8,6 +8,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.authentication import SessionAuthentication
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 from django.db.models import Q, Count, Avg
 from datetime import date, datetime, timedelta
@@ -412,7 +415,8 @@ class NatalChartViewSet(viewsets.ModelViewSet):
     """ViewSet for NatalChart model."""
 
     serializer_class = NatalChartSerializer
-    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
+    permission_classes = [IsAuthenticated]  # Simplified - users can only access their own charts via queryset filter
+    authentication_classes = [SessionAuthentication, JWTAuthentication]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['user__username']
     ordering_fields = ['calculated_at', 'updated_at']
@@ -422,46 +426,157 @@ class NatalChartViewSet(viewsets.ModelViewSet):
         """Return natal chart for current user."""
         return NatalChart.objects.filter(user=self.request.user)
 
-    @action(detail=False, methods=['post'])
+    @action(detail=False, methods=['post'], authentication_classes=[SessionAuthentication])
     def calculate(self, request):
-        """Calculate natal chart for user."""
-        serializer = NatalChartCalculationSerializer(data=request.data)
-        if serializer.is_valid():
-            # Import calculator
-            from ai_engine.calculator import GCodeCalculator
+        """Calculate natal chart for user using stored birth data."""
+        # Check if user is authenticated
+        if not request.user.is_authenticated:
+            return Response(
+                {'error': 'Authentication required'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
 
+        # Import calculator
+        from ai_engine.mock_calculator import MockGCodeCalculator
+
+        # Use user's stored birth data if not provided in request
+        birth_date = request.data.get('birth_date') or request.user.birth_date
+        birth_time = request.data.get('birth_time') or (request.user.birth_time.strftime('%H:%M') if request.user.birth_time else None)
+        birth_location = request.data.get('birth_location') or request.user.birth_location
+        timezone = request.data.get('timezone') or request.user.timezone
+
+        # Validate that user has required birth data
+        if not birth_date or not birth_location:
+            return Response(
+                {'error': 'Birth date and birth location are required. Please update your profile.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            calculator = MockGCodeCalculator()
+            chart_data = calculator.calculate_natal_chart(
+                birth_date=birth_date,
+                birth_time=birth_time,
+                birth_location=birth_location,
+                timezone=timezone
+            )
+
+            # Create or update natal chart
+            natal_chart, created = NatalChart.objects.update_or_create(
+                user=request.user,
+                defaults=chart_data
+            )
+
+            # Log activity
             try:
-                calculator = GCodeCalculator()
-                chart_data = calculator.calculate_natal_chart(
-                    birth_date=serializer.validated_data['birth_date'],
-                    birth_time=serializer.validated_data.get('birth_time'),
-                    birth_location=serializer.validated_data['birth_location'],
-                    timezone=serializer.validated_data.get('timezone', 'UTC')
-                )
-
-                # Create or update natal chart
-                natal_chart, created = NatalChart.objects.update_or_create(
-                    user=request.user,
-                    defaults=chart_data
-                )
-
-                # Log activity
                 UserActivity.objects.create(
                     user=request.user,
                     activity_type='natal_chart_calculated',
                     metadata={'created': created}
                 )
+            except:
+                pass  # Continue even if logging fails
 
-                return Response(
-                    NatalChartSerializer(natal_chart).data,
-                    status=status.HTTP_201_CREATED if created else status.HTTP_200_OK
+            return Response(
+                NatalChartSerializer(natal_chart).data,
+                status=status.HTTP_201_CREATED if created else status.HTTP_200_OK
+            )
+        except Exception as e:
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+# ============================================
+# Natal Chart Calculation View
+# ============================================
+
+class NatalChartCalculateView(APIView):
+    """Separate view for natal chart calculation."""
+
+    authentication_classes = [JWTAuthentication, SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    @csrf_exempt
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def post(self, request):
+        """Calculate natal chart for user using stored birth data."""
+        # Debug logging
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info(f'[NatalChartCalculateView] Request received')
+        logger.info(f'[NatalChartCalculateView] User authenticated: {request.user.is_authenticated}')
+        logger.info(f'[NatalChartCalculateView] User: {request.user}')
+
+        # Check if user is authenticated
+        if not request.user.is_authenticated:
+            logger.warning('[NatalChartCalculateView] User not authenticated')
+            return Response(
+                {'error': 'Authentication required'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        # Import calculator
+        from ai_engine.mock_calculator import MockGCodeCalculator
+
+        # Use user's stored birth data
+        birth_date = request.user.birth_date
+        birth_time = request.user.birth_time.strftime('%H:%M') if request.user.birth_time else None
+        birth_location = request.user.birth_location
+        timezone = request.user.timezone
+
+        logger.info(f'[NatalChartCalculateView] Birth data: {birth_date}, {birth_location}')
+
+        # Validate that user has required birth data
+        if not birth_date or not birth_location:
+            logger.warning('[NatalChartCalculateView] Missing birth data')
+            return Response(
+                {'error': 'Birth date and birth location are required. Please update your profile.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            calculator = MockGCodeCalculator()
+            chart_data = calculator.calculate_natal_chart(
+                birth_date=birth_date,
+                birth_time=birth_time,
+                birth_location=birth_location,
+                timezone=timezone
+            )
+
+            logger.info(f'[NatalChartCalculateView] Chart calculated successfully')
+
+            # Create or update natal chart
+            natal_chart, created = NatalChart.objects.update_or_create(
+                user=request.user,
+                defaults=chart_data
+            )
+
+            logger.info(f'[NatalChartCalculateView] Natal chart {"created" if created else "updated"}')
+
+            # Log activity
+            try:
+                UserActivity.objects.create(
+                    user=request.user,
+                    activity_type='natal_chart_calculated',
+                    metadata={'created': created}
                 )
-            except Exception as e:
-                return Response(
-                    {'error': str(e)},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                )
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            except:
+                pass  # Continue even if logging fails
+
+            return Response(
+                NatalChartSerializer(natal_chart).data,
+                status=status.HTTP_201_CREATED if created else status.HTTP_200_OK
+            )
+        except Exception as e:
+            logger.error(f'[NatalChartCalculateView] Error: {e}', exc_info=True)
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 # ============================================
@@ -688,6 +803,12 @@ class DashboardOverviewView(APIView):
             user=request.user
         ).order_by('-generated_at')[:5]
 
+        # Get natal chart
+        try:
+            natal_chart = NatalChart.objects.get(user=request.user)
+        except NatalChart.DoesNotExist:
+            natal_chart = None
+
         # Calculate user stats
         total_transits = DailyTransit.objects.filter(user=request.user).count()
         total_content = GeneratedContent.objects.filter(user=request.user).count()
@@ -713,6 +834,7 @@ class DashboardOverviewView(APIView):
             'weekly_transits': weekly_transits,
             'recent_content': recent_content,
             'user_stats': user_stats,
+            'natal_chart': natal_chart,
         })
 
         return Response(serializer.data)

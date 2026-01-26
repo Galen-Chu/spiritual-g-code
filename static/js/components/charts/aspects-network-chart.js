@@ -199,14 +199,23 @@ class AspectsNetworkChart {
             },
             // Node hover effect
             {
-                selector: 'node:hover',
+                selector: 'node',
+                style: {
+                    'overlay-color': colors.green,
+                    'overlay-padding': '8px',
+                    'overlay-opacity': 0
+                }
+            },
+            {
+                selector: 'node.hover',
                 style: {
                     'border-width': 4,
                     'border-color': colors.text,
                     'width': '60px',
                     'height': '60px',
                     'transition-property': 'width, height, border-width',
-                    'transition-duration': '0.2s'
+                    'transition-duration': '0.2s',
+                    'overlay-opacity': 0.3
                 }
             },
             // Edge styles - by aspect type
@@ -268,12 +277,13 @@ class AspectsNetworkChart {
             },
             // Edge hover effect
             {
-                selector: 'edge:hover',
+                selector: 'edge.hover',
                 style: {
                     'width': 6,
                     'opacity': 1,
                     'transition-property': 'width, opacity',
-                    'transition-duration': '0.2s'
+                    'transition-duration': '0.2s',
+                    'line-color': colors.green
                 }
             }
         ];
@@ -285,18 +295,30 @@ class AspectsNetworkChart {
         // Show tooltip on node hover
         this.cy.on('mouseover', 'node', (evt) => {
             const node = evt.target;
+            node.addClass('hover');
             const label = node.data('label');
             const group = node.data('group');
             console.log(`Planet: ${label} (${group})`);
         });
 
+        this.cy.on('mouseout', 'node', (evt) => {
+            const node = evt.target;
+            node.removeClass('hover');
+        });
+
         // Show edge info on hover
         this.cy.on('mouseover', 'edge', (evt) => {
             const edge = evt.target;
+            edge.addClass('hover');
             const source = this.cy.getElementById(edge.data('source')).data('label');
             const target = this.cy.getElementById(edge.data('target')).data('label');
             const type = edge.data('type');
             console.log(`Aspect: ${source} ${type} ${target}`);
+        });
+
+        this.cy.on('mouseout', 'edge', (evt) => {
+            const edge = evt.target;
+            edge.removeClass('hover');
         });
 
         // Highlight connected nodes on tap

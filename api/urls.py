@@ -14,6 +14,7 @@ from .views import (
     AccountDeletionView,
     # Natal Charts
     NatalChartViewSet,
+    NatalChartCalculateView,
     # Daily Transits
     DailyTransitViewSet,
     # Generated Content
@@ -49,6 +50,9 @@ urlpatterns = [
 
     # Account Deletion
     path('account/delete/', AccountDeletionView.as_view(), name='account-delete'),
+
+    # Natal Chart Calculation (must come before ViewSet routes)
+    path('natal/calculate/', NatalChartCalculateView.as_view(), name='natal-calculate'),
 
     # Dashboard
     path('dashboard/overview/', DashboardOverviewView.as_view(), name='dashboard-overview'),
