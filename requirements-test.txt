@@ -1,15 +1,5 @@
-# Django & DRF
-Django==5.0.1
-djangorestframework==3.14.0
-django-cors-headers==4.3.1
-
-# Testing
-pytest==7.4.4
-pytest-django==4.7.0
-
-# Google AI
-google-generativeai==0.3.2
-
-# Misc
-python-dotenv==1.0.0
-PyJWT==2.8.0
+# Test requirements inherit the full runtime dependencies so the test
+# environment always matches what the code imports at settings-load time.
+# The previous minimal list was missing channels, celery, dj-database-url,
+# ephem, djangorestframework-simplejwt, drf-spectacular, pytest-cov, etc.
+-r requirements.txt
