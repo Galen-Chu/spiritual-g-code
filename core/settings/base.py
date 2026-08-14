@@ -3,8 +3,8 @@ Django settings for Spiritual G-Code project.
 """
 
 import os
-from pathlib import Path
 from datetime import timedelta
+from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -78,6 +78,7 @@ ASGI_APPLICATION = 'core.asgi.application'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 # Use SQLite for testing (switch to PostgreSQL in production)
 import os
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',

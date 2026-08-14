@@ -2,11 +2,12 @@
 Google Gemini AI Client for Spiritual G-Code.
 """
 
-import google.generativeai as genai
-from typing import Dict, List, Optional
-from django.conf import settings
 import json
 import re
+from typing import Dict, List, Optional
+
+import google.generativeai as genai
+from django.conf import settings
 
 
 class GeminiGCodeClient:

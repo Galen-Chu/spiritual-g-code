@@ -2,16 +2,17 @@
 Django REST Framework Serializers for Spiritual G-Code API.
 """
 
-from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from rest_framework import serializers
+
+from .annotation import ChartAnnotation
 from .models import (
-    NatalChart,
     DailyTransit,
-    GeneratedContent,
     GCodeTemplate,
+    GeneratedContent,
+    NatalChart,
     UserActivity,
 )
-from .annotation import ChartAnnotation
 
 User = get_user_model()
 
@@ -78,8 +79,9 @@ class UserSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         """Update user and recalculate natal chart if birth data changed."""
-        from .models import NatalChart, UserActivity
         import logging
+
+        from .models import NatalChart, UserActivity
 
         # Check if birth data changed
         birth_data_changed = (
@@ -287,8 +289,9 @@ class GenerateContentSerializer(serializers.Serializer):
 
     def validate_transit_date(self, value):
         """Validate transit date is not in the future (for most content types)."""
-        from django.utils import timezone
         from datetime import date
+
+        from django.utils import timezone
 
         if value and value > date.today():
             raise serializers.ValidationError(

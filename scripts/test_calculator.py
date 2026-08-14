@@ -3,13 +3,14 @@ Test script for Mock G-Code Calculator.
 Run this to verify the calculator is working correctly.
 """
 
-import sys
 import os
+import sys
 
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from datetime import date
+
 from ai_engine.mock_calculator import MockGCodeCalculator
 
 

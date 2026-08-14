@@ -10,6 +10,7 @@ from datetime import date
 # Import calculator
 from ai_engine.mock_calculator import MockGCodeCalculator
 
+
 def test_placidus_houses():
     """Test Placidus house calculation"""
     print('=== Test 1: Placidus House Calculation ===')

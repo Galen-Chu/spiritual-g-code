@@ -2,9 +2,10 @@
 Production settings for Spiritual G-Code.
 """
 
-from .base import *
 import sentry_sdk
 from sentry_sdk.integrations.django import SentryIntegration
+
+from .base import *
 
 # Debug Mode - MUST be False in production
 DEBUG = False

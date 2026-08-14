@@ -5,8 +5,8 @@ Use this for development and testing.
 """
 
 import random
-from typing import Dict, List, Optional
 from datetime import date
+from typing import Dict, List, Optional
 
 
 class MockGeminiGCodeClient:

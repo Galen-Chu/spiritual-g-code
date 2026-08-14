@@ -5,7 +5,8 @@ API Tests for Spiritual G-Code.
 import pytest
 from django.urls import reverse
 from rest_framework import status
-from api.models import GCodeUser, DailyTransit, GeneratedContent
+
+from api.models import DailyTransit, GCodeUser, GeneratedContent
 
 
 @pytest.mark.django_db

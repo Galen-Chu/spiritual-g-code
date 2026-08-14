@@ -2,8 +2,10 @@
 Calculator Tests for Spiritual G-Code.
 """
 
-import pytest
 from datetime import date
+
+import pytest
+
 from ai_engine.calculator import GCodeCalculator
 
 

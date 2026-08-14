@@ -2,14 +2,14 @@
 Database Models for Spiritual G-Code API.
 """
 
-from django.db import models
-from django.contrib.auth.models import AbstractUser
-from django.utils import timezone
 import uuid
+
+from django.contrib.auth.models import AbstractUser
+from django.db import models
+from django.utils import timezone
 
 # Import annotation model
 from .annotation import ChartAnnotation
-
 
 
 class GCodeUser(AbstractUser):

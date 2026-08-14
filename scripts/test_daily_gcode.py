@@ -3,13 +3,14 @@ Test script for Daily G-Code Service.
 Tests the complete flow: calculator -> AI client -> service
 """
 
-import sys
 import os
+import sys
 
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from datetime import date
+
 from ai_engine.daily_gcode_service import get_daily_gcode_service
 
 

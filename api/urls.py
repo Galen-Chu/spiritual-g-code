@@ -2,36 +2,25 @@
 URL Configuration for Spiritual G-Code API.
 """
 
-from django.urls import path, include
+from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from .views import (
-    # Authentication
-    RegisterView,
-    UserProfileView,
-    # Export Data
-    ExportDataView,
-    # Account Deletion
+
+from .views import (  # Authentication; Export Data; Account Deletion; Natal Charts; Daily Transits; Generated Content; Templates; Annotations; Dashboard; Natal Wheel; Solar System; Health Check
     AccountDeletionView,
-    # Natal Charts
-    NatalChartViewSet,
-    NatalChartCalculateView,
-    # Daily Transits
-    DailyTransitViewSet,
-    # Generated Content
-    GeneratedContentViewSet,
-    # Templates
-    GCodeTemplateViewSet,
-    # Annotations
     ChartAnnotationViewSet,
-    # Dashboard
-    DashboardOverviewView,
+    DailyTransitViewSet,
     DashboardChartsView,
-    # Natal Wheel
-    NatalWheelView,
-    # Solar System
-    SolarSystemTransitView,
-    # Health Check
+    DashboardOverviewView,
+    ExportDataView,
+    GCodeTemplateViewSet,
+    GeneratedContentViewSet,
     HealthCheckView,
+    NatalChartCalculateView,
+    NatalChartViewSet,
+    NatalWheelView,
+    RegisterView,
+    SolarSystemTransitView,
+    UserProfileView,
 )
 
 # Create router for ViewSets

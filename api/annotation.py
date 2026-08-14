@@ -3,8 +3,9 @@ Chart Annotation Model
 Allows users to add notes to specific chart data points.
 """
 
-from django.db import models
 from django.conf import settings
+from django.db import models
+
 
 class ChartAnnotation(models.Model):
     """

@@ -7,16 +7,18 @@ Runs weekly on Sundays at 3:00 AM.
 
 import os
 import sys
-import django
 from datetime import date, timedelta
+
+import django
 
 # Setup Django environment
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings.development')
 django.setup()
 
-from api.models import DailyTransit, SystemLog, UserActivity
 import logging
+
+from api.models import DailyTransit, SystemLog, UserActivity
 
 # Configure logging
 logging.basicConfig(

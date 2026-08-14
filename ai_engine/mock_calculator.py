@@ -4,10 +4,10 @@ Provides simulated astronomical calculations without requiring PyEphem.
 Use this for development and testing when PyEphem is not available.
 """
 
-from datetime import datetime, date, timedelta
-from typing import Dict, Optional, List
-import math
 import hashlib
+import math
+from datetime import date, datetime, timedelta
+from typing import Dict, List, Optional
 
 
 class MockGCodeCalculator:
@@ -776,6 +776,7 @@ def get_calculator():
     try:
         # Try to import PyEphem
         import ephem
+
         # If successful, you could return the real calculator
         # from .calculator import GCodeCalculator
         # return GCodeCalculator()

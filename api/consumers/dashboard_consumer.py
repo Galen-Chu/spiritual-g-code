@@ -5,8 +5,9 @@ Handles real-time dashboard updates.
 
 import json
 import logging
-from django.utils import timezone
+
 from channels.generic.websocket import AsyncWebsocketConsumer
+from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 

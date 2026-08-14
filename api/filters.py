@@ -3,8 +3,8 @@ Custom Filters for Spiritual G-Code API.
 """
 
 from django_filters import rest_framework as filters
-from .models import DailyTransit, GeneratedContent, GCodeTemplate
 
+from .models import DailyTransit, GCodeTemplate, GeneratedContent
 
 # Choice constants (matching model field definitions)
 INTENSITY_LEVEL_CHOICES = [

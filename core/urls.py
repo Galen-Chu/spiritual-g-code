@@ -1,33 +1,34 @@
 """
 URL configuration for Spiritual G-Code project.
 """
-from django.contrib import admin
-from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
-    TokenVerifyView,
-)
+from django.contrib import admin
+from django.urls import include, path
 from drf_spectacular.views import (
     SpectacularAPIView,
     SpectacularRedocView,
     SpectacularSwaggerView,
 )
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+    TokenVerifyView,
+)
+
+from api.views import CustomLoginView
 from api.views_html import (
-    dashboard_view,
-    natal_view,
-    wheel_view,
-    solar_system_view,
     content_view,
-    settings_view,
+    dashboard_view,
     login_view,
     logout_view,
+    natal_view,
     register_view,
+    settings_view,
+    solar_system_view,
     test_login_view,
+    wheel_view,
 )
-from api.views import CustomLoginView
 
 urlpatterns = [
     # Admin

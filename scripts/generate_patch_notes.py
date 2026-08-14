@@ -7,17 +7,19 @@ Triggered by Crontab at 5:00 AM daily (after G-Code calculations).
 
 import os
 import sys
-import django
 from datetime import date
+
+import django
 
 # Setup Django environment
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings.development')
 django.setup()
 
-from api.models import User, DailyTransit, GeneratedContent
-from ai_engine.gemini_client import GeminiGCodeClient
 import logging
+
+from ai_engine.gemini_client import GeminiGCodeClient
+from api.models import DailyTransit, GeneratedContent, User
 
 # Configure logging
 logging.basicConfig(

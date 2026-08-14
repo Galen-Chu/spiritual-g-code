@@ -3,6 +3,7 @@ Celery Configuration for Spiritual G-Code.
 """
 
 import os
+
 from celery import Celery
 
 # Set the default Django settings module for the 'celery' program.

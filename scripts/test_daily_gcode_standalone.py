@@ -3,13 +3,14 @@ Standalone test script for Daily G-Code Service.
 Tests without requiring Django models.
 """
 
-import sys
 import os
+import sys
 
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from datetime import date
+
 from ai_engine.mock_calculator import MockGCodeCalculator
 from ai_engine.mock_gemini_client import MockGeminiGCodeClient
 

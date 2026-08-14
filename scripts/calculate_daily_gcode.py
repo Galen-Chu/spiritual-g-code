@@ -7,20 +7,23 @@ Daily G-Code for all users with daily_gcode_enabled=True.
 
 import os
 import sys
-import django
 from datetime import date, timedelta
+
+import django
 
 # Setup Django environment
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings.development')
 django.setup()
 
-from api.models import User, DailyTransit, NatalChart
+import logging
+
+from django.conf import settings
+from django.core import mail
+
 from ai_engine.calculator import GCodeCalculator
 from ai_engine.gemini_client import GeminiGCodeClient
-from django.core import mail
-from django.conf import settings
-import logging
+from api.models import DailyTransit, NatalChart, User
 
 # Configure logging
 logging.basicConfig(
