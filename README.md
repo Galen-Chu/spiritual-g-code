@@ -426,7 +426,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - 📧 Email: (coming soon)
 - 💬 Discord: (coming soon)
 - 🐛 Issues: [GitHub Issues](https://github.com/Galen-Chu/spiritual-g-code/issues)
-- 💡 Discussions: [GitHub Discussions](https://github.com/Galen-Chu/spiritual-g-code/discussions)
 
 ---
 

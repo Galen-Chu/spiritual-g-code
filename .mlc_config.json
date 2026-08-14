@@ -8,6 +8,9 @@
     },
     {
       "pattern": "^https://github.com/Galen-Chu/spiritual-g-code/blob"
+    },
+    {
+      "pattern": "^https://www.linkedin.com"
     }
   ],
   "replacementPatterns": [

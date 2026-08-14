@@ -9,16 +9,14 @@ on:
 jobs:
   markdown-link-check:
     runs-on: ubuntu-latest
-    # Informational only — broken links don't block CI. Remove this line
-    # once all internal doc links are verified clean.
-    continue-on-error: true
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Check Markdown links
+    - name: Check README links
       uses: gaurav-nelson/github-action-markdown-link-check@v1
       with:
         use-quiet-mode: 'yes'
         config-file: '.mlc_config.json'
+        file-path: 'README.md'
