@@ -12,14 +12,12 @@ from django.core.asgi import get_asgi_application
 # Import WebSocket routing
 import core.routing
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings.development')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings.development")
 
 # ProtocolTypeRouter routes HTTP and WebSocket traffic
-application = ProtocolTypeRouter({
-    "http": get_asgi_application(),
-    "websocket": AuthMiddlewareStack(
-        URLRouter(
-            core.routing.websocket_urlpatterns
-        )
-    ),
-})
+application = ProtocolTypeRouter(
+    {
+        "http": get_asgi_application(),
+        "websocket": AuthMiddlewareStack(URLRouter(core.routing.websocket_urlpatterns)),
+    }
+)

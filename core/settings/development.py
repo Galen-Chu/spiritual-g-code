@@ -8,13 +8,13 @@ from .base import *
 DEBUG = True
 
 # Allowed Hosts
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
 # Database - Use SQLite for development/testing
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
 }
 
@@ -31,13 +31,13 @@ DATABASES = {
 # }
 
 # Email Backend (Console for development)
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 # Cache - Use local memory cache for development
 CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'unique-snowflake',
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "unique-snowflake",
     }
 }
 
@@ -50,19 +50,20 @@ SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
 
 # Static Files
-STATICFILES_DIRS = [BASE_DIR / 'static']
+STATICFILES_DIRS = [BASE_DIR / "static"]
 
 # Logging - More verbose for development
-LOGGING['loggers']['django']['level'] = 'DEBUG'
-LOGGING['loggers']['api']['level'] = 'DEBUG'
-LOGGING['loggers']['ai_engine']['level'] = 'DEBUG'
+LOGGING["loggers"]["django"]["level"] = "DEBUG"
+LOGGING["loggers"]["api"]["level"] = "DEBUG"
+LOGGING["loggers"]["ai_engine"]["level"] = "DEBUG"
 
 # Debug Toolbar
 if DEBUG:
     try:
         import debug_toolbar
-        INSTALLED_APPS.append('debug_toolbar')
-        MIDDLEWARE.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
-        INTERNAL_IPS = ['127.0.0.1', 'localhost']
+
+        INSTALLED_APPS.append("debug_toolbar")
+        MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
+        INTERNAL_IPS = ["127.0.0.1", "localhost"]
     except ImportError:
         pass

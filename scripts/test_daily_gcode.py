@@ -63,23 +63,24 @@ def test_daily_gcode_service():
         print(f"    Ascendant: {daily_gcode['natal_chart']['ascendant']}")
         print()
         print("  Themes:")
-        for theme in daily_gcode['themes']:
+        for theme in daily_gcode["themes"]:
             print(f"    - {theme}")
         print()
         print("  Interpretation (first 200 chars):")
-        interpretation = daily_gcode['interpretation']
+        interpretation = daily_gcode["interpretation"]
         print(f"    {interpretation[:200]}...")
         print()
         print("  Affirmation:")
         print(f"    {daily_gcode['affirmation']}")
         print()
         print("  Practical Guidance:")
-        for i, guidance in enumerate(daily_gcode['practical_guidance'], 1):
+        for i, guidance in enumerate(daily_gcode["practical_guidance"], 1):
             print(f"    {i}. {guidance}")
 
     except Exception as e:
         print(f"[FAIL] Error: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -92,8 +93,7 @@ def test_daily_gcode_service():
     try:
         # Generate Twitter content
         twitter_content = service.generate_spiritual_patch_note(
-            daily_gcode=daily_gcode,
-            platform='twitter'
+            daily_gcode=daily_gcode, platform="twitter"
         )
 
         print("[OK] Twitter content generated")
@@ -103,15 +103,14 @@ def test_daily_gcode_service():
         print()
         print("  Content:")
         print("  " + "-" * 66)
-        for line in twitter_content['body'].split('\n'):
+        for line in twitter_content["body"].split("\n"):
             print(f"  {line}")
         print("  " + "-" * 66)
         print()
 
         # Generate Instagram content
         instagram_content = service.generate_spiritual_patch_note(
-            daily_gcode=daily_gcode,
-            platform='instagram'
+            daily_gcode=daily_gcode, platform="instagram"
         )
 
         print("[OK] Instagram content generated")

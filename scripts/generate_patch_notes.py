@@ -13,7 +13,7 @@ import django
 
 # Setup Django environment
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings.development')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings.development")
 django.setup()
 
 import logging
@@ -23,8 +23,7 @@ from api.models import DailyTransit, GeneratedContent, User
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -46,9 +45,7 @@ def generate_all_patch_notes():
 
     # Get users who want auto-generated content
     users = User.objects.filter(
-        daily_gcode_enabled=True,
-        is_active=True,
-        email_notifications=True
+        daily_gcode_enabled=True, is_active=True, email_notifications=True
     )
 
     logger.info(f"Generating content for {users.count()} users...")
@@ -60,12 +57,11 @@ def generate_all_patch_notes():
         try:
             # Get today's G-Code
             try:
-                transit = DailyTransit.objects.get(
-                    user=user,
-                    transit_date=today
-                )
+                transit = DailyTransit.objects.get(user=user, transit_date=today)
             except DailyTransit.DoesNotExist:
-                logger.warning(f"No Daily G-Code found for {user.username}, skipping...")
+                logger.warning(
+                    f"No Daily G-Code found for {user.username}, skipping..."
+                )
                 continue
 
             logger.info(f"Generating content for {user.username}...")
@@ -74,51 +70,55 @@ def generate_all_patch_notes():
             try:
                 twitter_content = ai_client.generate_spiritual_patch_note(
                     daily_gcode={
-                        'themes': transit.themes,
-                        'g_code_score': transit.g_code_score,
-                        'interpretation': transit.interpretation,
-                        'transit_date': today
+                        "themes": transit.themes,
+                        "g_code_score": transit.g_code_score,
+                        "interpretation": transit.interpretation,
+                        "transit_date": today,
                     },
-                    platform='twitter'
+                    platform="twitter",
                 )
 
                 GeneratedContent.objects.create(
                     user=user,
                     related_transit=transit,
-                    status='generated',
-                    **twitter_content
+                    status="generated",
+                    **twitter_content,
                 )
 
                 logger.info(f"✅ Generated Twitter content for {user.username}")
                 success_count += 1
 
             except Exception as e:
-                logger.error(f"Error generating Twitter content for {user.username}: {str(e)}")
+                logger.error(
+                    f"Error generating Twitter content for {user.username}: {str(e)}"
+                )
                 error_count += 1
 
             # Generate Instagram content (optional)
             try:
                 instagram_content = ai_client.generate_spiritual_patch_note(
                     daily_gcode={
-                        'themes': transit.themes,
-                        'g_code_score': transit.g_code_score,
-                        'interpretation': transit.interpretation,
-                        'transit_date': today
+                        "themes": transit.themes,
+                        "g_code_score": transit.g_code_score,
+                        "interpretation": transit.interpretation,
+                        "transit_date": today,
                     },
-                    platform='instagram'
+                    platform="instagram",
                 )
 
                 GeneratedContent.objects.create(
                     user=user,
                     related_transit=transit,
-                    status='generated',
-                    **instagram_content
+                    status="generated",
+                    **instagram_content,
                 )
 
                 logger.info(f"✅ Generated Instagram content for {user.username}")
 
             except Exception as e:
-                logger.error(f"Error generating Instagram content for {user.username}: {str(e)}")
+                logger.error(
+                    f"Error generating Instagram content for {user.username}: {str(e)}"
+                )
 
         except Exception as e:
             logger.error(f"❌ Error processing {user.username}: {str(e)}")
@@ -133,5 +133,5 @@ def generate_all_patch_notes():
     logger.info("=" * 50)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     generate_all_patch_notes()

@@ -25,37 +25,38 @@ from .views import (  # Authentication; Export Data; Account Deletion; Natal Cha
 
 # Create router for ViewSets
 router = DefaultRouter()
-router.register(r'natal', NatalChartViewSet, basename='natal-chart')
-router.register(r'gcode', DailyTransitViewSet, basename='daily-transit')
-router.register(r'content', GeneratedContentViewSet, basename='generated-content')
-router.register(r'templates', GCodeTemplateViewSet, basename='gcode-template')
-router.register(r'annotations', ChartAnnotationViewSet, basename='chart-annotation')
+router.register(r"natal", NatalChartViewSet, basename="natal-chart")
+router.register(r"gcode", DailyTransitViewSet, basename="daily-transit")
+router.register(r"content", GeneratedContentViewSet, basename="generated-content")
+router.register(r"templates", GCodeTemplateViewSet, basename="gcode-template")
+router.register(r"annotations", ChartAnnotationViewSet, basename="chart-annotation")
 
 urlpatterns = [
     # Authentication
-    path('auth/register/', RegisterView.as_view(), name='api-register'),
-    path('auth/profile/', UserProfileView.as_view(), name='profile'),
-    path('auth/profile/export/', ExportDataView.as_view(), name='user-export-data'),
-
+    path("auth/register/", RegisterView.as_view(), name="api-register"),
+    path("auth/profile/", UserProfileView.as_view(), name="profile"),
+    path("auth/profile/export/", ExportDataView.as_view(), name="user-export-data"),
     # Account Deletion
-    path('account/delete/', AccountDeletionView.as_view(), name='account-delete'),
-
+    path("account/delete/", AccountDeletionView.as_view(), name="account-delete"),
     # Natal Chart Calculation (must come before ViewSet routes)
-    path('natal/calculate/', NatalChartCalculateView.as_view(), name='natal-calculate'),
-
+    path("natal/calculate/", NatalChartCalculateView.as_view(), name="natal-calculate"),
     # Dashboard
-    path('dashboard/overview/', DashboardOverviewView.as_view(), name='dashboard-overview'),
-    path('dashboard/charts/', DashboardChartsView.as_view(), name='dashboard-charts'),
-
+    path(
+        "dashboard/overview/",
+        DashboardOverviewView.as_view(),
+        name="dashboard-overview",
+    ),
+    path("dashboard/charts/", DashboardChartsView.as_view(), name="dashboard-charts"),
     # Natal Wheel
-    path('natal/wheel/', NatalWheelView.as_view(), name='natal-wheel'),
-
+    path("natal/wheel/", NatalWheelView.as_view(), name="natal-wheel"),
     # Solar System
-    path('solar-system/transits/', SolarSystemTransitView.as_view(), name='solar-system-transits'),
-
+    path(
+        "solar-system/transits/",
+        SolarSystemTransitView.as_view(),
+        name="solar-system-transits",
+    ),
     # ViewSet Routes
-    path('', include(router.urls)),
-
+    path("", include(router.urls)),
     # Health Check
-    path('health/', HealthCheckView.as_view(), name='health-check'),
+    path("health/", HealthCheckView.as_view(), name="health-check"),
 ]

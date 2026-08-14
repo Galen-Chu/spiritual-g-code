@@ -20,10 +20,8 @@ def create_user_profile(sender, instance, created, **kwargs):
     if created:
         # Log user registration
         from .models import UserActivity
-        UserActivity.objects.create(
-            user=instance,
-            activity_type='user_created'
-        )
+
+        UserActivity.objects.create(user=instance, activity_type="user_created")
 
 
 @receiver(post_save, sender=DailyTransit)

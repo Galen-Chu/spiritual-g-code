@@ -13,7 +13,7 @@ import django
 
 # Setup Django environment
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings.development')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings.development")
 django.setup()
 
 import logging
@@ -22,8 +22,7 @@ from api.models import DailyTransit, SystemLog, UserActivity
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -39,9 +38,9 @@ def cleanup_old_transits(days_to_keep=90):
 
     cutoff_date = date.today() - timedelta(days=days_to_keep)
 
-    deleted_count = DailyTransit.objects.filter(
-        transit_date__lt=cutoff_date
-    ).delete()[0]
+    deleted_count = DailyTransit.objects.filter(transit_date__lt=cutoff_date).delete()[
+        0
+    ]
 
     logger.info(f"✅ Deleted {deleted_count} old transit records")
 
@@ -57,9 +56,7 @@ def cleanup_old_logs(days_to_keep=30):
 
     cutoff_date = date.today() - timedelta(days=days_to_keep)
 
-    deleted_count = SystemLog.objects.filter(
-        created_at__lt=cutoff_date
-    ).delete()[0]
+    deleted_count = SystemLog.objects.filter(created_at__lt=cutoff_date).delete()[0]
 
     logger.info(f"✅ Deleted {deleted_count} old log records")
 
@@ -75,9 +72,7 @@ def cleanup_old_activities(days_to_keep=90):
 
     cutoff_date = date.today() - timedelta(days=days_to_keep)
 
-    deleted_count = UserActivity.objects.filter(
-        created_at__lt=cutoff_date
-    ).delete()[0]
+    deleted_count = UserActivity.objects.filter(created_at__lt=cutoff_date).delete()[0]
 
     logger.info(f"✅ Deleted {deleted_count} old activity records")
 
@@ -95,5 +90,5 @@ def run_all_cleanup():
     logger.info("=" * 50)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run_all_cleanup()

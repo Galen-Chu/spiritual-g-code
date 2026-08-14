@@ -44,7 +44,7 @@ def test_calculator():
         natal_chart = calc.calculate_natal_chart(
             birth_date=test_birth_date,
             birth_time=test_birth_time,
-            birth_location=test_location
+            birth_location=test_location,
         )
 
         print("[OK] Natal Chart Calculation Successful")
@@ -54,18 +54,22 @@ def test_calculator():
         print(f"   Ascendant: {natal_chart['ascendant']}")
         print()
         print("   Planetary Positions:")
-        for planet, data in natal_chart['chart_data'].items():
-            print(f"      {planet.capitalize():10} -> {data['sign']:12} ({data['degree']:5.2f}°)")
+        for planet, data in natal_chart["chart_data"].items():
+            print(
+                f"      {planet.capitalize():10} -> {data['sign']:12} ({data['degree']:5.2f}°)"
+            )
 
         print()
         print("   Dominant Elements:")
-        for element, percentage in natal_chart['dominant_elements'].items():
+        for element, percentage in natal_chart["dominant_elements"].items():
             print(f"      {element.capitalize():8}: {percentage}%")
 
         print()
         print(f"   Key Aspects Found: {len(natal_chart['key_aspects'])}")
-        for aspect in natal_chart['key_aspects'][:5]:  # Show first 5
-            print(f"      - {aspect['planet1']} {aspect['aspect']} {aspect['planet2']} (orb: {aspect['orb']}°)")
+        for aspect in natal_chart["key_aspects"][:5]:  # Show first 5
+            print(
+                f"      - {aspect['planet1']} {aspect['aspect']} {aspect['planet2']} (orb: {aspect['orb']}°)"
+            )
 
     except Exception as e:
         print(f"[FAIL] Error: {e}")
@@ -87,19 +91,23 @@ def test_calculator():
             birth_date=test_birth_date,
             birth_time=test_birth_time,
             birth_location=test_location,
-            target_date=target_date
+            target_date=target_date,
         )
 
         print("[OK] Transit Calculation Successful")
         print()
         print("   Current Planetary Positions:")
-        for planet, data in transits['planets'].items():
-            print(f"      {planet.capitalize():10} -> {data['sign']:12} ({data['degree']:5.2f}°)")
+        for planet, data in transits["planets"].items():
+            print(
+                f"      {planet.capitalize():10} -> {data['sign']:12} ({data['degree']:5.2f}°)"
+            )
 
         print()
         print(f"   Transit Aspects Found: {len(transits['aspects'])}")
-        for aspect in transits['aspects'][:5]:  # Show first 5
-            print(f"      - Transit {aspect['transit_planet']} {aspect['aspect']} Natal {aspect['natal_planet']}")
+        for aspect in transits["aspects"][:5]:  # Show first 5
+            print(
+                f"      - Transit {aspect['transit_planet']} {aspect['aspect']} Natal {aspect['natal_planet']}"
+            )
 
     except Exception as e:
         print(f"[FAIL] Error: {e}")
@@ -114,8 +122,7 @@ def test_calculator():
 
     try:
         intensity = calc.calculate_g_code_intensity(
-            transit_data=transits['planets'],
-            aspects=transits['aspects']
+            transit_data=transits["planets"], aspects=transits["aspects"]
         )
 
         print(f"[OK] G-Code Intensity Score: {intensity}/100")
@@ -150,10 +157,10 @@ def test_calculator():
         natal_chart2 = calc.calculate_natal_chart(
             birth_date=test_birth_date,
             birth_time=test_birth_time,
-            birth_location=test_location
+            birth_location=test_location,
         )
 
-        if natal_chart['sun_sign'] == natal_chart2['sun_sign']:
+        if natal_chart["sun_sign"] == natal_chart2["sun_sign"]:
             print("[OK] Results are reproducible (same sun sign)")
         else:
             print("[FAIL] Results differ - this should not happen!")

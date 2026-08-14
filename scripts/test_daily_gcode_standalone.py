@@ -24,12 +24,12 @@ def test_daily_gcode_flow():
 
     # User data
     user_data = {
-        'username': 'test_user',
-        'birth_date': date(1990, 1, 15),
-        'birth_time': '14:30',
-        'birth_location': 'Taipei, Taiwan',
-        'timezone': 'Asia/Taipei',
-        'preferred_tone': 'inspiring'
+        "username": "test_user",
+        "birth_date": date(1990, 1, 15),
+        "birth_time": "14:30",
+        "birth_location": "Taipei, Taiwan",
+        "timezone": "Asia/Taipei",
+        "preferred_tone": "inspiring",
     }
 
     print("-" * 70)
@@ -43,10 +43,10 @@ def test_daily_gcode_flow():
 
         # Calculate natal chart
         natal_chart = calculator.calculate_natal_chart(
-            birth_date=user_data['birth_date'],
-            birth_time=user_data['birth_time'],
-            birth_location=user_data['birth_location'],
-            timezone=user_data['timezone']
+            birth_date=user_data["birth_date"],
+            birth_time=user_data["birth_time"],
+            birth_location=user_data["birth_location"],
+            timezone=user_data["timezone"],
         )
 
         print("[OK] Natal chart calculated")
@@ -68,10 +68,10 @@ def test_daily_gcode_flow():
     try:
         target_date = date.today()
         transits = calculator.calculate_transits(
-            birth_date=user_data['birth_date'],
-            birth_time=user_data['birth_time'],
-            birth_location=user_data['birth_location'],
-            target_date=target_date
+            birth_date=user_data["birth_date"],
+            birth_time=user_data["birth_time"],
+            birth_location=user_data["birth_location"],
+            target_date=target_date,
         )
 
         print("[OK] Transits calculated")
@@ -97,7 +97,7 @@ def test_daily_gcode_flow():
         interpretation = ai_client.generate_daily_gcode(
             natal_data=natal_chart,
             transit_data=transits,
-            user_preferences={'tone': 'inspiring'}
+            user_preferences={"tone": "inspiring"},
         )
 
         print("[OK] AI interpretation generated")
@@ -105,20 +105,21 @@ def test_daily_gcode_flow():
         print(f"  G-Code Score: {interpretation['g_code_score']}/100")
         print()
         print("  Themes:")
-        for theme in interpretation['themes']:
+        for theme in interpretation["themes"]:
             print(f"    - {theme}")
         print()
         print("  Affirmation:")
         print(f"    {interpretation['affirmation']}")
         print()
         print("  Practical Guidance:")
-        for i, guidance in enumerate(interpretation['practical_guidance'], 1):
+        for i, guidance in enumerate(interpretation["practical_guidance"], 1):
             print(f"    {i}. {guidance}")
         print()
 
     except Exception as e:
         print(f"[FAIL] Error: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -129,22 +130,21 @@ def test_daily_gcode_flow():
 
     try:
         daily_gcode = {
-            'transit_date': target_date,
-            'g_code_score': interpretation['g_code_score'],
-            'themes': interpretation['themes'],
-            'interpretation': interpretation['interpretation']
+            "transit_date": target_date,
+            "g_code_score": interpretation["g_code_score"],
+            "themes": interpretation["themes"],
+            "interpretation": interpretation["interpretation"],
         }
 
         # Twitter content
         twitter_content = ai_client.generate_spiritual_patch_note(
-            daily_gcode=daily_gcode,
-            platform='twitter'
+            daily_gcode=daily_gcode, platform="twitter"
         )
 
         print("[OK] Twitter content generated")
         print()
         print("  Content:")
-        for line in twitter_content['body'].split('\n'):
+        for line in twitter_content["body"].split("\n"):
             print(f"    {line}")
         print()
 

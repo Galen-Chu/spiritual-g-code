@@ -37,24 +37,25 @@ class DashboardConsumer(AsyncWebsocketConsumer):
                 return
 
             # Create user-specific channel name
-            self.user_group_name = f'dashboard_{self.user.id}'
+            self.user_group_name = f"dashboard_{self.user.id}"
 
             # Join user's channel group
-            await self.channel_layer.group_add(
-                self.user_group_name,
-                self.channel_name
-            )
+            await self.channel_layer.group_add(self.user_group_name, self.channel_name)
 
             await self.accept()
 
             logger.info(f"WebSocket connected for user {self.user.id}")
 
             # Send connection confirmation
-            await self.send(text_data=json.dumps({
-                'type': 'connection_established',
-                'user_id': self.user.id,
-                'message': 'WebSocket connection established'
-            }))
+            await self.send(
+                text_data=json.dumps(
+                    {
+                        "type": "connection_established",
+                        "user_id": self.user.id,
+                        "message": "WebSocket connection established",
+                    }
+                )
+            )
 
         except Exception as e:
             logger.error(f"WebSocket connection error: {str(e)}")
@@ -66,12 +67,13 @@ class DashboardConsumer(AsyncWebsocketConsumer):
         Leave the user's channel group.
         """
         try:
-            if hasattr(self, 'user_group_name'):
+            if hasattr(self, "user_group_name"):
                 await self.channel_layer.group_discard(
-                    self.user_group_name,
-                    self.channel_name
+                    self.user_group_name, self.channel_name
                 )
-                logger.info(f"WebSocket disconnected for user {self.user.id if hasattr(self, 'user') else 'unknown'}")
+                logger.info(
+                    f"WebSocket disconnected for user {self.user.id if hasattr(self, 'user') else 'unknown'}"
+                )
         except Exception as e:
             logger.error(f"WebSocket disconnect error: {str(e)}")
 
@@ -86,21 +88,26 @@ class DashboardConsumer(AsyncWebsocketConsumer):
         """
         try:
             data = json.loads(text_data)
-            message_type = data.get('type')
+            message_type = data.get("type")
 
-            if message_type == 'ping':
+            if message_type == "ping":
                 # Respond with pong
-                await self.send(text_data=json.dumps({
-                    'type': 'pong',
-                    'timestamp': str(timezone.now())
-                }))
+                await self.send(
+                    text_data=json.dumps(
+                        {"type": "pong", "timestamp": str(timezone.now())}
+                    )
+                )
 
-            elif message_type == 'subscribe':
+            elif message_type == "subscribe":
                 # Handle subscription to specific update types
-                await self.send(text_data=json.dumps({
-                    'type': 'subscription_confirmed',
-                    'updates': data.get('updates', [])
-                }))
+                await self.send(
+                    text_data=json.dumps(
+                        {
+                            "type": "subscription_confirmed",
+                            "updates": data.get("updates", []),
+                        }
+                    )
+                )
 
             else:
                 logger.warning(f"Unknown message type: {message_type}")
@@ -122,10 +129,11 @@ class DashboardConsumer(AsyncWebsocketConsumer):
         """
         try:
             # Send update to client
-            await self.send(text_data=json.dumps({
-                'type': event.get('type'),
-                'data': event.get('data')
-            }))
+            await self.send(
+                text_data=json.dumps(
+                    {"type": event.get("type"), "data": event.get("data")}
+                )
+            )
 
         except Exception as e:
             logger.error(f"Error sending dashboard update: {str(e)}")
