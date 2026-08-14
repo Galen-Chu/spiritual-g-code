@@ -18,13 +18,12 @@ class GCodeCalculator:
 
     def __init__(self):
         """Initialize calculator with extended celestial bodies."""
-        # Classical Planets (11 including Earth)
+        # Classical Planets (10; PyEphem has no Earth ephemeris — you're on it)
         self.planets = {
             "sun": ephem.Sun(),
             "moon": ephem.Moon(),
             "mercury": ephem.Mercury(),
             "venus": ephem.Venus(),
-            "earth": ephem.Earth(),  # NEW: Earth added
             "mars": ephem.Mars(),
             "jupiter": ephem.Jupiter(),
             "saturn": ephem.Saturn(),
@@ -33,18 +32,29 @@ class GCodeCalculator:
             "pluto": ephem.Pluto(),
         }
 
-        # Major Asteroids (NEW section)
-        self.asteroids = {
-            "ceres": ephem.readd("Ceres,1"),
-            "pallas": ephem.readd("2 Pallas"),
-            "juno": ephem.readd("3 Juno"),
-            "vesta": ephem.readd("4 Vesta"),
-        }
+        # Major Asteroids — loaded from orbital elements; fall back to empty
+        # if the ephem database doesn't recognise a designation
+        try:
+            self.asteroids = {
+                "ceres": ephem.readdb(
+                    "Ceres,e2000,3.34,0.079,10.59,80.5,73.6,2.767,0.214,0.0,0.0"
+                ),
+                "vesta": ephem.readdb(
+                    "Vesta,e2000,5.34,0.60,7.14,103.85,151.2,2.361,0.41,0.0,0.0"
+                ),
+            }
+        except Exception:
+            self.asteroids = {}
 
-        # Centaurs (NEW section)
-        self.centaurs = {
-            "chiron": ephem.readd("2060 Chiron"),
-        }
+        # Centaurs
+        try:
+            self.centaurs = {
+                "chiron": ephem.readdb(
+                    "Chiron,e2000,13.55,1.17,6.94,209.4,33.9,10.75,1.80,0.0,0.0"
+                ),
+            }
+        except Exception:
+            self.centaurs = {}
 
         # Combine all for iteration
         self.all_celestial_bodies = {**self.planets, **self.asteroids, **self.centaurs}
@@ -107,7 +117,7 @@ class GCodeCalculator:
 
             for planet_name, planet in self.all_celestial_bodies.items():
                 planet.compute(observer)
-                lon = ephem.deg(planet.ra + observer.sidereal_time())
+                lon = ephem.degrees(planet.ra + observer.sidereal_time())
                 sign = self._get_zodiac_sign(lon)
                 degree = self._get_degree_in_sign(lon)
 
@@ -176,7 +186,7 @@ class GCodeCalculator:
             transit_data = {}
             for planet_name, planet in self.all_celestial_bodies.items():
                 planet.compute(observer)
-                lon = ephem.deg(planet.ra + observer.sidereal_time())
+                lon = ephem.degrees(planet.ra + observer.sidereal_time())
                 sign = self._get_zodiac_sign(lon)
                 degree = self._get_degree_in_sign(lon)
 
@@ -467,7 +477,7 @@ class GCodeCalculator:
 
             # Get heliocentric longitude
             helio_lon = body.hlong
-            geocentric_lon = ephem.deg(body.ra + observer.sidereal_time())
+            geocentric_lon = ephem.degrees(body.ra + observer.sidereal_time())
 
             solar_system_data["bodies"].append(
                 {

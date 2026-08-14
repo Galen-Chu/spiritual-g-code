@@ -15,7 +15,7 @@ class TestAuthentication:
 
     def test_user_registration(self, client):
         """Test user registration."""
-        url = reverse("register")
+        url = reverse("api-register")
         data = {
             "username": "newuser",
             "email": "newuser@example.com",
@@ -35,7 +35,7 @@ class TestAuthentication:
 
     def test_user_registration_password_mismatch(self, client):
         """Test registration with mismatched passwords."""
-        url = reverse("register")
+        url = reverse("api-register")
         data = {
             "username": "newuser",
             "email": "newuser@example.com",

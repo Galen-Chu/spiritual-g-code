@@ -31,8 +31,15 @@ LOGGING = {
     "disable_existing_loggers": True,
 }
 
-# Disable CRSF for API testing
+# Disable SSL redirect for tests (test client uses HTTP)
+SECURE_SSL_REDIRECT = False
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
+
+# Authentication for API testing: keep SessionAuthentication so DRF's test
+# client + force_login work alongside JWT
 REST_FRAMEWORK["DEFAULT_AUTHENTICATION_CLASSES"] = (
+    "rest_framework.authentication.SessionAuthentication",
     "rest_framework_simplejwt.authentication.JWTAuthentication",
 )
 
