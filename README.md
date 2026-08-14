@@ -186,10 +186,10 @@ open http://localhost:8000
 ## 📖 Documentation
 
 ### Project-Level Documentation
-- [**Brand Story**](./docs/BRAND_STORY.md) - The philosophy and vision behind G-Code
-- [**Technical Architecture**](./docs/TECHNICAL_ARCHITECTURE.md) - System design and implementation details
-- [**Testing Record**](./docs/TESTING_RECORD.md) - Complete testing record and execution notes (✅ Updated 2026-01-14 - Phase 6 MVP.4 Complete)
-- [**Troubleshooting Guide**](./docs/TROUBLESHOOTING.md) - Common issues and solutions for development setup
+- [**Brand Story**](./docs/about/BRAND_STORY.md) - The philosophy and vision behind G-Code
+- [**Technical Architecture**](./docs/architecture/TECHNICAL_ARCHITECTURE.md) - System design and implementation details
+- [**Master Test Report**](./tests/reports/TEST_Master_Report.md) - Complete testing record and execution notes
+- [**Troubleshooting Guide**](./docs/guides/TROUBLESHOOTING.md) - Common issues and solutions for development setup
 
 ### Hierarchical Documentation
 Documentation is organized at every directory level for easy navigation:
@@ -220,39 +220,49 @@ Documentation is organized at every directory level for easy navigation:
 ```
 spiritual_g_code/
 ├── core/                 # Django Project Root
-│   ├── settings/         # Settings modules (dev, staging, prod)
+│   ├── settings/         # Settings modules (base, dev, prod, testing)
 │   ├── urls.py           # URL routing
+│   ├── celery.py         # Celery configuration
 │   └── wsgi.py           # WSGI configuration
 │
-├── api/                  # DRF App for brand endpoints
-│   ├── models/           # Database models
-│   ├── serializers/      # DRF serializers
-│   ├── views/            # API views
+├── api/                  # DRF App for all endpoints
+│   ├── models.py         # Database models
+│   ├── serializers.py    # DRF serializers
+│   ├── views.py          # API views (JSON)
+│   ├── views_html.py     # Template views (pages)
+│   ├── filters.py        # DRF filters
+│   ├── permissions.py    # Custom permissions
+│   ├── signals.py        # Auto-create signals
+│   ├── annotation.py     # Chart annotation logic
 │   └── urls.py           # API routing
 │
 ├── ai_engine/            # Custom Gemini CLI / SDK integration
 │   ├── prompts/          # "G-Code" Templates
 │   │   ├── daily_gcode_base.txt
 │   │   ├── patch_note_twitter.txt
-│   │   └── ...
-│   ├── scripts/          # Execution scripts for the CLI
+│   │   └── patch_note_instagram.txt
 │   ├── gemini_client.py  # Gemini AI wrapper
-│   └── calculator.py     # Transit calculation logic
+│   ├── calculator.py     # Transit calculation logic
+│   ├── daily_gcode_service.py  # Daily G-Code orchestration
+│   └── mock_calculator.py      # Offline/testing mock
 │
 ├── scripts/              # Crontab-triggered Python scripts
 │   ├── calculate_daily_gcode.py
 │   ├── generate_patch_notes.py
-│   └── cleanup_old_transits.py
+│   └── cleanup_old_data.py
 │
 ├── tests/                # Pytest suite
-│   ├── test_api/
-│   ├── test_calculator/
+│   ├── test_api.py
+│   ├── test_calculator.py
+│   ├── integration/      # End-to-end tests
+│   ├── reports/          # Test & debug reports
 │   └── conftest.py
 │
 ├── docs/                 # Documentation
-│   ├── BRAND_STORY.md
-│   ├── TECHNICAL_ARCHITECTURE.md
-│   └── ...
+│   ├── about/            # Brand story, philosophy
+│   ├── architecture/     # Technical architecture
+│   ├── guides/           # Troubleshooting, how-tos
+│   └── planning/         # Feature plans
 │
 ├── Dockerfile
 ├── docker-compose.yml
@@ -268,30 +278,29 @@ spiritual_g_code/
 
 ### Authentication
 ```
-POST   /api/auth/register/
-POST   /api/auth/login/
-POST   /api/auth/logout/
+POST   /api/auth/register/           # Register a new account
+POST   /api/auth/login/              # Login (session)
+POST   /api/auth/logout/             # Logout
+GET    /api/auth/profile/            # View / update profile
+POST   /api/account/delete/          # Delete account
 ```
 
-### G-Code
+### Natal & Astrology
 ```
-GET    /api/gcode/current/           # Get today's G-Code
-GET    /api/gcode/daily/{date}/      # Get G-Code for specific date
-GET    /api/gcode/weekly/            # Get weekly forecast
-POST   /api/gcode/natal/calculate/   # Calculate natal chart
-```
-
-### Content
-```
-POST   /api/content/generate/        # Generate content
-GET    /api/content/history/         # Get generated content
-PATCH  /api/content/{id}/            # Update content
+POST   /api/natal/calculate/         # Calculate natal chart from birth data
+GET    /api/natal/wheel/             # Natal wheel chart data
 ```
 
 ### Dashboard
 ```
 GET    /api/dashboard/overview/      # Dashboard overview
 GET    /api/dashboard/charts/        # Chart data
+GET    /api/solar-system/transits/   # Solar system transit data
+```
+
+### System
+```
+GET    /api/health/                  # Health check
 ```
 
 ---
@@ -363,7 +372,7 @@ pytest --integration
 ### System Status
 - **Server**: Running at http://127.0.0.1:8000
 - **Database**: PostgreSQL (Production), SQLite (Development)
-- **Test Coverage**: 35 tests passed (100% pass rate)
+- **Test Coverage**: 22 tests passed (100% pass rate)
 
 ### What's Next
 - PDF Reports generation
