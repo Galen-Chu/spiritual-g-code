@@ -195,4 +195,4 @@ This project follows [Semantic Versioning](https://semver.org/):
 
 - [GitHub Repository](https://github.com/Galen-Chu/spiritual-g-code)
 - [Issue Tracker](https://github.com/Galen-Chu/spiritual-g-code/issues)
-- [Documentation](./docs/README.md)
+- [Documentation](./docs/architecture/TECHNICAL_ARCHITECTURE.md)

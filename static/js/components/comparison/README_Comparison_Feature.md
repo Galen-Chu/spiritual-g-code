@@ -196,7 +196,7 @@ document.addEventListener('DOMContentLoaded', function() {
 ## Related Documentation
 
 - [Chart Components](../charts/README_Chart_Components.md) - Chart rendering
-- [Frontend JavaScript](../README_Frontend_JS.md) - Overall JS architecture
+- [Frontend JavaScript](../../README_Frontend_JS.md) - Overall JS architecture
 
 ---
 

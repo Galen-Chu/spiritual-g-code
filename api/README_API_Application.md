@@ -449,7 +449,7 @@ pytest tests/test_api.py --cov=api --cov-report=html
 
 ## Related Documentation
 
-- [Technical Architecture](../docs/TECHNICAL_ARCHITECTURE.md) - Complete system architecture
+- [Technical Architecture](../docs/architecture/TECHNICAL_ARCHITECTURE.md) - Complete system architecture
 - [AI Engine](../ai_engine/README_AI_Engine.md) - Calculation and AI services
 - [Django Core](../core/README_Django_Core.md) - Django project configuration
 - [Testing](../tests/README_Testing.md) - Testing guide

@@ -310,7 +310,7 @@ window.addEventListener('beforeunload', () => {
 
 ## Related Documentation
 
-- [Frontend JavaScript](../README_Frontend_JS.md) - Overall JS architecture
+- [Frontend JavaScript](../../README_Frontend_JS.md) - Overall JS architecture
 - [Chart Components](../charts/README_Chart_Components.md) - Other visualizations
 - [API Application](../../../../api/README_API_Application.md) - Data endpoints
 

@@ -181,7 +181,7 @@ The annotation system uses these API endpoints:
 
 ## Related Documentation
 
-- [Frontend JavaScript](../README_Frontend_JS.md) - Overall JS architecture
+- [Frontend JavaScript](../../README_Frontend_JS.md) - Overall JS architecture
 - [Chart Components](../charts/README_Chart_Components.md) - Chart integration
 
 ---

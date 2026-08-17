@@ -334,9 +334,9 @@ def test_registration_creates_natal_chart(client):
 - `templates/natal/wheel.html:234-237, 330-334` - Enhanced error handling
 
 **Documentation:**
-- [DEBUG_Template.md](../../DEBUG_Template.md) - Debugging report template
-- [api/models.py](../../../api/models.py) - NatalChart model
-- [ai_engine/mock_calculator.py](../../../ai_engine/mock_calculator.py) - Chart calculation logic
+- [DEBUG_Template.md](../DEBUG_Template.md) - Debugging report template
+- [api/models.py](../../api/models.py) - NatalChart model
+- [ai_engine/mock_calculator.py](../../ai_engine/mock_calculator.py) - Chart calculation logic
 
 **Similar Issues:**
 - [DEBUG_2026-01-23_Authentication_Session_Fix_report.md](./DEBUG_2026-01-23_Authentication_Session_Fix_report.md) - Previous debugging session

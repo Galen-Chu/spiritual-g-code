@@ -595,8 +595,8 @@ daphne core.asgi:application -b 0.0.0.0 -p 8000
 
 - [API Application](../api/README_API_Application.md) - API backend implementation
 - [AI Engine](../ai_engine/README_AI_Engine.md) - Calculation and AI services
-- [Scripts](../scripts/README_Scripts.md) - Scheduled task scripts
-- [Technical Architecture](../docs/TECHNICAL_ARCHITECTURE.md) - Complete system architecture
+- [Scripts](../scripts/README_Automation_Scripts.md) - Scheduled task scripts
+- [Technical Architecture](../docs/architecture/TECHNICAL_ARCHITECTURE.md) - Complete system architecture
 
 ---
 

@@ -438,8 +438,8 @@ Before committing or pushing code, verify:
 
 If you encounter issues not covered here:
 
-1. Check the main [README.md](../README.md) for setup instructions
-2. Review [TECHNICAL_ARCHITECTURE.md](TECHNICAL_ARCHITECTURE.md) for system details
+1. Check the main [README.md](../../README.md) for setup instructions
+2. Review [../architecture/TECHNICAL_ARCHITECTURE.md](../architecture/TECHNICAL_ARCHITECTURE.md) for system details
 3. Search existing [GitHub Issues](https://github.com/Galen-Chu/spiritual-g-code/issues)
 4. Create a new issue with:
    - Error message (full traceback)

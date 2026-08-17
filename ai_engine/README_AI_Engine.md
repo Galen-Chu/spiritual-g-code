@@ -521,8 +521,8 @@ except ContentGenerationError:
 ## Related Documentation
 
 - [API Application](../api/README_API_Application.md) - API endpoints that use AI Engine
-- [Technical Architecture](../docs/TECHNICAL_ARCHITECTURE.md) - System architecture
-- [Scripts](../scripts/README_Scripts.md) - Automated calculation scripts
+- [Technical Architecture](../docs/architecture/TECHNICAL_ARCHITECTURE.md) - System architecture
+- [Scripts](../scripts/README_Automation_Scripts.md) - Automated calculation scripts
 
 ---
 

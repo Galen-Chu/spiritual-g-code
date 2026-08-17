@@ -315,7 +315,7 @@ Connection Lost → Wait 1s → Try Reconnect
 
 ## Related Documentation
 
-- [Frontend JavaScript](../README_Frontend_JS.md) - Overall JS architecture
+- [Frontend JavaScript](../../README_Frontend_JS.md) - Overall JS architecture
 - [Django Core](../../../../core/README_Django_Core.md) - WebSocket configuration
 - [API Application](../../../../api/README_API_Application.md) - WebSocket consumer
 

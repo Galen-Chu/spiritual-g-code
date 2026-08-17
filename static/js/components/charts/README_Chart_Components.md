@@ -621,7 +621,7 @@ chart.init();
 
 ## Related Documentation
 
-- [Frontend JavaScript](../README_Frontend_JS.md) - Overall JavaScript architecture
+- [Frontend JavaScript](../../README_Frontend_JS.md) - Overall JavaScript architecture
 - [Annotation System](../annotations/README_Annotation_System.md) - Chart annotations
 - [Comparison Feature](../comparison/README_Comparison_Feature.md) - Chart comparison
 - [API Application](../../../../api/README_API_Application.md) - Data endpoints
