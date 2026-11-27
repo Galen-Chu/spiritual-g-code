@@ -3,7 +3,8 @@ G-Code Calculator for Spiritual G-Code.
 Handles natal chart and transit calculations.
 """
 
-from datetime import date, datetime
+import math
+from datetime import date, datetime, timedelta
 from typing import Dict, List, Optional
 
 import ephem
@@ -14,7 +15,58 @@ class GCodeCalculator:
     """
     Calculator for natal charts and daily transits.
     Uses PyEphem for astronomical calculations.
+
+    Asteroids/centaurs load from JPL SBDB approximate orbital elements
+    (epoch 2023-09-13) via ephem.EllipticalBody — visualization-grade
+    (±1° position); refine with ephemeris files when sub-degree matters.
+    Loud by design: a malformed element set raises instead of silently
+    emptying the body list.
     """
+
+    # Visualization radii (AU), including the derived Earth (see
+    # calculate_solar_system_transits).
+    ORBITAL_RADII = {
+        "sun": 0.0,
+        "mercury": 0.39,
+        "venus": 0.72,
+        "earth": 1.0,
+        "moon": 1.0,  # rides Earth at this scale
+        "mars": 1.52,
+        "ceres": 2.77,
+        "pallas": 2.77,
+        "juno": 2.77,
+        "vesta": 2.36,
+        "jupiter": 5.2,
+        "saturn": 9.58,
+        "chiron": 13.7,
+        "uranus": 19.2,
+        "neptune": 30.05,
+        "pluto": 39.48,
+    }
+
+    # (a_AU, eccentricity, inclination°, ascending node°, perihelion arg°, mean anomaly°)
+    SMALL_BODY_ELEMENTS = {
+        "ceres": (2.7663, 0.0794, 10.588, 80.329, 73.725, 6.75),
+        "pallas": (2.7728, 0.2303, 34.837, 173.07, 310.35, 62.5),
+        "juno": (2.6700, 0.2568, 12.999, 169.85, 248.40, 271.0),
+        "vesta": (2.3618, 0.0887, 7.142, 103.81, 151.05, 343.5),
+        "chiron": (13.6565, 0.3826, 6.934, 209.30, 339.93, 339.93),
+    }
+
+    @staticmethod
+    def _make_small_body(name: str, elements: tuple) -> ephem.EllipticalBody:
+        """Build one elliptical body from (a, e, i, Ω, ω, M) at the elements epoch."""
+        a, e, inc, node, peri, mean = elements
+        body = ephem.EllipticalBody()
+        body.name = name
+        body._a = a
+        body._e = e
+        body._inc = ephem.degrees(str(inc))
+        body._Om = ephem.degrees(str(node))
+        body._om = ephem.degrees(str(peri))
+        body._M = ephem.degrees(str(mean))
+        body._epoch = ephem.Date("2023/09/13")
+        return body
 
     def __init__(self):
         """Initialize calculator with extended celestial bodies."""
@@ -32,29 +84,17 @@ class GCodeCalculator:
             "pluto": ephem.Pluto(),
         }
 
-        # Major Asteroids — loaded from orbital elements; fall back to empty
-        # if the ephem database doesn't recognise a designation
-        try:
-            self.asteroids = {
-                "ceres": ephem.readdb(
-                    "Ceres,e2000,3.34,0.079,10.59,80.5,73.6,2.767,0.214,0.0,0.0"
-                ),
-                "vesta": ephem.readdb(
-                    "Vesta,e2000,5.34,0.60,7.14,103.85,151.2,2.361,0.41,0.0,0.0"
-                ),
-            }
-        except Exception:
-            self.asteroids = {}
-
-        # Centaurs
-        try:
-            self.centaurs = {
-                "chiron": ephem.readdb(
-                    "Chiron,e2000,13.55,1.17,6.94,209.4,33.9,10.75,1.80,0.0,0.0"
-                ),
-            }
-        except Exception:
-            self.centaurs = {}
+        # Major asteroids + centaur, from explicit elements (loud, not silent).
+        self.asteroids = {
+            name: self._make_small_body(name, elements)
+            for name, elements in self.SMALL_BODY_ELEMENTS.items()
+            if name != "chiron"
+        }
+        self.centaurs = {
+            name: self._make_small_body(name, elements)
+            for name, elements in self.SMALL_BODY_ELEMENTS.items()
+            if name == "chiron"
+        }
 
         # Combine all for iteration
         self.all_celestial_bodies = {**self.planets, **self.asteroids, **self.centaurs}
@@ -117,14 +157,16 @@ class GCodeCalculator:
 
             for planet_name, planet in self.all_celestial_bodies.items():
                 planet.compute(observer)
-                lon = ephem.degrees(planet.ra + observer.sidereal_time())
+                # Ecliptic longitude in DEGREES — the zodiac helpers are
+                # degree-based; feeding them radians made every sign Aries.
+                lon = math.degrees(float(ephem.Ecliptic(planet).lon)) % 360.0
                 sign = self._get_zodiac_sign(lon)
                 degree = self._get_degree_in_sign(lon)
 
                 chart_data[planet_name] = {
                     "sign": sign,
                     "degree": degree,
-                    "longitude": float(lon),
+                    "longitude": lon,
                 }
 
                 if planet_name == "sun":
@@ -186,7 +228,7 @@ class GCodeCalculator:
             transit_data = {}
             for planet_name, planet in self.all_celestial_bodies.items():
                 planet.compute(observer)
-                lon = ephem.degrees(planet.ra + observer.sidereal_time())
+                lon = math.degrees(float(ephem.Ecliptic(planet).lon)) % 360.0
                 sign = self._get_zodiac_sign(lon)
                 degree = self._get_degree_in_sign(lon)
 
@@ -240,7 +282,7 @@ class GCodeCalculator:
         # Simplified calculation
         # In production, use proper astronomical calculation
         lst = observer.sidereal_time()
-        asc = self._get_zodiac_sign(float(lst))
+        asc = self._get_zodiac_sign(math.degrees(float(lst)))
         return asc
 
     def _calculate_dominant_elements(self, chart_data: Dict) -> Dict:
@@ -447,56 +489,120 @@ class GCodeCalculator:
         """
         Calculate heliocentric positions for all celestial bodies.
         Returns data for D3.js solar system visualization.
+
+        Astronomical notes (Rational Grounding):
+        - Earth is DERIVED exactly: Earth's heliocentric longitude is the
+          Sun's geocentric longitude + 180° (PyEphem has no Earth ephemeris —
+          you're standing on it).
+        - The Moon has no heliocentric ephemeris either; it rides Earth's
+          orbital radius (they differ by ~0.003 AU — invisible at solar-system
+          scale) with its own geocentric ecliptic longitude.
+        - Retrograde = the geocentric ecliptic longitude shrinks from today to
+          tomorrow (never true for the Sun or Moon, always apparent motion).
         """
         dt = datetime.combine(target_date, datetime.min.time())
         observer = ephem.Observer()
         observer.date = dt
+        next_observer = ephem.Observer()
+        next_observer.date = dt + timedelta(days=1)
 
-        solar_system_data = {"date": target_date.isoformat(), "bodies": []}
+        sun = self.planets["sun"]
+        sun.compute(observer)
+        sun_geo = math.degrees(float(ephem.Ecliptic(sun).lon)) % 360.0
+        earth_helio = (sun_geo + 180.0) % 360.0
 
-        # Orbital radii in AU (for visualization scaling)
-        orbital_radii = {
-            "mercury": 0.39,
-            "venus": 0.72,
-            "earth": 1.0,
-            "mars": 1.52,
-            "ceres": 2.77,
-            "pallas": 2.77,
-            "juno": 2.77,
-            "vesta": 2.77,
-            "jupiter": 5.2,
-            "saturn": 9.58,
-            "chiron": 13.7,
-            "uranus": 19.2,
-            "neptune": 30.05,
-            "pluto": 39.48,
+        solar_system_data: Dict = {
+            "date": target_date.isoformat(),
+            "bodies": [
+                {
+                    "name": "sun",
+                    "symbol": self._get_planet_symbol("sun"),
+                    "category": self._get_celestial_category("sun"),
+                    "heliocentric_longitude": 0.0,  # the centre, by definition
+                    "geocentric_longitude": sun_geo,
+                    "orbital_radius_au": 0.0,
+                    "zodiac_sign": self._get_zodiac_sign(sun_geo),
+                    "degree_in_sign": float(self._get_degree_in_sign(sun_geo)),
+                    "retrograde": False,  # apparent solar motion is always direct
+                },
+                {
+                    # Earth: derived exactly, never stored in self.planets.
+                    "name": "earth",
+                    "symbol": self._get_planet_symbol("earth"),
+                    "category": self._get_celestial_category("earth"),
+                    "heliocentric_longitude": earth_helio,
+                    "geocentric_longitude": None,  # undefined: the viewpoint itself
+                    "orbital_radius_au": self.ORBITAL_RADII["earth"],
+                    "zodiac_sign": self._get_zodiac_sign(earth_helio),
+                    "degree_in_sign": float(self._get_degree_in_sign(earth_helio)),
+                    "retrograde": False,
+                },
+            ],
         }
 
         for body_name, body in self.all_celestial_bodies.items():
+            if body_name == "sun":
+                continue  # emitted above
             body.compute(observer)
+            if body_name == "moon":
+                helio_lon = earth_helio  # rides Earth at this scale (see docstring)
+                geo_lon = math.degrees(float(ephem.Ecliptic(body).lon)) % 360.0
+            else:
+                helio_lon = math.degrees(float(body.hlong)) % 360.0
+                geo_lon = math.degrees(float(ephem.Ecliptic(body).lon)) % 360.0
 
-            # Get heliocentric longitude
-            helio_lon = body.hlong
-            geocentric_lon = ephem.degrees(body.ra + observer.sidereal_time())
+            # Retrograde: geocentric ecliptic longitude shrinking day-over-day.
+            body.compute(next_observer)
+            geo_lon_next = math.degrees(float(ephem.Ecliptic(body).lon)) % 360.0
+            delta = (geo_lon_next - geo_lon + 180.0) % 360.0 - 180.0
+            retrograde = bool(delta < -0.05)  # shrinking; |Δ|<0.05°/day ≈ station
 
             solar_system_data["bodies"].append(
                 {
                     "name": body_name,
                     "symbol": self._get_planet_symbol(body_name),
                     "category": self._get_celestial_category(body_name),
-                    "heliocentric_longitude": float(helio_lon),
-                    "geocentric_longitude": float(geocentric_lon),
-                    "orbital_radius_au": orbital_radii.get(body_name, 1.0),
-                    "zodiac_sign": self._get_zodiac_sign(geocentric_lon),
-                    "degree_in_sign": float(self._get_degree_in_sign(geocentric_lon)),
+                    "heliocentric_longitude": helio_lon,
+                    "geocentric_longitude": geo_lon,
+                    "orbital_radius_au": self.ORBITAL_RADII.get(body_name, 1.0),
+                    "zodiac_sign": self._get_zodiac_sign(geo_lon),
+                    "degree_in_sign": float(self._get_degree_in_sign(geo_lon)),
+                    "retrograde": retrograde,
                 }
             )
 
         # Calculate lunar nodes (geocentric)
-        lunar_nodes = self.calculate_lunar_nodes(observer)
+        lunar_nodes = self.calculate_lunar_nodes(target_date)
         solar_system_data["lunar_nodes"] = lunar_nodes
 
         return solar_system_data
+
+    def calculate_lunar_nodes(self, target_date: date) -> Dict:
+        """
+        Mean lunar nodes: where the Moon's orbit crosses the ecliptic.
+
+        Standard mean-node formula (Meeus, simplified ch. 47): the ascending
+        node regresses 0.0529538°/day from 125.0445° at J2000. Always exactly
+        180° apart; both are imaginary points, not bodies.
+        """
+        jd = ephem.julian_date(datetime.combine(target_date, datetime.min.time()))
+        days_since_j2000 = jd - 2451545.0
+        north = (125.0445 - 0.0529538 * days_since_j2000) % 360.0
+        south = (north + 180.0) % 360.0
+
+        def _node(name: str, symbol: str, longitude: float) -> Dict:
+            return {
+                "name": name,
+                "symbol": symbol,
+                "longitude": round(longitude, 4),
+                "zodiac_sign": self._get_zodiac_sign(longitude),
+                "degree_in_sign": float(self._get_degree_in_sign(longitude)),
+            }
+
+        return {
+            "north_node": _node("north_node", "☊", north),
+            "south_node": _node("south_node", "☋", south),
+        }
 
     def _get_planet_symbol(self, body_name: str) -> str:
         """Get astronomical symbol for celestial body."""
@@ -541,44 +647,3 @@ class GCodeCalculator:
             "pluto": "outer",
         }
         return categories.get(body_name, "unknown")
-
-    def calculate_lunar_nodes(self, observer) -> Dict:
-        """
-        Calculate the true lunar nodes (North and South).
-        Returns geocentric longitudes for both nodes.
-
-        The nodes are mathematical points where the Moon's orbit
-        crosses the ecliptic. They are always exactly 180° apart.
-        """
-        import math
-
-        # Get Julian Date
-        j2000_epoch = 2451545.0
-        jd = observer.date + 2415020  # Convert to Julian Date
-        days_since_j2000 = jd - j2000_epoch
-
-        # Mean North Node calculation (simplified)
-        # Based on lunar orbit precession period of 18.6 years
-        node_period = 6793.5  # days
-        node_offset = (days_since_j2000 % node_period) / node_period * 360
-
-        # Nodes move in retrograde (backwards)
-        north_node_longitude = (125.0445 - node_offset * 360 / node_period) % 360
-        south_node_longitude = (north_node_longitude + 180) % 360
-
-        return {
-            "north_node": {
-                "name": "north_node",
-                "symbol": "☊",
-                "longitude": round(north_node_longitude, 4),
-                "zodiac_sign": self._get_zodiac_sign(north_node_longitude),
-                "degree_in_sign": round(north_node_longitude % 30, 2),
-            },
-            "south_node": {
-                "name": "south_node",
-                "symbol": "☋",
-                "longitude": round(south_node_longitude, 4),
-                "zodiac_sign": self._get_zodiac_sign(south_node_longitude),
-                "degree_in_sign": round(south_node_longitude % 30, 2),
-            },
-        }

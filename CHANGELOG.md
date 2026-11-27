@@ -2,6 +2,37 @@
 
 All notable changes to the Spiritual G-Code project will be documented in this file.
 
+## [0.7.0] - 2026-11-27
+
+### Fixed — the radians bug (every body reported Aries)
+- Natal chart, transits and the ascendant fed ephem RADIANS into the
+  degree-based zodiac helpers (`lon % 360` over radians ≤ 6.3 always indexed
+  Aries) — all signs now compute from true ecliptic longitudes
+  (`ephem.Ecliptic` + `math.degrees`)
+- Asteroids/centaurs loaded with a malformed `ephem.readdb` string; the
+  surrounding try/except silently emptied them — replaced with explicit
+  EllipticalBody elements (JPL SBDB, epoch 2023-09-13), and Pallas/Juno join
+  Ceres/Vesta so the real calculator carries the same 16 bodies as the mock
+
+### Added — Solar System Transit backend + retrograde (Phase 7)
+- The real calculator gains `calculate_solar_system_transits`
+  (heliocentric + geocentric longitudes in degrees; Earth derived exactly
+  from the Sun's geocentric longitude + 180°; the Moon rides Earth's radius
+  at this scale) — the API previously always served mock data because the
+  real method crashed on the Moon's missing `hlong`
+- `calculate_lunar_nodes`: mean-node formula (regression 0.0529538°/day from
+  125.0445° at J2000), replacing a buggy double-division draft
+- Retrograde detection on both calculators (geocentric longitude shrinking
+  day-over-day; |Δ| < 0.05°/day ≈ station) — API payloads carry
+  `retrograde`; the renderer tooltip marks ℞ and guards the Earth/Moon
+  null-coordinate cases
+- Solar system test suite (9 cases) — the plan's Phase 4 testing section
+  had never been written
+
+### Docs
+- Issue #1 records the correction: the "IMPLEMENTATION COMPLETED" claim in
+  the transit plan covered the mock layer only
+
 ## [Unreleased]
 
 ### Future Enhancements (Planned)

@@ -736,6 +736,13 @@ class MockGCodeCalculator:
             else:
                 geo_longitude = helio_longitude
 
+            # Retrograde: geocentric longitude shrinking day-over-day.
+            next_geo = self._mock_geo_longitude(
+                planet_name, days_since_epoch + 1, planet_seed, period
+            )
+            delta = (next_geo - geo_longitude + 180.0) % 360.0 - 180.0
+            retrograde = bool(delta < -0.05)  # shrinking; |Δ|<0.05°/day ≈ station
+
             solar_system_data["bodies"].append(
                 {
                     "name": planet_name,
@@ -748,6 +755,7 @@ class MockGCodeCalculator:
                     "orbital_radius_au": self.orbital_radii.get(planet_name, 1.0),
                     "zodiac_sign": self._get_zodiac_sign_from_degree(helio_longitude),
                     "degree_in_sign": round(helio_longitude % 30, 2),
+                    "retrograde": retrograde,
                 }
             )
 
@@ -756,6 +764,21 @@ class MockGCodeCalculator:
         solar_system_data["lunar_nodes"] = lunar_nodes
 
         return solar_system_data
+
+    def _mock_geo_longitude(
+        self,
+        planet_name: str,
+        days_since_epoch: float,
+        planet_seed: float,
+        period: float,
+    ) -> float:
+        """The mock's geocentric longitude formula, factored so retrograde
+        detection can compare today against tomorrow without duplicating math."""
+        helio_longitude = (days_since_epoch / period * 360 + planet_seed * 360) % 360
+        if planet_name in ["mercury", "venus", "earth"]:
+            geocentric_offset = (days_since_epoch / period * 180) % 360
+            return (helio_longitude + geocentric_offset) % 360
+        return helio_longitude
 
     def calculate_lunar_nodes(self, target_date: date) -> Dict:
         """

@@ -394,9 +394,10 @@ class SolarSystemRenderer {
                 .text(body.symbol);
 
             // Enhanced tooltip with lunar nodes (for Moon)
-            let tooltipText = `${body.symbol} ${body.name.charAt(0).toUpperCase() + body.name.slice(1)}\n` +
+            let tooltipText = `${body.symbol} ${body.name.charAt(0).toUpperCase() + body.name.slice(1)}${body.retrograde ? ' ℞ RETROGRADE' : ''}\n` +
                              `Sign: ${body.zodiac_sign} ${body.degree_in_sign.toFixed(2)}°\n` +
-                             `Helio Long: ${body.heliocentric_longitude.toFixed(2)}°\n` +
+                             `Helio Long: ${body.heliocentric_longitude == null ? '—' : body.heliocentric_longitude.toFixed(2)}°\n` +
+                             `Geo Long: ${body.geocentric_longitude == null ? '— (the viewpoint)' : body.geocentric_longitude.toFixed(2)}°\n` +
                              `Orbit: ${body.orbital_radius_au} AU`;
 
             // Add lunar nodes to Moon tooltip (Option C)
