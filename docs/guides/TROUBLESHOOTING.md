@@ -32,9 +32,9 @@ pg_config is required to build psycopg2 from source.
 1. Edit `core/settings/development.py`:
    ```python
    DATABASES = {
-       'default': {
-           'ENGINE': 'django.db.backends.sqlite3',
-           'NAME': BASE_DIR / 'db.sqlite3',
+       "default": {
+           "ENGINE": "django.db.backends.sqlite3",
+           "NAME": BASE_DIR / "db.sqlite3",
        }
    }
    ```
@@ -167,7 +167,7 @@ Microsoft Visual C++ 14.0 or greater is required.
 1. Edit `core/settings/base.py`:
    ```python
    LOCAL_APPS = [
-       'api.apps.ApiConfig',
+       "api.apps.ApiConfig",
        # 'ai_engine.apps.AiEngineConfig',  # Temporarily disabled - requires PyEphem
    ]
    ```
@@ -192,33 +192,33 @@ FileNotFoundError: [Errno 2] No such file or directory: 'C:\\var\\log\\gcode\\dj
 **Edit `core/settings/base.py`:**
 ```python
 # Logging Configuration
-LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 
 # Use logs directory in project root for cross-platform compatibility
-LOG_DIR = os.path.join(BASE_DIR.parent, 'logs')
+LOG_DIR = os.path.join(BASE_DIR.parent, "logs")
 os.makedirs(LOG_DIR, exist_ok=True)
-LOG_FILE = os.path.join(LOG_DIR, 'django.log')
+LOG_FILE = os.path.join(LOG_DIR, "django.log")
 
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '{levelname} {asctime} {module} {message}',
-            'style': '{',
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {message}",
+            "style": "{",
         },
     },
-    'handlers': {
-        'file': {
-            'level': LOG_LEVEL,
-            'class': 'logging.FileHandler',
-            'filename': LOG_FILE,  # Use the cross-platform path
-            'formatter': 'verbose',
+    "handlers": {
+        "file": {
+            "level": LOG_LEVEL,
+            "class": "logging.FileHandler",
+            "filename": LOG_FILE,  # Use the cross-platform path
+            "formatter": "verbose",
         },
-        'console': {
-            'level': LOG_LEVEL,
-            'class': 'logging.StreamHandler',
-            'formatter': 'verbose',
+        "console": {
+            "level": LOG_LEVEL,
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
         },
     },
     # ... rest of logging config
@@ -238,9 +238,9 @@ django.core.cache.backends.base.InvalidCacheBackendError: Could not find backend
 ```python
 # Cache - Use local memory cache for development
 CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'unique-snowflake',
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "unique-snowflake",
     }
 }
 ```
@@ -289,9 +289,9 @@ from rest_framework_simplejwt.views import (
 
 urlpatterns = [
     # API - JWT Authentication
-    path('api/auth/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/auth/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+    path("api/auth/login/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("api/auth/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path("api/auth/token/verify/", TokenVerifyView.as_view(), name="token_verify"),
     # ... other patterns
 ]
 ```
@@ -310,9 +310,14 @@ AttributeError: module 'rest_framework.filters' has no attribute 'DjangoFilterBa
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, status, filters
 
+
 class DailyTransitViewSet(viewsets.ModelViewSet):
     # ...
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    ]
     # ...
 ```
 
@@ -329,11 +334,12 @@ AttributeError: type object 'DailyTransit' has no attribute 'INTENSITY_LEVEL_CHO
 ```python
 # Choice constants (matching model field definitions)
 INTENSITY_LEVEL_CHOICES = [
-    ('low', 'Low'),
-    ('medium', 'Medium'),
-    ('high', 'High'),
-    ('intense', 'Intense'),
+    ("low", "Low"),
+    ("medium", "Medium"),
+    ("high", "High"),
+    ("intense", "Intense"),
 ]
+
 
 class DailyTransitFilter(filters.FilterSet):
     intensity_level = filters.ChoiceFilter(choices=INTENSITY_LEVEL_CHOICES)

@@ -3,8 +3,7 @@ Daily G-Code Service for Spiritual G-Code.
 Orchestrates natal chart calculation, transit calculation, and AI interpretation.
 """
 
-from datetime import date, datetime, timedelta
-from typing import Dict, Optional
+from datetime import date, timedelta
 
 from django.utils import timezone
 
@@ -23,8 +22,8 @@ class DailyGCodeService:
         self.ai_client = MockGeminiGCodeClient()
 
     def calculate_daily_gcode_for_user(
-        self, user, target_date: Optional[date] = None
-    ) -> Dict:
+        self, user, target_date: date | None = None
+    ) -> dict:
         """
         Calculate complete daily G-Code for a user.
 
@@ -87,11 +86,9 @@ class DailyGCodeService:
             return daily_gcode
 
         except Exception as e:
-            raise Exception(f"Error calculating daily G-Code: {str(e)}")
+            raise Exception(f"Error calculating daily G-Code: {e!s}")
 
-    def calculate_weekly_forecast(
-        self, user, start_date: Optional[date] = None
-    ) -> Dict:
+    def calculate_weekly_forecast(self, user, start_date: date | None = None) -> dict:
         """
         Calculate weekly G-Code forecast.
 
@@ -124,10 +121,10 @@ class DailyGCodeService:
 
     def generate_spiritual_patch_note(
         self,
-        daily_gcode: Dict,
+        daily_gcode: dict,
         platform: str = "twitter",
         custom_instructions: str = "",
-    ) -> Dict:
+    ) -> dict:
         """
         Generate social media content from daily G-Code.
 
@@ -145,7 +142,7 @@ class DailyGCodeService:
             custom_instructions=custom_instructions,
         )
 
-    def _get_or_calculate_natal_chart(self, user) -> Dict:
+    def _get_or_calculate_natal_chart(self, user) -> dict:
         """Get cached natal chart or calculate if not exists."""
         from api.models import NatalChart
 

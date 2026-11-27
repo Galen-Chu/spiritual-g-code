@@ -5,9 +5,7 @@ Use this for development and testing when PyEphem is not available.
 """
 
 import hashlib
-import math
-from datetime import date, datetime, timedelta
-from typing import Dict, List, Optional
+from datetime import date
 
 
 class MockGCodeCalculator:
@@ -119,10 +117,10 @@ class MockGCodeCalculator:
     def calculate_natal_chart(
         self,
         birth_date: date,
-        birth_time: Optional[str] = None,
+        birth_time: str | None = None,
         birth_location: str = "Unknown",
         timezone: str = "UTC",
-    ) -> Dict:
+    ) -> dict:
         """
         Calculate complete natal chart (simulated).
 
@@ -175,15 +173,15 @@ class MockGCodeCalculator:
             }
 
         except Exception as e:
-            raise Exception(f"Error calculating natal chart: {str(e)}")
+            raise Exception(f"Error calculating natal chart: {e!s}")
 
     def calculate_transits(
         self,
         birth_date: date,
         birth_location: str,
         target_date: date,
-        birth_time: Optional[str] = None,
-    ) -> Dict:
+        birth_time: str | None = None,
+    ) -> dict:
         """
         Calculate current transits and aspects to natal chart (simulated).
 
@@ -223,10 +221,10 @@ class MockGCodeCalculator:
             }
 
         except Exception as e:
-            raise Exception(f"Error calculating transits: {str(e)}")
+            raise Exception(f"Error calculating transits: {e!s}")
 
     def calculate_g_code_intensity(
-        self, transit_data: Dict, aspects: List[Dict]
+        self, transit_data: dict, aspects: list[dict]
     ) -> int:
         """
         Calculate G-Code intensity score based on transits and aspects.
@@ -265,7 +263,7 @@ class MockGCodeCalculator:
         return max(1, min(100, score))
 
     def _create_seed(
-        self, date_obj: date, time_str: Optional[str] = None, location: str = "Unknown"
+        self, date_obj: date, time_str: str | None = None, location: str = "Unknown"
     ) -> float:
         """Create a deterministic seed from date/time/location."""
         # Create a string representation
@@ -282,7 +280,7 @@ class MockGCodeCalculator:
 
     def _calculate_planet_position(
         self, planet_name: str, date_obj: date, seed: float
-    ) -> Dict:
+    ) -> dict:
         """Calculate simulated planet position for a given date."""
         # Days since epoch
         epoch = date(2000, 1, 1)
@@ -311,7 +309,7 @@ class MockGCodeCalculator:
         }
 
     def _calculate_ascendant(
-        self, birth_date: date, birth_time: Optional[str], seed: float
+        self, birth_date: date, birth_time: str | None, seed: float
     ) -> str:
         """Calculate ascendant sign (simulated)."""
         if birth_time:
@@ -328,7 +326,7 @@ class MockGCodeCalculator:
 
         return self.zodiac_signs[ascendant_offset]
 
-    def _calculate_dominant_elements(self, chart_data: Dict) -> Dict:
+    def _calculate_dominant_elements(self, chart_data: dict) -> dict:
         """Calculate dominant elements in natal chart."""
         elements = {
             "fire": 0,  # Aries, Leo, Sagittarius
@@ -361,7 +359,7 @@ class MockGCodeCalculator:
 
         return elements
 
-    def _calculate_aspects(self, chart_data: Dict) -> List[Dict]:
+    def _calculate_aspects(self, chart_data: dict) -> list[dict]:
         """Calculate aspects between planets in natal chart."""
         aspects = []
         planets = list(chart_data.keys())
@@ -398,8 +396,8 @@ class MockGCodeCalculator:
         return aspects
 
     def _calculate_transit_aspects(
-        self, transit_data: Dict, natal_data: Dict
-    ) -> List[Dict]:
+        self, transit_data: dict, natal_data: dict
+    ) -> list[dict]:
         """Calculate aspects between transiting and natal planets."""
         aspects = []
         aspect_types = {
@@ -431,8 +429,8 @@ class MockGCodeCalculator:
         return aspects
 
     def calculate_extended_aspects(
-        self, natal_data: Dict, transit_data: Dict = None
-    ) -> Dict:
+        self, natal_data: dict, transit_data: dict = None
+    ) -> dict:
         """
         Calculate extended aspects including asteroids and lunar nodes.
 
@@ -531,10 +529,10 @@ class MockGCodeCalculator:
     def calculate_placidus_houses(
         self,
         birth_date: date,
-        birth_time: Optional[str] = None,
+        birth_time: str | None = None,
         birth_location: str = "Unknown",
         timezone: str = "UTC",
-    ) -> Dict:
+    ) -> dict:
         """
         Calculate Placidus house cusps (simplified approximation for MVP).
 
@@ -591,7 +589,7 @@ class MockGCodeCalculator:
 
             return houses
 
-        except Exception as e:
+        except Exception:
             # Fallback to equal houses if calculation fails
             return self._calculate_equal_houses(
                 birth_date, birth_time, birth_location, timezone
@@ -599,7 +597,7 @@ class MockGCodeCalculator:
 
     def _calculate_placidus_house_sizes(
         self, ascendant_longitude: float, mc_longitude: float, seed: float
-    ) -> Dict:
+    ) -> dict:
         """Calculate house sizes for Placidus system (simplified)."""
         base_size = 30
         variation = (seed - 0.5) * 10  # -5 to +5 degrees variation
@@ -628,10 +626,10 @@ class MockGCodeCalculator:
     def _calculate_equal_houses(
         self,
         birth_date: date,
-        birth_time: Optional[str] = None,
+        birth_time: str | None = None,
         birth_location: str = "Unknown",
         timezone: str = "UTC",
-    ) -> Dict:
+    ) -> dict:
         """Calculate equal house cusps as fallback (30 degrees each)."""
         seed = self._create_seed(birth_date, birth_time, birth_location)
         ascendant_sign = self._calculate_ascendant(birth_date, birth_time, seed)
@@ -659,10 +657,10 @@ class MockGCodeCalculator:
     def calculate_natal_wheel_data(
         self,
         birth_date: date,
-        birth_time: Optional[str] = None,
+        birth_time: str | None = None,
         birth_location: str = "Unknown",
         timezone: str = "UTC",
-    ) -> Dict:
+    ) -> dict:
         """
         Calculate complete natal wheel data for D3.js rendering.
 
@@ -712,7 +710,7 @@ class MockGCodeCalculator:
             "moon_sign": natal_chart["moon_sign"],
         }
 
-    def calculate_solar_system_transits(self, target_date: date) -> Dict:
+    def calculate_solar_system_transits(self, target_date: date) -> dict:
         """
         Calculate heliocentric positions for all celestial bodies (mock).
         """
@@ -780,7 +778,7 @@ class MockGCodeCalculator:
             return (helio_longitude + geocentric_offset) % 360
         return helio_longitude
 
-    def calculate_lunar_nodes(self, target_date: date) -> Dict:
+    def calculate_lunar_nodes(self, target_date: date) -> dict:
         """
         Calculate lunar nodes (mock implementation).
         Nodes move in retrograde with 18.6 year period.

@@ -43,31 +43,31 @@ The base settings file contains all common configuration shared across environme
 **Django Apps:**
 ```python
 DJANGO_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
 ]
 ```
 
 **Third-Party Apps:**
 ```python
 THIRD_PARTY_APPS = [
-    'rest_framework',                # Django REST Framework
-    'rest_framework_simplejwt',      # JWT authentication
-    'django_crontab',               # Scheduled tasks
-    'corsheaders',                  # CORS support
-    'drf_spectacular',              # OpenAPI schema
-    'channels',                     # WebSocket support
+    "rest_framework",  # Django REST Framework
+    "rest_framework_simplejwt",  # JWT authentication
+    "django_crontab",  # Scheduled tasks
+    "corsheaders",  # CORS support
+    "drf_spectacular",  # OpenAPI schema
+    "channels",  # WebSocket support
 ]
 ```
 
 **Local Apps:**
 ```python
 LOCAL_APPS = [
-    'api.apps.ApiConfig',           # API application
+    "api.apps.ApiConfig",  # API application
 ]
 ```
 
@@ -76,9 +76,9 @@ LOCAL_APPS = [
 **Development (SQLite):**
 ```python
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
 }
 ```
@@ -86,39 +86,37 @@ DATABASES = {
 **Production (PostgreSQL):**
 ```python
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME', 'spiritual_gcode'),
-        'USER': os.getenv('DB_USER', 'gcode_user'),
-        'PASSWORD': os.getenv('DB_PASSWORD', ''),
-        'HOST': os.getenv('DB_HOST', 'localhost'),
-        'PORT': os.getenv('DB_PORT', '5432'),
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv("DB_NAME", "spiritual_gcode"),
+        "USER": os.getenv("DB_USER", "gcode_user"),
+        "PASSWORD": os.getenv("DB_PASSWORD", ""),
+        "HOST": os.getenv("DB_HOST", "localhost"),
+        "PORT": os.getenv("DB_PORT", "5432"),
     }
 }
 ```
 
 #### Custom User Model
 ```python
-AUTH_USER_MODEL = 'api.GCodeUser'
+AUTH_USER_MODEL = "api.GCodeUser"
 ```
 
 #### REST Framework Configuration
 
 ```python
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
     ),
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
-    ),
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 20,
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-    'DEFAULT_FILTER_BACKENDS': (
-        'rest_framework.filters.SearchFilter',
-        'rest_framework.filters.OrderingFilter',
+    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 20,
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_FILTER_BACKENDS": (
+        "rest_framework.filters.SearchFilter",
+        "rest_framework.filters.OrderingFilter",
     ),
 }
 ```
@@ -127,14 +125,14 @@ REST_FRAMEWORK = {
 
 ```python
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
-    'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': True,
-    'UPDATE_LAST_LOGIN': True,
-    'ALGORITHM': 'HS256',
-    'SIGNING_KEY': SECRET_KEY,
-    'AUTH_HEADER_TYPES': ('Bearer',),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "UPDATE_LAST_LOGIN": True,
+    "ALGORITHM": "HS256",
+    "SIGNING_KEY": SECRET_KEY,
+    "AUTH_HEADER_TYPES": ("Bearer",),
 }
 ```
 
@@ -147,20 +145,19 @@ SIMPLE_JWT = {
 
 ```python
 CORS_ALLOWED_ORIGINS = os.getenv(
-    'CORS_ALLOWED_ORIGINS',
-    'http://localhost:3000,http://127.0.0.1:3000'
-).split(',')
+    "CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000"
+).split(",")
 CORS_ALLOW_CREDENTIALS = True
 ```
 
 #### Celery Configuration
 
 ```python
-CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL', 'redis://localhost:6379/0')
-CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND', 'redis://localhost:6379/0')
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379/0")
+CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", "redis://localhost:6379/0")
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = TIME_ZONE
 ```
 
@@ -168,14 +165,14 @@ CELERY_TIMEZONE = TIME_ZONE
 
 ```python
 CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': f'redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}',
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
         },
-        'KEY_PREFIX': 'gcode',
-        'TIMEOUT': 300,
+        "KEY_PREFIX": "gcode",
+        "TIMEOUT": 300,
     }
 }
 ```
@@ -184,42 +181,42 @@ CACHES = {
 
 ```python
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '{levelname} {asctime} {module} {message}',
-            'style': '{',
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {message}",
+            "style": "{",
         },
     },
-    'handlers': {
-        'file': {
-            'level': LOG_LEVEL,
-            'class': 'logging.FileHandler',
-            'filename': LOG_FILE,
-            'formatter': 'verbose',
+    "handlers": {
+        "file": {
+            "level": LOG_LEVEL,
+            "class": "logging.FileHandler",
+            "filename": LOG_FILE,
+            "formatter": "verbose",
         },
-        'console': {
-            'level': LOG_LEVEL,
-            'class': 'logging.StreamHandler',
-            'formatter': 'verbose',
+        "console": {
+            "level": LOG_LEVEL,
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
         },
     },
-    'loggers': {
-        'django': {
-            'handlers': ['console', 'file'],
-            'level': LOG_LEVEL,
-            'propagate': True,
+    "loggers": {
+        "django": {
+            "handlers": ["console", "file"],
+            "level": LOG_LEVEL,
+            "propagate": True,
         },
-        'api': {
-            'handlers': ['console', 'file'],
-            'level': LOG_LEVEL,
-            'propagate': False,
+        "api": {
+            "handlers": ["console", "file"],
+            "level": LOG_LEVEL,
+            "propagate": False,
         },
-        'ai_engine': {
-            'handlers': ['console', 'file'],
-            'level': LOG_LEVEL,
-            'propagate': False,
+        "ai_engine": {
+            "handlers": ["console", "file"],
+            "level": LOG_LEVEL,
+            "propagate": False,
         },
     },
 }
@@ -232,13 +229,19 @@ LOGGING = {
 ```python
 CRONJOBS = [
     # Calculate Daily G-Code at 4:00 AM every day
-    ('0 4 * * *', 'scripts.calculate_daily_gcode.calculate_all_daily_gcodes', '>> /tmp/gcode_calc.log'),
-
+    (
+        "0 4 * * *",
+        "scripts.calculate_daily_gcode.calculate_all_daily_gcodes",
+        ">> /tmp/gcode_calc.log",
+    ),
     # Generate Spiritual Patch Notes at 5:00 AM every day
-    ('0 5 * * *', 'scripts.generate_patch_notes.generate_all_patch_notes', '>> /tmp/patch_notes.log'),
-
+    (
+        "0 5 * * *",
+        "scripts.generate_patch_notes.generate_all_patch_notes",
+        ">> /tmp/patch_notes.log",
+    ),
     # Clean up old data on Sundays at 3:00 AM
-    ('0 3 * * 0', 'scripts.cleanup_old_data.run_all_cleanup', '>> /tmp/cleanup.log'),
+    ("0 3 * * 0", "scripts.cleanup_old_data.run_all_cleanup", ">> /tmp/cleanup.log"),
 ]
 ```
 
@@ -251,10 +254,10 @@ CRONJOBS = [
 
 ```python
 CHANNEL_LAYERS = {
-    'default': {
+    "default": {
         # Use in-memory channel layer for development
         # For production, change to 'channels_redis.core.RedisChannelLayer'
-        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
     }
 }
 ```
@@ -265,22 +268,22 @@ CHANNEL_LAYERS = {
 
 ```python
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Spiritual G-Code API',
-    'DESCRIPTION': 'API for Spiritual G-Code - A personal operating system bridging software engineering, spiritual wisdom, and cosmic data.',
-    'VERSION': '1.0.0',
-    'SERVE_INCLUDE_SCHEMA': False,
-    'SCHEMA_PATH_PREFIX': '/api',
-    'COMPONENT_SPLIT_REQUEST': True,
+    "TITLE": "Spiritual G-Code API",
+    "DESCRIPTION": "API for Spiritual G-Code - A personal operating system bridging software engineering, spiritual wisdom, and cosmic data.",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "SCHEMA_PATH_PREFIX": "/api",
+    "COMPONENT_SPLIT_REQUEST": True,
 }
 ```
 
 #### Session Configuration
 
 ```python
-SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+SESSION_ENGINE = "django.contrib.sessions.backends.db"
 SESSION_COOKIE_AGE = 604800  # 7 days in seconds
 SESSION_COOKIE_HTTPONLY = True
-SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SAMESITE = "Lax"
 ```
 
 #### Security Settings
@@ -292,7 +295,7 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
-X_FRAME_OPTIONS = 'DENY'
+X_FRAME_OPTIONS = "DENY"
 ```
 
 **Development (DEBUG=True):**
@@ -313,9 +316,9 @@ Overrides for local development environment:
 ```python
 DEBUG = True
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
 }
 ```
@@ -327,9 +330,9 @@ Overrides for test environment:
 ```python
 DEBUG = True
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': ':memory:',  # In-memory database for fast tests
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": ":memory:",  # In-memory database for fast tests
     }
 }
 CELERY_TASK_ALWAYS_EAGER = True  # Execute tasks synchronously
@@ -342,15 +345,15 @@ Overrides for production environment:
 ```python
 DEBUG = False
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
         # Production database configuration
     }
 }
 CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
             "hosts": [(REDIS_HOST, REDIS_PORT)],
         },
     },
@@ -370,10 +373,10 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/', include('api.urls')),
-    path('auth/', include('djoser.urls.base')),
-    path('', include('api.urls_html')),  # HTML views
+    path("admin/", admin.site.urls),
+    path("api/", include("api.urls")),
+    path("auth/", include("djoser.urls.base")),
+    path("", include("api.urls_html")),  # HTML views
 ]
 
 # Serve media files in development
@@ -399,7 +402,7 @@ from django.urls import re_path
 from api.consumers import DashboardConsumer
 
 websocket_urlpatterns = [
-    re_path(r'^ws/dashboard/$', DashboardConsumer.as_asgi()),
+    re_path(r"^ws/dashboard/$", DashboardConsumer.as_asgi()),
 ]
 ```
 
@@ -418,7 +421,7 @@ Entry point for traditional HTTP requests:
 import os
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings.development')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings.development")
 
 application = get_wsgi_application()
 ```
@@ -435,7 +438,7 @@ Entry point for WebSocket connections:
 import os
 from django.core.asgi import get_asgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings.development')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings.development")
 
 application = get_asgi_application()
 ```
@@ -454,10 +457,10 @@ application = get_asgi_application()
 import os
 from celery import Celery
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings.development')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings.development")
 
-app = Celery('spiritual_gcode')
-app.config_from_object('django.conf:settings', namespace='CELERY')
+app = Celery("spiritual_gcode")
+app.config_from_object("django.conf:settings", namespace="CELERY")
 app.autodiscover_tasks()
 ```
 

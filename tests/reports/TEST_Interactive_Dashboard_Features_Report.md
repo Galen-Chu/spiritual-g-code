@@ -56,12 +56,12 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 import core.routing
 
-application = ProtocolTypeRouter({
-    "http": get_asgi_application(),
-    "websocket": AuthMiddlewareStack(
-        URLRouter(core.routing.websocket_urlpatterns)
-    ),
-})
+application = ProtocolTypeRouter(
+    {
+        "http": get_asgi_application(),
+        "websocket": AuthMiddlewareStack(URLRouter(core.routing.websocket_urlpatterns)),
+    }
+)
 ```
 
 #### 2. WebSocket Consumer (api/consumers/dashboard_consumer.py)
@@ -76,30 +76,27 @@ class DashboardConsumer(AsyncWebsocketConsumer):
             await self.close()
             return
 
-        self.user_group_name = f'dashboard_{self.user.id}'
-        await self.channel_layer.group_add(
-            self.user_group_name,
-            self.channel_name
-        )
+        self.user_group_name = f"dashboard_{self.user.id}"
+        await self.channel_layer.group_add(self.user_group_name, self.channel_name)
         await self.accept()
 
     async def receive(self, text_data):
         """處理來自客戶端的訊息 (ping, subscribe, unsubscribe)"""
         text_data_json = json.loads(text_data)
-        message_type = text_data_json.get('type', '')
+        message_type = text_data_json.get("type", "")
 
-        if message_type == 'ping':
-            await self.send(text_data=json.dumps({
-                'type': 'pong',
-                'timestamp': datetime.now().isoformat()
-            }))
+        if message_type == "ping":
+            await self.send(
+                text_data=json.dumps(
+                    {"type": "pong", "timestamp": datetime.now().isoformat()}
+                )
+            )
 
     async def dashboard_update(self, event):
         """發送 Dashboard 更新給客戶端"""
-        await self.send(text_data=json.dumps({
-            'type': 'dashboard_update',
-            'data': event['data']
-        }))
+        await self.send(
+            text_data=json.dumps({"type": "dashboard_update", "data": event["data"]})
+        )
 ```
 
 #### 3. WebSocket 路由 (core/routing.py)
@@ -109,7 +106,7 @@ from django.urls import re_path
 from api.consumers import DashboardConsumer
 
 websocket_urlpatterns = [
-    re_path(r'^ws/dashboard/', DashboardConsumer.as_asgi()),
+    re_path(r"^ws/dashboard/", DashboardConsumer.as_asgi()),
 ]
 ```
 
@@ -373,47 +370,41 @@ templates/dashboard/
 ```python
 class ChartAnnotation(models.Model):
     # Chart type choices
-    CHART_TREND = 'gcode_trend'
-    CHART_PLANETARY = 'planetary'
-    CHART_ELEMENT = 'element'
-    CHART_FORECAST = 'forecast'
-    CHART_NETWORK = 'network'
+    CHART_TREND = "gcode_trend"
+    CHART_PLANETARY = "planetary"
+    CHART_ELEMENT = "element"
+    CHART_FORECAST = "forecast"
+    CHART_NETWORK = "network"
 
     CHART_TYPE_CHOICES = [
-        (CHART_TREND, 'G-Code Trend'),
-        (CHART_PLANETARY, 'Planetary Positions'),
-        (CHART_ELEMENT, 'Element Distribution'),
-        (CHART_FORECAST, 'Weekly Forecast'),
-        (CHART_NETWORK, 'Aspects Network'),
+        (CHART_TREND, "G-Code Trend"),
+        (CHART_PLANETARY, "Planetary Positions"),
+        (CHART_ELEMENT, "Element Distribution"),
+        (CHART_FORECAST, "Weekly Forecast"),
+        (CHART_NETWORK, "Aspects Network"),
     ]
 
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name='annotations'
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="annotations"
     )
 
     chart_type = models.CharField(
         max_length=50,
         choices=CHART_TYPE_CHOICES,
-        help_text="Type of chart this annotation belongs to"
+        help_text="Type of chart this annotation belongs to",
     )
 
-    data_point = models.JSONField(
-        help_text="Data point being annotated"
-    )
+    data_point = models.JSONField(help_text="Data point being annotated")
 
-    note = models.TextField(
-        help_text="User's note or insight"
-    )
+    note = models.TextField(help_text="User's note or insight")
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table = 'chart_annotations'
-        unique_together = ['user', 'chart_type', 'data_point']
-        ordering = ['-created_at']
+        db_table = "chart_annotations"
+        unique_together = ["user", "chart_type", "data_point"]
+        ordering = ["-created_at"]
 
     @property
     def data_point_display(self):

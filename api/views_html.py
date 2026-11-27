@@ -3,15 +3,11 @@ HTML Template Views for Spiritual G-Code.
 These views render the frontend pages.
 """
 
-from datetime import date
-
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, logout
 from django.contrib.auth import login as auth_login
-from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
-from django.utils import timezone
 
 
 @login_required

@@ -6,7 +6,7 @@ helpers, which made every body report Aries. These tests pin the degrees
 contract through known-astronomy assertions (late-November Sun = Sagittarius).
 """
 
-from datetime import date, timedelta
+from datetime import date
 
 import pytest
 

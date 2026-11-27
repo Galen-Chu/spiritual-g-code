@@ -159,6 +159,7 @@ class NatalChartCalculateView(APIView):
     authentication_classes = []  # No authentication!
     permission_classes = []
 
+
 # AFTER (correct):
 class NatalChartCalculateView(APIView):
     authentication_classes = [JWTAuthentication, SessionAuthentication]
@@ -216,16 +217,19 @@ class DashboardOverviewSerializer(serializers.Serializer):
     # ... existing fields ...
     natal_chart = NatalChartSerializer(read_only=True)  # NEW!
 
+
 # Updated DashboardOverviewView:
 try:
     natal_chart = NatalChart.objects.get(user=request.user)
 except NatalChart.DoesNotExist:
     natal_chart = None
 
-serializer = DashboardOverviewSerializer({
-    # ... existing fields ...
-    'natal_chart': natal_chart,  # NEW!
-})
+serializer = DashboardOverviewSerializer(
+    {
+        # ... existing fields ...
+        "natal_chart": natal_chart,  # NEW!
+    }
+)
 ```
 
 ```javascript

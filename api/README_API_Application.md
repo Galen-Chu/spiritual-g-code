@@ -294,20 +294,39 @@ ws.onmessage = (event) => {
 
 ```python
 urlpatterns = [
-    path('auth/', include('djoser.urls.jwt')),
-    path('auth/profile/', UserProfileView.as_view(), name='profile'),
-    path('natal/', NatalChartViewSet.as_view({'get': 'list', 'post': 'create'})),
-    path('natal/<int:pk>/', NatalChartViewSet.as_view({'get': 'retrieve'})),
-    path('natal/wheel/', NatalWheelView.as_view(), name='natal-wheel'),
-    path('gcode/', DailyTransitViewSet.as_view({'get': 'list', 'post': 'create'})),
-    path('gcode/<int:pk>/', DailyTransitViewSet.as_view({'get': 'retrieve'})),
-    path('content/', GeneratedContentViewSet.as_view({'get': 'list', 'post': 'create'})),
-    path('content/<int:pk>/', GeneratedContentViewSet.as_view({'get': 'retrieve', 'put': 'update', 'delete': 'destroy'})),
-    path('annotations/', ChartAnnotationViewSet.as_view({'get': 'list', 'post': 'create'})),
-    path('annotations/<int:pk>/', ChartAnnotationViewSet.as_view({'get': 'retrieve', 'put': 'update', 'delete': 'destroy'})),
-    path('dashboard/overview/', DashboardOverviewView.as_view(), name='dashboard-overview'),
-    path('dashboard/charts/', DashboardChartsView.as_view(), name='dashboard-charts'),
-    path('health/', HealthCheckView.as_view(), name='health-check'),
+    path("auth/", include("djoser.urls.jwt")),
+    path("auth/profile/", UserProfileView.as_view(), name="profile"),
+    path("natal/", NatalChartViewSet.as_view({"get": "list", "post": "create"})),
+    path("natal/<int:pk>/", NatalChartViewSet.as_view({"get": "retrieve"})),
+    path("natal/wheel/", NatalWheelView.as_view(), name="natal-wheel"),
+    path("gcode/", DailyTransitViewSet.as_view({"get": "list", "post": "create"})),
+    path("gcode/<int:pk>/", DailyTransitViewSet.as_view({"get": "retrieve"})),
+    path(
+        "content/", GeneratedContentViewSet.as_view({"get": "list", "post": "create"})
+    ),
+    path(
+        "content/<int:pk>/",
+        GeneratedContentViewSet.as_view(
+            {"get": "retrieve", "put": "update", "delete": "destroy"}
+        ),
+    ),
+    path(
+        "annotations/",
+        ChartAnnotationViewSet.as_view({"get": "list", "post": "create"}),
+    ),
+    path(
+        "annotations/<int:pk>/",
+        ChartAnnotationViewSet.as_view(
+            {"get": "retrieve", "put": "update", "delete": "destroy"}
+        ),
+    ),
+    path(
+        "dashboard/overview/",
+        DashboardOverviewView.as_view(),
+        name="dashboard-overview",
+    ),
+    path("dashboard/charts/", DashboardChartsView.as_view(), name="dashboard-charts"),
+    path("health/", HealthCheckView.as_view(), name="health-check"),
 ]
 ```
 
@@ -315,7 +334,7 @@ urlpatterns = [
 
 ```python
 websocket_urlpatterns = [
-    re_path(r'ws/dashboard/$', DashboardConsumer.as_asgi()),
+    re_path(r"ws/dashboard/$", DashboardConsumer.as_asgi()),
 ]
 ```
 

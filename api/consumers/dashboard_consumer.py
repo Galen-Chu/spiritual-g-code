@@ -58,7 +58,7 @@ class DashboardConsumer(AsyncWebsocketConsumer):
             )
 
         except Exception as e:
-            logger.error(f"WebSocket connection error: {str(e)}")
+            logger.error(f"WebSocket connection error: {e!s}")
             await self.close()
 
     async def disconnect(self, close_code):
@@ -75,7 +75,7 @@ class DashboardConsumer(AsyncWebsocketConsumer):
                     f"WebSocket disconnected for user {self.user.id if hasattr(self, 'user') else 'unknown'}"
                 )
         except Exception as e:
-            logger.error(f"WebSocket disconnect error: {str(e)}")
+            logger.error(f"WebSocket disconnect error: {e!s}")
 
     async def receive(self, text_data):
         """
@@ -115,7 +115,7 @@ class DashboardConsumer(AsyncWebsocketConsumer):
         except json.JSONDecodeError:
             logger.error("Invalid JSON received from WebSocket")
         except Exception as e:
-            logger.error(f"Error receiving WebSocket message: {str(e)}")
+            logger.error(f"Error receiving WebSocket message: {e!s}")
 
     async def dashboard_update(self, event):
         """
@@ -136,4 +136,4 @@ class DashboardConsumer(AsyncWebsocketConsumer):
             )
 
         except Exception as e:
-            logger.error(f"Error sending dashboard update: {str(e)}")
+            logger.error(f"Error sending dashboard update: {e!s}")

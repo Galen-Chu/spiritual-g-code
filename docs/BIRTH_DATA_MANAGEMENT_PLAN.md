@@ -69,18 +69,16 @@ Add validation methods to `UserSerializer` class:
 def validate_birth_date(self, value):
     """Ensure birth date is not in the future."""
     from datetime import date
+
     if value > date.today():
-        raise serializers.ValidationError(
-            "Birth date cannot be in the future."
-        )
+        raise serializers.ValidationError("Birth date cannot be in the future.")
     return value
+
 
 def validate_birth_location(self, value):
     """Ensure birth location is provided."""
     if not value or not value.strip():
-        raise serializers.ValidationError(
-            "Birth location is required."
-        )
+        raise serializers.ValidationError("Birth location is required.")
     return value
 ```
 
@@ -93,18 +91,30 @@ def update(self, instance, validated_data):
 
     # Check if birth data changed
     birth_data_changed = (
-        ('birth_date' in validated_data and validated_data['birth_date'] != instance.birth_date) or
-        ('birth_time' in validated_data and validated_data['birth_time'] != instance.birth_time) or
-        ('birth_location' in validated_data and validated_data['birth_location'] != instance.birth_location) or
-        ('timezone' in validated_data and validated_data['timezone'] != instance.timezone)
+        (
+            "birth_date" in validated_data
+            and validated_data["birth_date"] != instance.birth_date
+        )
+        or (
+            "birth_time" in validated_data
+            and validated_data["birth_time"] != instance.birth_time
+        )
+        or (
+            "birth_location" in validated_data
+            and validated_data["birth_location"] != instance.birth_location
+        )
+        or (
+            "timezone" in validated_data
+            and validated_data["timezone"] != instance.timezone
+        )
     )
 
     # Store old data for logging
     old_data = {
-        'birth_date': str(instance.birth_date),
-        'birth_time': str(instance.birth_time) if instance.birth_time else None,
-        'birth_location': instance.birth_location,
-        'timezone': instance.timezone
+        "birth_date": str(instance.birth_date),
+        "birth_time": str(instance.birth_time) if instance.birth_time else None,
+        "birth_location": instance.birth_location,
+        "timezone": instance.timezone,
     }
 
     # Update user instance
@@ -116,32 +126,32 @@ def update(self, instance, validated_data):
     if birth_data_changed:
         try:
             from ai_engine.mock_calculator import MockGCodeCalculator
+
             calculator = MockGCodeCalculator()
 
             new_chart_data = calculator.calculate_natal_chart(
                 birth_date=instance.birth_date,
-                birth_time=instance.birth_time.strftime('%H:%M') if instance.birth_time else None,
+                birth_time=instance.birth_time.strftime("%H:%M")
+                if instance.birth_time
+                else None,
                 birth_location=instance.birth_location,
-                timezone=instance.timezone
+                timezone=instance.timezone,
             )
 
             # Update or create natal chart
-            NatalChart.objects.update_or_create(
-                user=instance,
-                defaults=new_chart_data
-            )
+            NatalChart.objects.update_or_create(user=instance, defaults=new_chart_data)
 
             # Log activity
             UserActivity.objects.create(
                 user=instance,
-                activity_type='birth_data_updated',
+                activity_type="birth_data_updated",
                 metadata={
-                    'old_data': old_data,
-                    'new_data': {
-                        'birth_date': str(instance.birth_date),
-                        'birth_location': instance.birth_location
-                    }
-                }
+                    "old_data": old_data,
+                    "new_data": {
+                        "birth_date": str(instance.birth_date),
+                        "birth_location": instance.birth_location,
+                    },
+                },
             )
 
         except Exception as e:
@@ -376,6 +386,7 @@ Add new endpoint to UserProfileView:
 ```python
 class UserProfileView(APIView):
     """User profile endpoint."""
+
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -389,8 +400,7 @@ class UserProfileView(APIView):
         if serializer.is_valid():
             serializer.save()
             UserActivity.objects.create(
-                user=request.user,
-                activity_type='profile_updated'
+                user=request.user, activity_type="profile_updated"
             )
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -405,16 +415,16 @@ class UserProfileView(APIView):
 
             if not natal_chart:
                 return Response(
-                    {'detail': 'No natal chart found for this user.'},
-                    status=status.HTTP_404_NOT_FOUND
+                    {"detail": "No natal chart found for this user."},
+                    status=status.HTTP_404_NOT_FOUND,
                 )
 
             # Store chart data for logging before deletion
             chart_summary = {
-                'sun_sign': natal_chart.sun_sign,
-                'moon_sign': natal_chart.moon_sign,
-                'ascendant': natal_chart.ascendant,
-                'calculated_at': natal_chart.calculated_at.isoformat()
+                "sun_sign": natal_chart.sun_sign,
+                "moon_sign": natal_chart.moon_sign,
+                "ascendant": natal_chart.ascendant,
+                "calculated_at": natal_chart.calculated_at.isoformat(),
             }
 
             # Delete the natal chart
@@ -423,22 +433,22 @@ class UserProfileView(APIView):
             # Log activity
             UserActivity.objects.create(
                 user=request.user,
-                activity_type='natal_chart_deleted',
-                metadata=chart_summary
+                activity_type="natal_chart_deleted",
+                metadata=chart_summary,
             )
 
             return Response(
                 {
-                    'message': 'Natal chart deleted successfully.',
-                    'deleted_chart': chart_summary
+                    "message": "Natal chart deleted successfully.",
+                    "deleted_chart": chart_summary,
                 },
-                status=status.HTTP_200_OK
+                status=status.HTTP_200_OK,
             )
 
         except Exception as e:
             return Response(
-                {'detail': f'Error deleting natal chart: {str(e)}'},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                {"detail": f"Error deleting natal chart: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 ```
 
@@ -540,7 +550,7 @@ async function deleteNatalChart() {
 
 Add new action to UserProfileView:
 ```python
-@action(detail=False, methods=['get'])
+@action(detail=False, methods=["get"])
 def export_data(self, request):
     """Export all user data as JSON (GDPR compliance)."""
     from .models import NatalChart, DailyTransit, GeneratedContent, UserActivity
@@ -549,75 +559,77 @@ def export_data(self, request):
 
     # Collect all user data
     export_data = {
-        'export_date': datetime.now().isoformat(),
-        'user_profile': {
-            'username': request.user.username,
-            'email': request.user.email,
-            'birth_date': str(request.user.birth_date),
-            'birth_time': str(request.user.birth_time) if request.user.birth_time else None,
-            'birth_location': request.user.birth_location,
-            'timezone': request.user.timezone,
-            'preferred_tone': request.user.preferred_tone,
-            'created_at': request.user.created_at.isoformat(),
+        "export_date": datetime.now().isoformat(),
+        "user_profile": {
+            "username": request.user.username,
+            "email": request.user.email,
+            "birth_date": str(request.user.birth_date),
+            "birth_time": str(request.user.birth_time)
+            if request.user.birth_time
+            else None,
+            "birth_location": request.user.birth_location,
+            "timezone": request.user.timezone,
+            "preferred_tone": request.user.preferred_tone,
+            "created_at": request.user.created_at.isoformat(),
         },
-        'natal_chart': None,
-        'daily_transits': [],
-        'generated_content': [],
-        'activities': [],
+        "natal_chart": None,
+        "daily_transits": [],
+        "generated_content": [],
+        "activities": [],
     }
 
     # Get natal chart
     try:
         natal_chart = NatalChart.objects.get(user=request.user)
-        export_data['natal_chart'] = {
-            'sun_sign': natal_chart.sun_sign,
-            'moon_sign': natal_chart.moon_sign,
-            'ascendant': natal_chart.ascendant,
-            'dominant_elements': natal_chart.dominant_elements,
-            'key_aspects': natal_chart.key_aspects,
-            'calculated_at': natal_chart.calculated_at.isoformat(),
+        export_data["natal_chart"] = {
+            "sun_sign": natal_chart.sun_sign,
+            "moon_sign": natal_chart.moon_sign,
+            "ascendant": natal_chart.ascendant,
+            "dominant_elements": natal_chart.dominant_elements,
+            "key_aspects": natal_chart.key_aspects,
+            "calculated_at": natal_chart.calculated_at.isoformat(),
         }
     except NatalChart.DoesNotExist:
         pass
 
     # Get recent daily transits (last 30)
-    recent_transits = DailyTransit.objects.filter(
-        user=request.user
-    ).order_by('-transit_date')[:30]
+    recent_transits = DailyTransit.objects.filter(user=request.user).order_by(
+        "-transit_date"
+    )[:30]
 
-    export_data['daily_transits'] = [
+    export_data["daily_transits"] = [
         {
-            'date': str(transit.transit_date),
-            'g_code_score': transit.g_code_score,
-            'intensity_level': transit.intensity_level,
-            'themes': transit.themes,
-            'calculated_at': transit.created_at.isoformat(),
+            "date": str(transit.transit_date),
+            "g_code_score": transit.g_code_score,
+            "intensity_level": transit.intensity_level,
+            "themes": transit.themes,
+            "calculated_at": transit.created_at.isoformat(),
         }
         for transit in recent_transits
     ]
 
     # Get generated content
     content = GeneratedContent.objects.filter(user=request.user)[:10]
-    export_data['generated_content'] = [
+    export_data["generated_content"] = [
         {
-            'content_type': item.content_type,
-            'title': item.title,
-            'status': item.status,
-            'created_at': item.generated_at.isoformat(),
+            "content_type": item.content_type,
+            "title": item.title,
+            "status": item.status,
+            "created_at": item.generated_at.isoformat(),
         }
         for item in content
     ]
 
     # Get recent activity
-    activities = UserActivity.objects.filter(
-        user=request.user
-    ).order_by('-created_at')[:50]
+    activities = UserActivity.objects.filter(user=request.user).order_by("-created_at")[
+        :50
+    ]
 
-    export_data['activities'] = [
+    export_data["activities"] = [
         {
-            'activity_type': activity.activity_type,
-            'metadata': activity.metadata,
-            'timestamp': activity.created_at.isoformat(),
+            "activity_type": activity.activity_type,
+            "metadata": activity.metadata,
+            "timestamp": activity.created_at.isoformat(),
         }
         for activity in activities
     ]
@@ -625,17 +637,17 @@ def export_data(self, request):
     # Create response
     response = Response(
         json.dumps(export_data, indent=2),
-        content_type='application/json',
+        content_type="application/json",
         headers={
-            'Content-Disposition': f'attachment; filename="spiritual_gcode_data_{request.user.username}_{datetime.now().strftime("%Y%m%d")}.json"'
-        }
+            "Content-Disposition": f'attachment; filename="spiritual_gcode_data_{request.user.username}_{datetime.now().strftime("%Y%m%d")}.json"'
+        },
     )
 
     # Log export
     UserActivity.objects.create(
         user=request.user,
-        activity_type='data_exported',
-        metadata={'export_type': 'full_user_data'}
+        activity_type="data_exported",
+        metadata={"export_type": "full_user_data"},
     )
 
     return response
@@ -646,8 +658,14 @@ def export_data(self, request):
 from .views import UserProfileView
 
 # Add to urlpatterns
-path('profile/', UserProfileView.as_view(), name='user-profile'),
-path('profile/export/', UserProfileView.as_view({'get': 'export_data'}), name='user-export-data'),
+(path("profile/", UserProfileView.as_view(), name="user-profile"),)
+(
+    path(
+        "profile/export/",
+        UserProfileView.as_view({"get": "export_data"}),
+        name="user-export-data",
+    ),
+)
 ```
 
 #### Frontend JavaScript
@@ -702,6 +720,7 @@ Add new view:
 ```python
 class AccountDeletionView(APIView):
     """Handle account deletion requests."""
+
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -716,12 +735,12 @@ class AccountDeletionView(APIView):
         try:
             UserActivity.objects.create(
                 user=request.user,
-                activity_type='account_deleted',
+                activity_type="account_deleted",
                 metadata={
-                    'username': username,
-                    'email': email,
-                    'deleted_at': timezone.now().isoformat()
-                }
+                    "username": username,
+                    "email": email,
+                    "deleted_at": timezone.now().isoformat(),
+                },
             )
         except:
             pass  # Proceed even if logging fails
@@ -734,10 +753,10 @@ class AccountDeletionView(APIView):
 
         return Response(
             {
-                'message': f'Account for {username} has been permanently deleted.',
-                'deleted_at': timezone.now().isoformat()
+                "message": f"Account for {username} has been permanently deleted.",
+                "deleted_at": timezone.now().isoformat(),
             },
-            status=status.HTTP_200_OK
+            status=status.HTTP_200_OK,
         )
 ```
 
@@ -745,7 +764,7 @@ class AccountDeletionView(APIView):
 ```python
 from .views import AccountDeletionView
 
-path('account/delete/', AccountDeletionView.as_view(), name='account-delete'),
+(path("account/delete/", AccountDeletionView.as_view(), name="account-delete"),)
 ```
 
 #### Frontend Changes

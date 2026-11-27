@@ -6,8 +6,6 @@ import pytest
 from django.urls import reverse
 from rest_framework import status
 
-from api.models import DailyTransit, GCodeUser, GeneratedContent
-
 
 @pytest.mark.django_db
 class TestAuthentication:

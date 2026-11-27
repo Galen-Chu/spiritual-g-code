@@ -74,8 +74,8 @@ Main entry point for the script.
 **Output:**
 ```python
 {
-    'success_count': 45,  # Number of successful calculations
-    'error_count': 2      # Number of errors
+    "success_count": 45,  # Number of successful calculations
+    "error_count": 2,  # Number of errors
 }
 ```
 
@@ -205,8 +205,8 @@ tail -f /tmp/cleanup.log
 ```python
 # Modify retention periods in the script
 cleanup_old_transits(days_to_keep=120)  # Keep 120 days
-cleanup_old_logs(days_to_keep=60)       # Keep 60 days
-cleanup_old_activities(days_to_keep=180) # Keep 180 days
+cleanup_old_logs(days_to_keep=60)  # Keep 60 days
+cleanup_old_activities(days_to_keep=180)  # Keep 180 days
 ```
 
 ---
@@ -282,13 +282,19 @@ Scripts are registered in `core/settings/base.py`:
 ```python
 CRONJOBS = [
     # Calculate Daily G-Code at 4:00 AM every day
-    ('0 4 * * *', 'scripts.calculate_daily_gcode.calculate_all_daily_gcodes', '>> /tmp/gcode_calc.log'),
-
+    (
+        "0 4 * * *",
+        "scripts.calculate_daily_gcode.calculate_all_daily_gcodes",
+        ">> /tmp/gcode_calc.log",
+    ),
     # Generate Spiritual Patch Notes at 5:00 AM every day
-    ('0 5 * * *', 'scripts.generate_patch_notes.generate_all_patch_notes', '>> /tmp/patch_notes.log'),
-
+    (
+        "0 5 * * *",
+        "scripts.generate_patch_notes.generate_all_patch_notes",
+        ">> /tmp/patch_notes.log",
+    ),
     # Clean up old data on Sundays at 3:00 AM
-    ('0 3 * * 0', 'scripts.cleanup_old_data.run_all_cleanup', '>> /tmp/cleanup.log'),
+    ("0 3 * * 0", "scripts.cleanup_old_data.run_all_cleanup", ">> /tmp/cleanup.log"),
 ]
 ```
 
@@ -309,19 +315,19 @@ CRONJOBS = [
 
 ```python
 # Daily at 4:00 AM
-('0 4 * * *', 'my_script', '>> /tmp/log')
+("0 4 * * *", "my_script", ">> /tmp/log")
 
 # Every hour
-('0 * * * *', 'my_script', '>> /tmp/log')
+("0 * * * *", "my_script", ">> /tmp/log")
 
 # Every Monday at 9:00 AM
-('0 9 * * 1', 'my_script', '>> /tmp/log')
+("0 9 * * 1", "my_script", ">> /tmp/log")
 
 # First of every month at midnight
-('0 0 1 * *', 'my_script', '>> /tmp/log')
+("0 0 1 * *", "my_script", ">> /tmp/log")
 
 # Every 6 hours
-('0 */6 * * *', 'my_script', '>> /tmp/log')
+("0 */6 * * *", "my_script", ">> /tmp/log")
 ```
 
 ---
@@ -351,7 +357,7 @@ python manage.py calculate_gcode
    ```python
    INSTALLED_APPS = [
        # ...
-       'django_crontab',
+       "django_crontab",
    ]
    ```
 
@@ -417,7 +423,7 @@ import django
 
 # Setup Django environment
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings.development')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings.development")
 django.setup()
 
 # Import Django models and services
@@ -426,8 +432,7 @@ import logging
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -448,7 +453,7 @@ def my_custom_function():
     logger.info("Task complete!")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     my_custom_function()
 ```
 
@@ -459,7 +464,11 @@ if __name__ == '__main__':
    ```python
    CRONJOBS = [
        # ... existing jobs
-       ('0 6 * * *', 'scripts.my_custom_script.my_custom_function', '>> /tmp/my_custom.log'),
+       (
+           "0 6 * * *",
+           "scripts.my_custom_script.my_custom_function",
+           ">> /tmp/my_custom.log",
+       ),
    ]
    ```
 3. Update crontab:

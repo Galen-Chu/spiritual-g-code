@@ -135,8 +135,8 @@ class CustomLoginView(APIView):
 
     def post(self, request):
         """Handle login - returns JWT tokens and creates Django session."""
-        username = request.data.get('username')
-        password = request.data.get('password')
+        username = request.data.get("username")
+        password = request.data.get("password")
 
         # Authenticate user
         user = authenticate(request, username=username, password=password)
@@ -151,19 +151,21 @@ class CustomLoginView(APIView):
             # Log activity
             UserActivity.objects.create(
                 user=user,
-                activity_type='user_logged_in',
-                metadata={'ip_address': self.get_client_ip(request)}
+                activity_type="user_logged_in",
+                metadata={"ip_address": self.get_client_ip(request)},
             )
 
-            return Response({
-                'access': str(refresh.access_token),
-                'refresh': str(refresh),
-                'user': UserSerializer(user).data
-            })
+            return Response(
+                {
+                    "access": str(refresh.access_token),
+                    "refresh": str(refresh),
+                    "user": UserSerializer(user).data,
+                }
+            )
 
         return Response(
-            {'detail': 'No active account found with the given credentials.'},
-            status=status.HTTP_401_UNAUTHORIZED
+            {"detail": "No active account found with the given credentials."},
+            status=status.HTTP_401_UNAUTHORIZED,
         )
 ```
 
@@ -187,10 +189,10 @@ def post(self, request):
 **File: `api/urls.py` (Fixed URL conflict)**
 ```python
 # Before:
-path('auth/register/', RegisterView.as_view(), name='register'),
+(path("auth/register/", RegisterView.as_view(), name="register"),)
 
 # After:
-path('auth/register/', RegisterView.as_view(), name='api-register'),
+(path("auth/register/", RegisterView.as_view(), name="api-register"),)
 ```
 
 ---
@@ -297,20 +299,19 @@ python manage.py shell -c "from django.urls import reverse; print(reverse('api-r
 # tests/integration/test_auth_flow.py
 def test_login_creates_session_and_jwt(client):
     """Test that login creates both session and JWT tokens."""
-    response = client.post('/api/auth/login/', {
-        'username': 'admin',
-        'password': 'admin123'
-    })
+    response = client.post(
+        "/api/auth/login/", {"username": "admin", "password": "admin123"}
+    )
 
     # Check JWT tokens returned
-    assert 'access' in response.json()
-    assert 'refresh' in response.json()
+    assert "access" in response.json()
+    assert "refresh" in response.json()
 
     # Check session created
-    assert 'sessionid' in client.cookies
+    assert "sessionid" in client.cookies
 
     # Check dashboard accessible
-    response = client.get('/')
+    response = client.get("/")
     assert response.status_code == 200  # Not 302
 ```
 

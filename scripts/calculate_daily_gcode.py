@@ -43,7 +43,7 @@ def calculate_all_daily_gcodes():
     try:
         ai_client = GeminiGCodeClient()
     except Exception as e:
-        logger.error(f"Failed to initialize Gemini client: {str(e)}")
+        logger.error(f"Failed to initialize Gemini client: {e!s}")
         ai_client = None
 
     # Get tomorrow's date (for next day's G-Code)
@@ -141,13 +141,13 @@ def calculate_all_daily_gcodes():
                 success_count += 1
 
         except Exception as e:
-            logger.error(f"❌ Error processing {user.username}: {str(e)}")
+            logger.error(f"❌ Error processing {user.username}: {e!s}")
             error_count += 1
             continue
 
     # Summary
     logger.info("=" * 50)
-    logger.info(f"Daily G-Code calculation complete!")
+    logger.info("Daily G-Code calculation complete!")
     logger.info(f"Success: {success_count}")
     logger.info(f"Errors: {error_count}")
     logger.info("=" * 50)

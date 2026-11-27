@@ -85,7 +85,7 @@ Calculates complete natal chart from birth information.
     ],
     "ascendant": {"sign": "Scorpio", "degree": 15.2},
     "midheaven": {"sign": "Leo", "degree": 180.5},
-    "dominant_element": "fire"
+    "dominant_element": "fire",
 }
 ```
 
@@ -110,12 +110,12 @@ Calculates planetary transits for a specific date.
             "natal_planet": "sun",
             "type": "conjunction",
             "degree": 0.5,
-            "orb": 3
+            "orb": 3,
         },
         # ... all aspects
     ],
     "moon_phase": "waxing_gibbous",
-    "moon_phase_degree": 135.5
+    "moon_phase_degree": 135.5,
 }
 ```
 
@@ -140,7 +140,7 @@ Calculates G-Code intensity score (1-100).
     "score": 78,
     "intensity_level": "high",  # low/medium/high/intense
     "major_aspects_count": 5,
-    "outer_planet_aspects": 2
+    "outer_planet_aspects": 2,
 }
 ```
 
@@ -177,7 +177,7 @@ Calculates data structure for D3.js natal wheel visualization.
     "aspects": [
         {"from": "sun", "to": "moon", "type": "trine", "color": "#00FF00"},
         # ... all aspects
-    ]
+    ],
 }
 ```
 
@@ -219,7 +219,7 @@ Generates AI interpretation of daily G-Code.
     "interpretation": "Today brings a harmonious trine between...",
     "affirmation": "I embrace my creative power and trust my intuition.",
     "guidance": "Focus on artistic pursuits and emotional expression...",
-    "keywords": ["transformation", "intuition", "creativity"]
+    "keywords": ["transformation", "intuition", "creativity"],
 }
 ```
 
@@ -238,7 +238,7 @@ Generates social media content.
     "body": "🌙 Moon in Taurus + Sun in Capricorn = Practical Magic ✨\n\nToday's G-Code...",
     "hashtags": ["#SpiritualGCode", "#Astrology", "#DailyGuidance"],
     "character_count": 280,
-    "emoji_suggestions": ["🌙", "✨", "🔮"]
+    "emoji_suggestions": ["🌙", "✨", "🔮"],
 }
 ```
 
@@ -276,7 +276,7 @@ Calculates complete daily G-Code for a user.
     "natal_data": {...},
     "transit_data": {...},
     "interpretation": {...},
-    "generated_at": "2026-01-15T10:30:00Z"
+    "generated_at": "2026-01-15T10:30:00Z",
 }
 ```
 
@@ -306,7 +306,7 @@ Generates social media content.
     "content": {...},
     "scheduled_for": "2026-01-15T09:00:00Z",
     "platform": platform,
-    "status": "draft"
+    "status": "draft",
 }
 ```
 
@@ -384,11 +384,7 @@ print(f"Themes: {', '.join(result['themes'])}")
 ```python
 from ai_engine.daily_gcode_service import generate_spiritual_patch_note
 
-content = generate_spiritual_patch_note(
-    user=user,
-    platform="twitter",
-    tone="witty"
-)
+content = generate_spiritual_patch_note(user=user, platform="twitter", tone="witty")
 
 print(f"Title: {content['content']['title']}")
 print(f"Body: {content['content']['body']}")
@@ -405,7 +401,7 @@ forecast = calculate_weekly_forecast(user, start_date="2026-01-15")
 print(f"Weekly Theme: {forecast['weekly_theme']}")
 print(f"Peak Day: {forecast['peak_day']}")
 
-for day in forecast['daily_forecasts']:
+for day in forecast["daily_forecasts"]:
     print(f"{day['date']}: Score {day['g_code_score']}")
 ```
 

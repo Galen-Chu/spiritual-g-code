@@ -5,7 +5,6 @@ Pytest Configuration for Spiritual G-Code.
 from datetime import date
 
 import pytest
-from django.utils import timezone
 
 from api.models import DailyTransit, GCodeUser, NatalChart
 

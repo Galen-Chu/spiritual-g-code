@@ -69,7 +69,7 @@ Create test user.
 ```python
 def test_with_user(user):
     # user is a GCodeUser instance
-    assert user.username == 'testuser'
+    assert user.username == "testuser"
 ```
 
 #### `natal_chart`
@@ -78,7 +78,7 @@ Create test natal chart.
 **Usage:**
 ```python
 def test_with_natal_chart(natal_chart):
-    assert natal_chart.sun_sign == 'Leo'
+    assert natal_chart.sun_sign == "Leo"
 ```
 
 #### `api_client`
@@ -87,7 +87,7 @@ API client for testing endpoints.
 **Usage:**
 ```python
 def test_api_endpoint(api_client):
-    response = api_client.get('/api/gcode/')
+    response = api_client.get("/api/gcode/")
     assert response.status_code == 200
 ```
 
@@ -104,14 +104,17 @@ Tests for REST API endpoints.
 #### Authentication Tests
 ```python
 def test_user_registration(api_client):
-    response = api_client.post('/api/auth/register/', {
-        'username': 'testuser',
-        'email': 'test@example.com',
-        'password': 'testpass123',
-        'birth_date': '2000-01-01',
-        'birth_time': '12:00',
-        'birth_location': 'New York, NY'
-    })
+    response = api_client.post(
+        "/api/auth/register/",
+        {
+            "username": "testuser",
+            "email": "test@example.com",
+            "password": "testpass123",
+            "birth_date": "2000-01-01",
+            "birth_time": "12:00",
+            "birth_location": "New York, NY",
+        },
+    )
     assert response.status_code == 201
 ```
 
@@ -120,13 +123,16 @@ def test_user_registration(api_client):
 @pytest.mark.django_db
 def test_create_natal_chart(api_client, user):
     api_client.force_authenticate(user=user)
-    response = api_client.post('/api/natal/', {
-        'birth_date': '2000-01-01',
-        'birth_time': '12:00',
-        'birth_location': 'New York, NY'
-    })
+    response = api_client.post(
+        "/api/natal/",
+        {
+            "birth_date": "2000-01-01",
+            "birth_time": "12:00",
+            "birth_location": "New York, NY",
+        },
+    )
     assert response.status_code == 201
-    assert response.data['sun_sign'] is not None
+    assert response.data["sun_sign"] is not None
 ```
 
 #### Daily Transit Tests
@@ -134,11 +140,9 @@ def test_create_natal_chart(api_client, user):
 @pytest.mark.django_db
 def test_calculate_daily_transit(api_client, user):
     api_client.force_authenticate(user=user)
-    response = api_client.post('/api/gcode/', {
-        'date': '2026-01-15'
-    })
+    response = api_client.post("/api/gcode/", {"date": "2026-01-15"})
     assert response.status_code == 201
-    assert 'g_code_score' in response.data
+    assert "g_code_score" in response.data
 ```
 
 #### Dashboard Tests
@@ -146,9 +150,9 @@ def test_calculate_daily_transit(api_client, user):
 @pytest.mark.django_db
 def test_dashboard_overview(api_client, user):
     api_client.force_authenticate(user=user)
-    response = api_client.get('/api/dashboard/overview/')
+    response = api_client.get("/api/dashboard/overview/")
     assert response.status_code == 200
-    assert 'latest_gcode' in response.data
+    assert "latest_gcode" in response.data
 ```
 
 ---
@@ -163,15 +167,17 @@ Tests for calculator logic.
 ```python
 def test_calculate_natal_chart():
     calculator = MockGCodeCalculator()
-    result = calculator.calculate_natal_chart({
-        'date': '2000-01-01',
-        'time': '12:00',
-        'latitude': 40.7128,
-        'longitude': -74.0060
-    })
-    assert 'planets' in result
-    assert 'houses' in result
-    assert result['sun_sign'] == 'Capricorn'
+    result = calculator.calculate_natal_chart(
+        {
+            "date": "2000-01-01",
+            "time": "12:00",
+            "latitude": 40.7128,
+            "longitude": -74.0060,
+        }
+    )
+    assert "planets" in result
+    assert "houses" in result
+    assert result["sun_sign"] == "Capricorn"
 ```
 
 #### Transit Calculation
@@ -179,21 +185,20 @@ def test_calculate_natal_chart():
 def test_calculate_transits():
     calculator = MockGCodeCalculator()
     natal_chart = calculator.calculate_natal_chart({...})
-    transits = calculator.calculate_transits(natal_chart, '2026-01-15')
-    assert 'transits' in transits
-    assert 'aspects_to_natal' in transits
+    transits = calculator.calculate_transits(natal_chart, "2026-01-15")
+    assert "transits" in transits
+    assert "aspects_to_natal" in transits
 ```
 
 #### Intensity Scoring
 ```python
 def test_calculate_intensity():
     calculator = MockGCodeCalculator()
-    result = calculator.calculate_g_code_intensity({
-        'aspects': [...],
-        'moon_phase': 'full'
-    })
-    assert 1 <= result['score'] <= 100
-    assert result['intensity_level'] in ['low', 'medium', 'high', 'intense']
+    result = calculator.calculate_g_code_intensity(
+        {"aspects": [...], "moon_phase": "full"}
+    )
+    assert 1 <= result["score"] <= 100
+    assert result["intensity_level"] in ["low", "medium", "high", "intense"]
 ```
 
 ---
@@ -264,6 +269,7 @@ pytest -n 4
 import pytest
 from rest_framework.test import APIClient
 
+
 class TestAuthentication:
     """Test authentication endpoints."""
 
@@ -274,6 +280,7 @@ class TestAuthentication:
     @pytest.mark.django_db
     def test_user_login(self, api_client, user):
         pass
+
 
 class TestNatalCharts:
     """Test natal chart endpoints."""
@@ -294,9 +301,10 @@ class TestNatalCharts:
 def test_with_fixture(user):
     assert user.is_active
 
+
 # Bad
 def test_without_fixture():
-    user = GCodeUser.objects.create(username='test')
+    user = GCodeUser.objects.create(username="test")
     assert user.is_active
 ```
 
@@ -307,9 +315,11 @@ def test_without_fixture():
 def test_database_operation():
     pass
 
+
 @pytest.mark.unit
 def test_unit_test():
     pass
+
 
 @pytest.mark.integration
 def test_integration_test():
@@ -323,6 +333,7 @@ def test_integration_test():
 def test_user_registration_with_valid_data_succeeds():
     pass
 
+
 # Bad
 def test_user():
     pass
@@ -335,8 +346,10 @@ def test_user():
 def test_registration_returns_201():
     pass
 
+
 def test_registration_creates_user_in_db():
     pass
+
 
 # Bad
 def test_registration():
@@ -353,18 +366,19 @@ def test_registration():
 ```python
 from unittest.mock import patch, Mock
 
-@patch('ai_engine.gemini_client.GeminiGCodeClient')
+
+@patch("ai_engine.gemini_client.GeminiGCodeClient")
 def test_with_mocked_ai(mock_client_class):
     mock_client = Mock()
     mock_client.generate_daily_gcode.return_value = {
-        'interpretation': 'Test interpretation',
-        'themes': ['test']
+        "interpretation": "Test interpretation",
+        "themes": ["test"],
     }
     mock_client_class.return_value = mock_client
 
     # Test with mocked client
     result = mock_client.generate_daily_gcode(...)
-    assert result['interpretation'] == 'Test interpretation'
+    assert result["interpretation"] == "Test interpretation"
 ```
 
 ---
@@ -403,13 +417,14 @@ Use Factory Boy for creating test data:
 import factory
 from api.models import GCodeUser
 
+
 class GCodeUserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = GCodeUser
 
-    username = factory.Sequence(lambda n: f'user{n}')
-    email = factory.LazyAttribute(lambda o: f'{o.username}@example.com')
-    birth_date = factory.Faker('date_of_birth')
+    username = factory.Sequence(lambda n: f"user{n}")
+    email = factory.LazyAttribute(lambda o: f"{o.username}@example.com")
+    birth_date = factory.Faker("date_of_birth")
 ```
 
 ---

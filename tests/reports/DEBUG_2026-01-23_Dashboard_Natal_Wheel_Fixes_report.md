@@ -120,21 +120,28 @@ def post(self, request):
         if user.birth_date and user.birth_location:
             try:
                 from ai_engine.mock_calculator import MockGCodeCalculator
+
                 calculator = MockGCodeCalculator()
                 chart_data = calculator.calculate_natal_chart(
                     birth_date=user.birth_date,
-                    birth_time=user.birth_time.strftime('%H:%M') if user.birth_time else None,
+                    birth_time=user.birth_time.strftime("%H:%M")
+                    if user.birth_time
+                    else None,
                     birth_location=user.birth_location,
-                    timezone=user.timezone
+                    timezone=user.timezone,
                 )
                 # Create natal chart
                 from .models import NatalChart
+
                 NatalChart.objects.create(user=user, **chart_data)
             except Exception as e:
                 # Log error but don't fail registration
                 import logging
+
                 logger = logging.getLogger(__name__)
-                logger.warning(f"Failed to auto-create natal chart for user {user.username}: {e}")
+                logger.warning(
+                    f"Failed to auto-create natal chart for user {user.username}: {e}"
+                )
 
         # Create Django session for new user
         auth_login(request, user)
@@ -292,21 +299,25 @@ curl http://127.0.0.1:8000/api/dashboard/overview/
 # tests/integration/test_registration_flow.py
 def test_registration_creates_natal_chart(client):
     """Test that registration automatically creates natal chart."""
-    response = client.post('/api/auth/register/', {
-        'username': 'newuser',
-        'email': 'new@example.com',
-        'password': 'testpass123',
-        'password_confirm': 'testpass123',
-        'birth_date': '2000-01-01',
-        'birth_location': 'Tokyo',
-        'timezone': 'Asia/Tokyo'
-    })
+    response = client.post(
+        "/api/auth/register/",
+        {
+            "username": "newuser",
+            "email": "new@example.com",
+            "password": "testpass123",
+            "password_confirm": "testpass123",
+            "birth_date": "2000-01-01",
+            "birth_location": "Tokyo",
+            "timezone": "Asia/Tokyo",
+        },
+    )
 
     assert response.status_code == 201
 
     # Verify natal chart was created
     from api.models import GCodeUser, NatalChart
-    user = GCodeUser.objects.get(username='newuser')
+
+    user = GCodeUser.objects.get(username="newuser")
     assert NatalChart.objects.filter(user=user).exists()
 ```
 

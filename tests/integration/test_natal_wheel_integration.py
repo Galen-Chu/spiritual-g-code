@@ -33,7 +33,7 @@ def test_placidus_houses():
             if i in houses:
                 house = houses[i]
                 print(
-                    f'  House {i}: {house["sign"]} {house["cusp"]} (lon: {house["longitude"]})'
+                    f"  House {i}: {house['sign']} {house['cusp']} (lon: {house['longitude']})"
                 )
             else:
                 print(f"  [FAIL] House {i}: missing")
@@ -69,7 +69,7 @@ def test_equal_houses():
         for i in range(1, 13):
             if i in houses:
                 house = houses[i]
-                print(f'  House {i}: {house["sign"]} {house["cusp"]}')
+                print(f"  House {i}: {house['sign']} {house['cusp']}")
 
         print("[OK] Equal house system working")
         return True
@@ -383,7 +383,7 @@ def run_all_tests():
 
     print()
     print(f"Total: {passed}/{total} tests passed")
-    print(f"Pass Rate: {(passed/total*100):.1f}%")
+    print(f"Pass Rate: {(passed / total * 100):.1f}%")
 
     if passed == total:
         print("\n🎉 All tests passed! MVP.4 is ready.")

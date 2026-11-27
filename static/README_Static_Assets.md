@@ -242,8 +242,8 @@ In development, Django serves static files automatically:
 
 ```python
 # core/settings/base.py
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_URL = "/static/"
+STATICFILES_DIRS = [BASE_DIR / "static"]
 ```
 
 ### Production
@@ -252,7 +252,7 @@ In production, use WhiteNoise or collect static files:
 
 ```python
 # core/settings/production.py
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_ROOT = BASE_DIR / "staticfiles"
 ```
 
 **Collect Static Files:**
@@ -334,7 +334,7 @@ Configure cache headers in production:
 
 ```python
 # core/settings/production.py
-STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
+STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
 ```
 
 **Nginx Configuration:**

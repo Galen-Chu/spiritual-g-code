@@ -159,29 +159,38 @@ toggleCompareMode() {
 ```python
 def get(self, request):
     """Get data for dashboard charts."""
-    chart_type = request.query_params.get('type', 'all')
+    chart_type = request.query_params.get("type", "all")
 
     # Get custom date range parameters
-    start_date_param = request.query_params.get('start_date')
-    end_date_param = request.query_params.get('end_date')
+    start_date_param = request.query_params.get("start_date")
+    end_date_param = request.query_params.get("end_date")
 
     # Parse and validate dates
     if start_date_param:
         try:
-            custom_start_date = datetime.strptime(start_date_param, '%Y-%m-%d').date()
+            custom_start_date = datetime.strptime(start_date_param, "%Y-%m-%d").date()
         except ValueError:
-            return Response({'error': 'Invalid start_date format. Use YYYY-MM-DD.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Invalid start_date format. Use YYYY-MM-DD."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
     if end_date_param:
         try:
-            custom_end_date = datetime.strptime(end_date_param, '%Y-%m-%d').date()
+            custom_end_date = datetime.strptime(end_date_param, "%Y-%m-%d").date()
         except ValueError:
-            return Response({'error': 'Invalid end_date format. Use YYYY-MM-DD.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Invalid end_date format. Use YYYY-MM-DD."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
     # Validate date range
     if custom_start_date and custom_end_date:
         if custom_start_date > custom_end_date:
-            return Response({'error': 'start_date must be before or equal to end_date.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "start_date must be before or equal to end_date."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
     # Use custom date range or default to last 7 days
     if custom_start_date and custom_end_date:
@@ -207,7 +216,7 @@ def get(self, request):
 **Before**:
 ```python
 for i in range(7):
-    current_date = end_date - timedelta(days=(6-i))
+    current_date = end_date - timedelta(days=(6 - i))
     # Generate data for single date
 ```
 
@@ -232,7 +241,7 @@ while current_date <= end_date:
 **Before**:
 ```python
 for i in range(7):
-    future_date = date.today() + timedelta(days=i+1)
+    future_date = date.today() + timedelta(days=i + 1)
     # Generate forecast for single date
 ```
 
@@ -613,13 +622,19 @@ api/views.py                       +66 lines (modified)
 ```python
 if start_date_param:
     try:
-        custom_start_date = datetime.strptime(start_date_param, '%Y-%m-%d').date()
+        custom_start_date = datetime.strptime(start_date_param, "%Y-%m-%d").date()
     except ValueError:
-        return Response({'error': 'Invalid start_date format. Use YYYY-MM-DD.'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": "Invalid start_date format. Use YYYY-MM-DD."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
 if custom_start_date and custom_end_date:
     if custom_start_date > custom_end_date:
-        return Response({'error': 'start_date must be before or equal to end_date.'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": "start_date must be before or equal to end_date."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 ```
 
 #### Test 2: API Response Structure

@@ -4,7 +4,6 @@ Google Gemini AI Client for Spiritual G-Code.
 
 import json
 import re
-from typing import Dict, List, Optional
 
 import google.generativeai as genai
 from django.conf import settings
@@ -15,7 +14,7 @@ class GeminiGCodeClient:
     Custom Gemini client for G-Code generation and interpretation.
     """
 
-    def __init__(self, api_key: Optional[str] = None):
+    def __init__(self, api_key: str | None = None):
         """Initialize Gemini client with API key."""
         self.api_key = api_key or settings.GEMINI_API_KEY
         if not self.api_key:
@@ -26,10 +25,10 @@ class GeminiGCodeClient:
 
     def generate_daily_gcode(
         self,
-        natal_data: Dict,
-        transit_data: Dict,
-        user_preferences: Optional[Dict] = None,
-    ) -> Dict:
+        natal_data: dict,
+        transit_data: dict,
+        user_preferences: dict | None = None,
+    ) -> dict:
         """
         Generate Daily G-Code interpretation.
 
@@ -53,14 +52,14 @@ class GeminiGCodeClient:
             return self._parse_daily_response(response_text, transit_data)
 
         except Exception as e:
-            raise Exception(f"Error generating daily G-Code: {str(e)}")
+            raise Exception(f"Error generating daily G-Code: {e!s}")
 
     def generate_spiritual_patch_note(
         self,
-        daily_gcode: Dict,
+        daily_gcode: dict,
         platform: str = "twitter",
         custom_instructions: str = "",
-    ) -> Dict:
+    ) -> dict:
         """
         Generate social media content (Spiritual Patch Note).
 
@@ -94,16 +93,16 @@ class GeminiGCodeClient:
             }
 
         except Exception as e:
-            raise Exception(f"Error generating patch note: {str(e)}")
+            raise Exception(f"Error generating patch note: {e!s}")
 
     def generate_content(
         self,
-        transit_data: Dict,
+        transit_data: dict,
         content_type: str,
         platform: str,
-        user_preferences: Dict,
+        user_preferences: dict,
         custom_instructions: str = "",
-    ) -> Dict:
+    ) -> dict:
         """
         Generate various types of content.
 
@@ -139,10 +138,10 @@ class GeminiGCodeClient:
             }
 
         except Exception as e:
-            raise Exception(f"Error generating content: {str(e)}")
+            raise Exception(f"Error generating content: {e!s}")
 
     def _build_daily_prompt(
-        self, natal_data: Dict, transit_data: Dict, user_preferences: Dict
+        self, natal_data: dict, transit_data: dict, user_preferences: dict
     ) -> str:
         """Build prompt for daily G-Code generation."""
         base_template = self._load_template("daily_gcode_base")
@@ -160,7 +159,7 @@ class GeminiGCodeClient:
 
         return prompt
 
-    def _parse_daily_response(self, response_text: str, transit_data: Dict) -> Dict:
+    def _parse_daily_response(self, response_text: str, transit_data: dict) -> dict:
         """Parse AI response into structured data."""
         # Try to extract JSON from response
         json_match = re.search(r"\{.*\}", response_text, re.DOTALL)
@@ -188,7 +187,7 @@ class GeminiGCodeClient:
             "g_code_score": self._calculate_gcode_score(transit_data),
         }
 
-    def _format_transits(self, transit_data: Dict) -> str:
+    def _format_transits(self, transit_data: dict) -> str:
         """Format transit data for prompt."""
         # Extract major planetary positions
         planets = transit_data.get("planets", {})
@@ -205,7 +204,7 @@ class GeminiGCodeClient:
 
         return "\n".join(formatted)
 
-    def _calculate_gcode_score(self, transit_data: Dict) -> int:
+    def _calculate_gcode_score(self, transit_data: dict) -> int:
         """Calculate G-Code intensity score (1-100)."""
         # Simple heuristic based on aspect intensity
         aspects = transit_data.get("aspects", [])
@@ -223,7 +222,7 @@ class GeminiGCodeClient:
 
         return min(max(score, 1), 100)  # Clamp between 1-100
 
-    def _extract_themes(self, text: str) -> List[str]:
+    def _extract_themes(self, text: str) -> list[str]:
         """Extract themes from AI response."""
         # Look for hashtags or capitalized phrases
         themes = []
@@ -243,7 +242,7 @@ class GeminiGCodeClient:
 
         return "I am aligned with cosmic energies today."
 
-    def _extract_hashtags(self, text: str) -> List[str]:
+    def _extract_hashtags(self, text: str) -> list[str]:
         """Extract hashtags from text."""
         hashtag_pattern = r"#(\w+)"
         hashtags = re.findall(hashtag_pattern, text)

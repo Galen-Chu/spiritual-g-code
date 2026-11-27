@@ -37,7 +37,7 @@ def generate_all_patch_notes():
     try:
         ai_client = GeminiGCodeClient()
     except Exception as e:
-        logger.error(f"Failed to initialize Gemini client: {str(e)}")
+        logger.error(f"Failed to initialize Gemini client: {e!s}")
         return
 
     # Get today's date
@@ -90,7 +90,7 @@ def generate_all_patch_notes():
 
             except Exception as e:
                 logger.error(
-                    f"Error generating Twitter content for {user.username}: {str(e)}"
+                    f"Error generating Twitter content for {user.username}: {e!s}"
                 )
                 error_count += 1
 
@@ -117,17 +117,17 @@ def generate_all_patch_notes():
 
             except Exception as e:
                 logger.error(
-                    f"Error generating Instagram content for {user.username}: {str(e)}"
+                    f"Error generating Instagram content for {user.username}: {e!s}"
                 )
 
         except Exception as e:
-            logger.error(f"❌ Error processing {user.username}: {str(e)}")
+            logger.error(f"❌ Error processing {user.username}: {e!s}")
             error_count += 1
             continue
 
     # Summary
     logger.info("=" * 50)
-    logger.info(f"Content generation complete!")
+    logger.info("Content generation complete!")
     logger.info(f"Success: {success_count}")
     logger.info(f"Errors: {error_count}")
     logger.info("=" * 50)

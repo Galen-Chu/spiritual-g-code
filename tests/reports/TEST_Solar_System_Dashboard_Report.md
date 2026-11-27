@@ -94,9 +94,7 @@
 ```python
 # 新增方法 (約 Line 319)
 def calculate_extended_aspects(
-    self,
-    natal_data: Dict,
-    transit_data: Dict = None
+    self, natal_data: Dict, transit_data: Dict = None
 ) -> Dict:
     """
     計算包含小行星與月亮節點的擴展相位
@@ -113,9 +111,7 @@ def calculate_extended_aspects(
 ```python
 # 新增方法 (約 Line 408)
 def calculate_extended_aspects(
-    self,
-    natal_data: Dict,
-    transit_data: Dict = None
+    self, natal_data: Dict, transit_data: Dict = None
 ) -> Dict:
     """
     模擬計算包含小行星與月亮節點的擴展相位
@@ -294,11 +290,7 @@ planet_symbols = self.planet_symbols  # 使用初始化時定義的完整符號�
 
 **1. _generate_asteroid_insights() - Line 409**
 ```python
-def _generate_asteroid_insights(
-    self,
-    natal_data: Dict,
-    transit_data: Dict
-) -> Dict:
+def _generate_asteroid_insights(self, natal_data: Dict, transit_data: Dict) -> Dict:
     """
     生成四大小行星的解讀
 
@@ -312,11 +304,7 @@ def _generate_asteroid_insights(
 
 **2. _generate_lunar_node_insights() - Line 485**
 ```python
-def _generate_lunar_node_insights(
-    self,
-    natal_data: Dict,
-    transit_data: Dict
-) -> Dict:
+def _generate_lunar_node_insights(self, natal_data: Dict, transit_data: Dict) -> Dict:
     """
     生成月亮節點的解讀
 
@@ -553,34 +541,28 @@ def _generate_lunar_node_insights(
 ```python
 celestial_categories = {
     # 恆星
-    'sun': 'star',
-
+    "sun": "star",
     # 衛星
-    'moon': 'satellite',
-
+    "moon": "satellite",
     # 個人行星 (Personal Planets)
-    'mercury': 'personal',
-    'venus': 'personal',
-    'earth': 'personal',      # NEW
-    'mars': 'personal',
-
+    "mercury": "personal",
+    "venus": "personal",
+    "earth": "personal",  # NEW
+    "mars": "personal",
     # 小行星 (Asteroids)
-    'ceres': 'asteroid',       # NEW
-    'pallas': 'asteroid',      # NEW
-    'juno': 'asteroid',        # NEW
-    'vesta': 'asteroid',       # NEW
-
+    "ceres": "asteroid",  # NEW
+    "pallas": "asteroid",  # NEW
+    "juno": "asteroid",  # NEW
+    "vesta": "asteroid",  # NEW
     # 社會行星 (Social Planets)
-    'jupiter': 'social',
-    'saturn': 'social',
-
+    "jupiter": "social",
+    "saturn": "social",
     # 半人馬 (Centaurs)
-    'chiron': 'centaur',       # NEW
-
+    "chiron": "centaur",  # NEW
     # 外行星 (Outer Planets)
-    'uranus': 'outer',
-    'neptune': 'outer',
-    'pluto': 'outer'
+    "uranus": "outer",
+    "neptune": "outer",
+    "pluto": "outer",
 }
 ```
 
@@ -635,20 +617,20 @@ def calculate_lunar_nodes(self, observer) -> Dict:
     south_node_longitude = (north_node_longitude + 180) % 360
 
     return {
-        'north_node': {
-            'name': 'north_node',
-            'symbol': '☊',
-            'longitude': north_node_longitude,
-            'zodiac_sign': get_zodiac_sign(north_node_longitude),
-            'degree_in_sign': north_node_longitude % 30
+        "north_node": {
+            "name": "north_node",
+            "symbol": "☊",
+            "longitude": north_node_longitude,
+            "zodiac_sign": get_zodiac_sign(north_node_longitude),
+            "degree_in_sign": north_node_longitude % 30,
         },
-        'south_node': {
-            'name': 'south_node',
-            'symbol': '☋',
-            'longitude': south_node_longitude,
-            'zodiac_sign': get_zodiac_sign(south_node_longitude),
-            'degree_in_sign': south_node_longitude % 30
-        }
+        "south_node": {
+            "name": "south_node",
+            "symbol": "☋",
+            "longitude": south_node_longitude,
+            "zodiac_sign": get_zodiac_sign(south_node_longitude),
+            "degree_in_sign": south_node_longitude % 30,
+        },
     }
 ```
 
@@ -712,39 +694,34 @@ ai_client = MockGeminiGCodeClient()
 # 計算本命盤
 natal = calc.calculate_natal_chart(
     birth_date=date(1990, 6, 15),
-    birth_time='14:30',
-    birth_location='New York',
-    timezone='America/New_York'
+    birth_time="14:30",
+    birth_location="New York",
+    timezone="America/New_York",
 )
 
 # 計算行運
 transits = calc.calculate_transits(
-    birth_date=date(1990, 6, 15),
-    birth_location='New York',
-    target_date=date.today()
+    birth_date=date(1990, 6, 15), birth_location="New York", target_date=date.today()
 )
 
 # 計算擴展相位
 extended_aspects = calc.calculate_extended_aspects(
-    natal_data=natal['chart_data'],
-    transit_data=transits['planets']
+    natal_data=natal["chart_data"], transit_data=transits["planets"]
 )
 
 # 生成 AI 解讀
 interpretation = ai_client.generate_daily_gcode(
-    natal_data=natal,
-    transit_data=transits,
-    user_preferences={'tone': 'inspiring'}
+    natal_data=natal, transit_data=transits, user_preferences={"tone": "inspiring"}
 )
 
 # 訪問小行星洞察
-for asteroid, insight in interpretation['asteroid_insights'].items():
+for asteroid, insight in interpretation["asteroid_insights"].items():
     print(f"{insight['name']} in {insight['natal_sign']}")
     print(f"Themes: {', '.join(insight['themes'])}")
 
 # 訪問月亮節點洞察
-north_node = interpretation['node_insights']['north_node']
-south_node = interpretation['node_insights']['south_node']
+north_node = interpretation["node_insights"]["north_node"]
+south_node = interpretation["node_insights"]["south_node"]
 print(f"North Node: {north_node['interpretation']}")
 print(f"South Node: {south_node['interpretation']}")
 ```

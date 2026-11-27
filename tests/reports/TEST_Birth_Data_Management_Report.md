@@ -260,17 +260,14 @@ All actions properly logged with appropriate metadata:
 ```python
 # Before (incorrect)
 response = Response(
-    json.dumps(export_data, indent=2),
-    content_type='application/json',
-    headers={...}
+    json.dumps(export_data, indent=2), content_type="application/json", headers={...}
 )
 
 # After (correct)
 response = HttpResponse(
-    json.dumps(export_data, indent=2),
-    content_type='application/json'
+    json.dumps(export_data, indent=2), content_type="application/json"
 )
-response['Content-Disposition'] = f'attachment; filename="..."'
+response["Content-Disposition"] = f'attachment; filename="..."'
 ```
 
 **Commit:** `8d6573c` - "fix: Use HttpResponse instead of Response for file download"

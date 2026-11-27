@@ -149,7 +149,7 @@ class UserSerializer(serializers.ModelSerializer):
 
             except Exception as e:
                 logging.getLogger(__name__).error(
-                    f"Failed to recalculate natal chart: {str(e)}"
+                    f"Failed to recalculate natal chart: {e!s}"
                 )
 
         return instance
@@ -299,8 +299,6 @@ class GenerateContentSerializer(serializers.Serializer):
     def validate_transit_date(self, value):
         """Validate transit date is not in the future (for most content types)."""
         from datetime import date
-
-        from django.utils import timezone
 
         if value and value > date.today():
             raise serializers.ValidationError(

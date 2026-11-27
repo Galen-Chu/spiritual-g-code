@@ -36,16 +36,16 @@ user = User.objects.first()
 # Create test annotation
 annotation = ChartAnnotation.objects.create(
     user=user,
-    chart_type='gcode_trend',
-    data_point={'date': '2026-01-14', 'value': 75},
-    note='Test annotation for high energy day'
+    chart_type="gcode_trend",
+    data_point={"date": "2026-01-14", "value": 75},
+    note="Test annotation for high energy day",
 )
 
 # Verify
-assert annotation.chart_type == 'gcode_trend'
-assert annotation.data_point['value'] == 75
-assert annotation.note == 'Test annotation for high energy day'
-assert annotation.data_point_display == '2026-01-14: G-Code 75'
+assert annotation.chart_type == "gcode_trend"
+assert annotation.data_point["value"] == 75
+assert annotation.note == "Test annotation for high energy day"
+assert annotation.data_point_display == "2026-01-14: G-Code 75"
 ```
 
 **Result**: Model created successfully with all fields populated correctly.
@@ -63,9 +63,9 @@ from django.db import IntegrityError
 try:
     ChartAnnotation.objects.create(
         user=user,
-        chart_type='gcode_trend',
-        data_point={'date': '2026-01-14', 'value': 75},
-        note='Duplicate note'
+        chart_type="gcode_trend",
+        data_point={"date": "2026-01-14", "value": 75},
+        note="Duplicate note",
     )
     assert False, "Should have raised IntegrityError"
 except IntegrityError:
@@ -82,20 +82,14 @@ except IntegrityError:
 **Test Code**:
 ```python
 # Test all 5 chart types
-chart_types = [
-    'gcode_trend',
-    'planetary',
-    'element',
-    'forecast',
-    'network'
-]
+chart_types = ["gcode_trend", "planetary", "element", "forecast", "network"]
 
 for chart_type in chart_types:
     annotation = ChartAnnotation.objects.create(
         user=user,
         chart_type=chart_type,
-        data_point={'test': 'data'},
-        note=f'Test for {chart_type}'
+        data_point={"test": "data"},
+        note=f"Test for {chart_type}",
     )
     assert annotation.chart_type == chart_type
 
@@ -113,19 +107,16 @@ print(f"✅ All {len(chart_types)} chart types supported")
 ```python
 # Test different chart type displays
 tests = [
-    ('gcode_trend', {'date': '2026-01-14', 'value': 75}, '2026-01-14: G-Code 75'),
-    ('planetary', {'planet': 'Sun', 'sign': 'Aquarius'}, 'Sun in Aquarius'),
-    ('element', {'element': 'fire', 'value': 3}, 'fire: 3'),
-    ('forecast', {'date': '2026-01-15', 'value': 80}, '2026-01-15: Forecast 80'),
-    ('network', {'planet1': 'Sun', 'planet2': 'Moon'}, 'Sun aspect Moon'),
+    ("gcode_trend", {"date": "2026-01-14", "value": 75}, "2026-01-14: G-Code 75"),
+    ("planetary", {"planet": "Sun", "sign": "Aquarius"}, "Sun in Aquarius"),
+    ("element", {"element": "fire", "value": 3}, "fire: 3"),
+    ("forecast", {"date": "2026-01-15", "value": 80}, "2026-01-15: Forecast 80"),
+    ("network", {"planet1": "Sun", "planet2": "Moon"}, "Sun aspect Moon"),
 ]
 
 for chart_type, data_point, expected in tests:
     annotation = ChartAnnotation(
-        user=user,
-        chart_type=chart_type,
-        data_point=data_point,
-        note='Test'
+        user=user, chart_type=chart_type, data_point=data_point, note="Test"
     )
     assert annotation.data_point_display == expected
     print(f"✅ {chart_type}: {annotation.data_point_display}")
@@ -181,8 +172,16 @@ fields = serializer.fields
 
 # Check all expected fields exist
 expected_fields = [
-    'id', 'user', 'username', 'chart_type', 'chart_type_display',
-    'data_point', 'data_point_display', 'note', 'created_at', 'updated_at'
+    "id",
+    "user",
+    "username",
+    "chart_type",
+    "chart_type_display",
+    "data_point",
+    "data_point_display",
+    "note",
+    "created_at",
+    "updated_at",
 ]
 
 for field in expected_fields:
@@ -208,8 +207,8 @@ permissions = viewset.get_permissions()
 # Verify IsAuthenticated and IsOwner permissions
 assert len(permissions) == 2
 permission_classes = [p.__class__.__name__ for p in permissions]
-assert 'IsAuthenticated' in permission_classes
-assert 'IsOwner' in permission_classes
+assert "IsAuthenticated" in permission_classes
+assert "IsOwner" in permission_classes
 
 print(f"✅ Permissions: {permission_classes}")
 ```

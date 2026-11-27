@@ -173,6 +173,7 @@ We use `pytest` and `pytest-django` for testing:
 import pytest
 from ai_engine.calculator import GCodeCalculator
 
+
 class TestGCodeCalculator:
     @pytest.fixture
     def calculator(self):
@@ -180,12 +181,10 @@ class TestGCodeCalculator:
 
     def test_calculate_transits(self, calculator):
         result = calculator.calculate_transits(
-            birth_date='1990-06-15',
-            location='Taipei, Taiwan',
-            target_date='2025-01-06'
+            birth_date="1990-06-15", location="Taipei, Taiwan", target_date="2025-01-06"
         )
-        assert 'sun' in result
-        assert 'moon' in result
+        assert "sun" in result
+        assert "moon" in result
         assert result is not None
 ```
 

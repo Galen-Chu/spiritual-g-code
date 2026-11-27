@@ -6,7 +6,6 @@ Use this for development and testing.
 
 import random
 from datetime import date
-from typing import Dict, List, Optional
 
 
 class MockGeminiGCodeClient:
@@ -15,7 +14,7 @@ class MockGeminiGCodeClient:
     Generates consistent, meaningful responses based on input data.
     """
 
-    def __init__(self, api_key: Optional[str] = None):
+    def __init__(self, api_key: str | None = None):
         """Initialize mock client (API key not required)."""
         self.api_key = api_key
         # Use random seed for consistency
@@ -23,10 +22,10 @@ class MockGeminiGCodeClient:
 
     def generate_daily_gcode(
         self,
-        natal_data: Dict,
-        transit_data: Dict,
-        user_preferences: Optional[Dict] = None,
-    ) -> Dict:
+        natal_data: dict,
+        transit_data: dict,
+        user_preferences: dict | None = None,
+    ) -> dict:
         """
         Generate Daily G-Code interpretation (simulated).
 
@@ -80,14 +79,14 @@ class MockGeminiGCodeClient:
             }
 
         except Exception as e:
-            raise Exception(f"Error generating daily G-Code: {str(e)}")
+            raise Exception(f"Error generating daily G-Code: {e!s}")
 
     def generate_spiritual_patch_note(
         self,
-        daily_gcode: Dict,
+        daily_gcode: dict,
         platform: str = "twitter",
         custom_instructions: str = "",
-    ) -> Dict:
+    ) -> dict:
         """
         Generate social media content (simulated).
 
@@ -123,12 +122,12 @@ class MockGeminiGCodeClient:
 
     def generate_content(
         self,
-        transit_data: Dict,
+        transit_data: dict,
         content_type: str,
         platform: str,
-        user_preferences: Dict,
+        user_preferences: dict,
         custom_instructions: str = "",
-    ) -> Dict:
+    ) -> dict:
         """
         Generate various types of content.
 
@@ -160,7 +159,7 @@ class MockGeminiGCodeClient:
             "hashtags": ["#SpiritualGCode", "#DailyGuidance"],
         }
 
-    def _calculate_gcode_score(self, transit_data: Dict) -> int:
+    def _calculate_gcode_score(self, transit_data: dict) -> int:
         """Calculate G-Code intensity score (1-100)."""
         aspects = transit_data.get("aspects", [])
         score = 50  # Base score
@@ -185,8 +184,8 @@ class MockGeminiGCodeClient:
         return max(1, min(100, score))
 
     def _generate_themes(
-        self, sun_sign: str, moon_sign: str, transit_data: Dict
-    ) -> List[str]:
+        self, sun_sign: str, moon_sign: str, transit_data: dict
+    ) -> list[str]:
         """Generate relevant themes based on planetary positions."""
         theme_pool = [
             "#Transformation",
@@ -218,7 +217,7 @@ class MockGeminiGCodeClient:
         return selected
 
     def _generate_interpretation(
-        self, sun_sign: str, moon_sign: str, themes: List[str], score: int
+        self, sun_sign: str, moon_sign: str, themes: list[str], score: int
     ) -> str:
         """Generate daily interpretation."""
         intensity_text = ""
@@ -236,17 +235,17 @@ class MockGeminiGCodeClient:
 With your Sun in {sun_sign} and Moon in {moon_sign}, you're being called to embrace your authentic power and trust your inner knowing. The planetary alignments support deep transformation and personal growth.
 
 Key energies at play:
-{chr(10).join([f'  - {t[1:]}' for t in themes[:3]])}
+{chr(10).join([f"  - {t[1:]}" for t in themes[:3]])}
 
 This is a time to honor your journey, celebrate your growth, and align with your highest purpose. Trust that the universe is conspiring in your favor."""
 
         return interpretation
 
-    def _generate_affirmation(self, sun_sign: str, themes: List[str]) -> str:
+    def _generate_affirmation(self, sun_sign: str, themes: list[str]) -> str:
         """Generate daily affirmation."""
         affirmations = [
             f"I am aligned with the transformative power of {sun_sign}.",
-            f"I trust my inner wisdom and embrace change with grace.",
+            "I trust my inner wisdom and embrace change with grace.",
             "I am worthy of all the abundance flowing into my life.",
             "I release what no longer serves me and welcome new beginnings.",
             "I am connected to universal wisdom and cosmic guidance.",
@@ -259,7 +258,7 @@ This is a time to honor your journey, celebrate your growth, and align with your
 
         return random.choice(affirmations)
 
-    def _generate_guidance(self, themes: List[str], score: int) -> List[str]:
+    def _generate_guidance(self, themes: list[str], score: int) -> list[str]:
         """Generate practical guidance for the day."""
         guidance_pool = [
             f"Take time for meditation and connect with {themes[0][1:]} energy.",
@@ -277,7 +276,7 @@ This is a time to honor your journey, celebrate your growth, and align with your
         return random.sample(guidance_pool, 3)
 
     def _generate_twitter_content(
-        self, themes: List[str], score: int, interpretation: str
+        self, themes: list[str], score: int, interpretation: str
     ) -> str:
         """Generate Twitter content (max 280 chars)."""
         # Extract first sentence
@@ -303,12 +302,12 @@ This is a time to honor your journey, celebrate your growth, and align with your
         return content
 
     def _generate_instagram_content(
-        self, themes: List[str], score: int, interpretation: str
+        self, themes: list[str], score: int, interpretation: str
     ) -> str:
         """Generate Instagram content."""
         return f"""{interpretation}
 
-{' '.join(themes[:4])}
+{" ".join(themes[:4])}
 
 G-Code Intensity: {score}/100
 
@@ -317,7 +316,7 @@ How are these energies showing up in your life today? Share in the comments!
 #SpiritualGCode #DailyGCode #Astrology #NatalChart #CosmicWisdom #SpiritualJourney"""
 
     def _generate_linkedin_content(
-        self, themes: List[str], score: int, interpretation: str
+        self, themes: list[str], score: int, interpretation: str
     ) -> str:
         """Generate LinkedIn content."""
         return f"""Daily G-Code Insights
@@ -325,7 +324,7 @@ How are these energies showing up in your life today? Share in the comments!
 Today's cosmic weather brings unique opportunities for growth and transformation.
 
 Key themes to consider:
-{chr(10).join([f'  {t[1:]}' for t in themes[:3]])}
+{chr(10).join([f"  {t[1:]}" for t in themes[:3]])}
 
 G-Code Intensity: {score}/100
 
@@ -337,27 +336,27 @@ What cosmic patterns are you noticing in your life?
 
     def _generate_generic_content(
         self,
-        themes: List[str],
+        themes: list[str],
         score: int,
         interpretation: str,
         tone: str = "inspiring",
     ) -> str:
         """Generate generic content."""
         if not interpretation:
-            interpretation = f"Today's energies support growth and transformation."
+            interpretation = "Today's energies support growth and transformation."
 
         return f"""{interpretation}
 
-{' '.join(themes) if themes else '#DailyGCode #SpiritualGCode'}
+{" ".join(themes) if themes else "#DailyGCode #SpiritualGCode"}
 
 G-Code Score: {score}/100
 
 Tune into the cosmic weather and align your actions with universal flow.
 """
 
-    def _generate_insight_content(self, transit_data: Dict, tone: str) -> str:
+    def _generate_insight_content(self, transit_data: dict, tone: str) -> str:
         """Generate insight content."""
-        return f"""Cosmic Insight for Today
+        return """Cosmic Insight for Today
 
 The planetary alignments offer us a unique opportunity to pause and reflect. When we tune into cosmic patterns, we gain clarity about our path and purpose.
 
@@ -369,9 +368,9 @@ Take a moment today to:
 The universe supports your journey.
 """
 
-    def _generate_affirmation_content(self, transit_data: Dict, tone: str) -> str:
+    def _generate_affirmation_content(self, transit_data: dict, tone: str) -> str:
         """Generate affirmation content."""
-        return f"""Daily Affirmation
+        return """Daily Affirmation
 
 "I am aligned with universal wisdom and cosmic flow."
 
@@ -380,7 +379,7 @@ Repeat this affirmation throughout the day, especially when you feel uncertain o
 Remember: You are exactly where you need to be.
 """
 
-    def _generate_asteroid_insights(self, natal_data: Dict, transit_data: Dict) -> Dict:
+    def _generate_asteroid_insights(self, natal_data: dict, transit_data: dict) -> dict:
         """
         Generate interpretations for the four major asteroids.
 
@@ -459,8 +458,8 @@ Remember: You are exactly where you need to be.
         return messages.get(asteroid, f"{asteroid.title()} is active in {sign}.")
 
     def _generate_lunar_node_insights(
-        self, natal_data: Dict, transit_data: Dict
-    ) -> Dict:
+        self, natal_data: dict, transit_data: dict
+    ) -> dict:
         """
         Generate interpretations for the lunar nodes.
 
@@ -502,7 +501,7 @@ Remember: You are exactly where you need to be.
 
         return insights
 
-    def _generate_north_node_message(self, natal_data: Dict) -> str:
+    def _generate_north_node_message(self, natal_data: dict) -> str:
         """Generate North Node interpretation based on sign."""
         # In a real implementation, this would use the actual nodal position
         # For now, generate based on Sun sign (simplified)
@@ -528,7 +527,7 @@ Remember: You are exactly where you need to be.
             "Your North Node reveals your soul's direction for growth and fulfillment in this lifetime.",
         )
 
-    def _generate_south_node_message(self, natal_data: Dict) -> str:
+    def _generate_south_node_message(self, natal_data: dict) -> str:
         """Generate South Node interpretation based on sign."""
         # In a real implementation, this would use the actual nodal position
         # For now, generate based on Sun sign (simplified, opposite sign)
@@ -554,7 +553,7 @@ Remember: You are exactly where you need to be.
             "Your South Node reveals past patterns and gifts you're being asked to transcend in this lifetime.",
         )
 
-    def _get_nodal_transit_meaning(self, transit_aspect: Dict) -> str:
+    def _get_nodal_transit_meaning(self, transit_aspect: dict) -> str:
         """Generate interpretation for nodal transit aspect."""
         aspect = transit_aspect.get("aspect", "conjunction")
         planet = transit_aspect.get("natal_planet", "sun")
@@ -573,7 +572,7 @@ Remember: You are exactly where you need to be.
 
 
 # Convenience function
-def get_gemini_client(api_key: Optional[str] = None):
+def get_gemini_client(api_key: str | None = None):
     """
     Get appropriate Gemini client.
     Returns mock client for development/testing.

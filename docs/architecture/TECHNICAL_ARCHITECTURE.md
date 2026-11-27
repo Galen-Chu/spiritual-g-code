@@ -224,49 +224,44 @@ GET    /api/dashboard/stats/         # User statistics
 import google.generativeai as genai
 from typing import Dict, List, Optional
 
+
 class GeminiGCodeClient:
     """Custom Gemini client for G-Code generation"""
 
     def __init__(self, api_key: str):
         genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel('gemini-pro')
+        self.model = genai.GenerativeModel("gemini-pro")
 
     def generate_daily_gcode(
         self,
         natal_data: Dict,
         transit_data: Dict,
-        user_preferences: Optional[Dict] = None
+        user_preferences: Optional[Dict] = None,
     ) -> Dict:
         """Generate Daily G-Code interpretation"""
 
-        prompt = self._build_daily_prompt(
-            natal_data,
-            transit_data,
-            user_preferences
-        )
+        prompt = self._build_daily_prompt(natal_data, transit_data, user_preferences)
 
         response = self.model.generate_content(prompt)
 
         return {
-            'interpretation': response.text,
-            'themes': self._extract_themes(response.text),
-            'affirmations': self._extract_affirmations(response.text),
-            'score': self._calculate_gcode_score(transit_data)
+            "interpretation": response.text,
+            "themes": self._extract_themes(response.text),
+            "affirmations": self._extract_affirmations(response.text),
+            "score": self._calculate_gcode_score(transit_data),
         }
 
     def generate_spiritual_patch_note(
-        self,
-        daily_gcode: Dict,
-        platform: str = 'twitter'
+        self, daily_gcode: Dict, platform: str = "twitter"
     ) -> str:
         """Generate social media content"""
 
-        template = self._load_template(f'patch_note_{platform}')
+        template = self._load_template(f"patch_note_{platform}")
 
         prompt = template.format(
-            themes=', '.join(daily_gcode['themes']),
-            score=daily_gcode['score'],
-            key_insight=daily_gcode['interpretation'][:200]
+            themes=", ".join(daily_gcode["themes"]),
+            score=daily_gcode["score"],
+            key_insight=daily_gcode["interpretation"][:200],
         )
 
         response = self.model.generate_content(prompt)
@@ -274,23 +269,22 @@ class GeminiGCodeClient:
         return response.text
 
     def _build_daily_prompt(
-        self,
-        natal_data: Dict,
-        transit_data: Dict,
-        preferences: Optional[Dict]
+        self, natal_data: Dict, transit_data: Dict, preferences: Optional[Dict]
     ) -> str:
         """Build structured prompt for daily G-Code"""
 
         # Load base template
-        base_template = self._load_template('daily_gcode_base')
+        base_template = self._load_template("daily_gcode_base")
 
         # Inject data
         prompt = base_template.format(
-            sun_sign=natal_data['sun_sign'],
-            moon_sign=natal_data['moon_sign'],
-            ascendant=natal_data['ascendant'],
+            sun_sign=natal_data["sun_sign"],
+            moon_sign=natal_data["moon_sign"],
+            ascendant=natal_data["ascendant"],
             major_transits=self._format_transits(transit_data),
-            user_tone=preferences.get('tone', 'inspiring') if preferences else 'inspiring'
+            user_tone=preferences.get("tone", "inspiring")
+            if preferences
+            else "inspiring",
         )
 
         return prompt
@@ -415,13 +409,19 @@ from django_crontab import CrontabCommand
 
 CRONJOBS = [
     # Calculate Daily G-Code at 4:00 AM every day
-    ('0 4 * * *', 'scripts.calculate_daily_gcode.calculate_all_daily_gcodes', '>> /tmp/gcode_calc.log'),
-
+    (
+        "0 4 * * *",
+        "scripts.calculate_daily_gcode.calculate_all_daily_gcodes",
+        ">> /tmp/gcode_calc.log",
+    ),
     # Generate Spiritual Patch Notes at 5:00 AM every day
-    ('0 5 * * *', 'scripts.generate_patch_notes.generate_all', '>> /tmp/patch_notes.log'),
-
+    (
+        "0 5 * * *",
+        "scripts.generate_patch_notes.generate_all",
+        ">> /tmp/patch_notes.log",
+    ),
     # Clean up old transits (keep only 90 days)
-    ('0 3 * * 0', 'scripts.cleanup_old_transits.cleanup', '>> /tmp/cleanup.log'),
+    ("0 3 * * 0", "scripts.cleanup_old_transits.cleanup", ">> /tmp/cleanup.log"),
 ]
 ```
 
@@ -671,25 +671,25 @@ volumes:
 # core/settings.py
 
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'file': {
-            'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'filename': '/var/log/gcode/django.log',
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "file": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": "/var/log/gcode/django.log",
         },
     },
-    'loggers': {
-        'django': {
-            'handlers': ['file'],
-            'level': 'INFO',
-            'propagate': True,
+    "loggers": {
+        "django": {
+            "handlers": ["file"],
+            "level": "INFO",
+            "propagate": True,
         },
-        'gcode': {
-            'handlers': ['file'],
-            'level': 'INFO',
-            'propagate': False,
+        "gcode": {
+            "handlers": ["file"],
+            "level": "INFO",
+            "propagate": False,
         },
     },
 }
@@ -751,17 +751,16 @@ REST_FRAMEWORK = {
 import pytest
 from ai_engine.calculator import GCodeCalculator
 
+
 class TestGCodeCalculator:
     def test_calculate_transits(self):
         calculator = GCodeCalculator()
         result = calculator.calculate_transits(
-            birth_date='1990-06-15',
-            location='Taipei, Taiwan',
-            target_date='2025-01-06'
+            birth_date="1990-06-15", location="Taipei, Taiwan", target_date="2025-01-06"
         )
-        assert 'sun' in result
-        assert 'moon' in result
-        assert 'aspects' in result
+        assert "sun" in result
+        assert "moon" in result
+        assert "aspects" in result
 ```
 
 ### Integration Tests
@@ -770,11 +769,12 @@ class TestGCodeCalculator:
 
 from rest_framework.test import APITestCase
 
+
 class TestGCodeAPI(APITestCase):
     def test_get_current_gcode(self):
-        response = self.client.get('/api/gcode/current/')
+        response = self.client.get("/api/gcode/current/")
         self.assertEqual(response.status_code, 200)
-        self.assertIn('score', response.data)
+        self.assertIn("score", response.data)
 ```
 
 ---

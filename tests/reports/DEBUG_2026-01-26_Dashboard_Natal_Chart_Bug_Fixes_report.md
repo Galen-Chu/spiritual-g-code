@@ -216,13 +216,15 @@ The `NatalChartCalculateView` had empty `authentication_classes`, which disabled
 3. **Checked view code**
    ```python
    # DashboardOverviewView
-   serializer = DashboardOverviewSerializer({
-       'today_gcode': today_gcode,
-       'weekly_transits': weekly_transits,
-       'recent_content': recent_content,
-       'user_stats': user_stats,
-       # PROBLEM: No natal_chart data!
-   })
+   serializer = DashboardOverviewSerializer(
+       {
+           "today_gcode": today_gcode,
+           "weekly_transits": weekly_transits,
+           "recent_content": recent_content,
+           "user_stats": user_stats,
+           # PROBLEM: No natal_chart data!
+       }
+   )
    ```
 
 4. **Examined frontend**
@@ -366,13 +368,15 @@ class NatalChartCalculateView(APIView):
 
     def post(self, request):
         # Debug logging
-        logger.info(f'[NatalChartCalculateView] User authenticated: {request.user.is_authenticated}')
-        logger.info(f'[NatalChartCalculateView] User: {request.user}')
+        logger.info(
+            f"[NatalChartCalculateView] User authenticated: {request.user.is_authenticated}"
+        )
+        logger.info(f"[NatalChartCalculateView] User: {request.user}")
 
         if not request.user.is_authenticated:
             return Response(
-                {'error': 'Authentication required'},
-                status=status.HTTP_401_UNAUTHORIZED
+                {"error": "Authentication required"},
+                status=status.HTTP_401_UNAUTHORIZED,
             )
 
         # ... rest of implementation
@@ -438,13 +442,15 @@ def get(self, request):
 
     # ... rest of code ...
 
-    serializer = DashboardOverviewSerializer({
-        'today_gcode': today_gcode,
-        'weekly_transits': weekly_transits,
-        'recent_content': recent_content,
-        'user_stats': user_stats,
-        'natal_chart': natal_chart,  # NEW!
-    })
+    serializer = DashboardOverviewSerializer(
+        {
+            "today_gcode": today_gcode,
+            "weekly_transits": weekly_transits,
+            "recent_content": recent_content,
+            "user_stats": user_stats,
+            "natal_chart": natal_chart,  # NEW!
+        }
+    )
 
     return Response(serializer.data)
 ```

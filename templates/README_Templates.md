@@ -352,9 +352,9 @@ All templates have access to:
 
 ```python
 {
-    'user': request.user,           # Current user
-    'debug': settings.DEBUG,        # Debug mode
-    'request': request,             # HTTP request
+    "user": request.user,  # Current user
+    "debug": settings.DEBUG,  # Debug mode
+    "request": request,  # HTTP request
 }
 ```
 

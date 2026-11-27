@@ -5,7 +5,6 @@ Handles natal chart and transit calculations.
 
 import math
 from datetime import date, datetime, timedelta
-from typing import Dict, List, Optional
 
 import ephem
 import pytz
@@ -118,10 +117,10 @@ class GCodeCalculator:
     def calculate_natal_chart(
         self,
         birth_date: date,
-        birth_time: Optional[str] = None,
+        birth_time: str | None = None,
         birth_location: str = "Unknown",
         timezone: str = "UTC",
-    ) -> Dict:
+    ) -> dict:
         """
         Calculate complete natal chart.
 
@@ -193,15 +192,15 @@ class GCodeCalculator:
             }
 
         except Exception as e:
-            raise Exception(f"Error calculating natal chart: {str(e)}")
+            raise Exception(f"Error calculating natal chart: {e!s}")
 
     def calculate_transits(
         self,
         birth_date: date,
         birth_location: str,
         target_date: date,
-        birth_time: Optional[str] = None,
-    ) -> Dict:
+        birth_time: str | None = None,
+    ) -> dict:
         """
         Calculate current transits and aspects to natal chart.
 
@@ -250,7 +249,7 @@ class GCodeCalculator:
             }
 
         except Exception as e:
-            raise Exception(f"Error calculating transits: {str(e)}")
+            raise Exception(f"Error calculating transits: {e!s}")
 
     def _create_observer(self, location: str, dt: datetime) -> ephem.Observer:
         """Create PyEphem observer for location and time."""
@@ -285,7 +284,7 @@ class GCodeCalculator:
         asc = self._get_zodiac_sign(math.degrees(float(lst)))
         return asc
 
-    def _calculate_dominant_elements(self, chart_data: Dict) -> Dict:
+    def _calculate_dominant_elements(self, chart_data: dict) -> dict:
         """Calculate dominant elements in natal chart."""
         elements = {
             "fire": 0,  # Aries, Leo, Sagittarius
@@ -312,7 +311,7 @@ class GCodeCalculator:
 
         return elements
 
-    def _calculate_aspects(self, chart_data: Dict) -> List[Dict]:
+    def _calculate_aspects(self, chart_data: dict) -> list[dict]:
         """Calculate aspects between planets in natal chart."""
         aspects = []
         planets = list(chart_data.keys())
@@ -349,8 +348,8 @@ class GCodeCalculator:
         return aspects
 
     def _calculate_transit_aspects(
-        self, transit_data: Dict, natal_data: Dict
-    ) -> List[Dict]:
+        self, transit_data: dict, natal_data: dict
+    ) -> list[dict]:
         """Calculate aspects between transiting and natal planets."""
         aspects = []
         aspect_types = {
@@ -382,8 +381,8 @@ class GCodeCalculator:
         return aspects
 
     def calculate_extended_aspects(
-        self, natal_data: Dict, transit_data: Dict = None
-    ) -> Dict:
+        self, natal_data: dict, transit_data: dict = None
+    ) -> dict:
         """
         Calculate extended aspects including asteroids and lunar nodes.
 
@@ -485,7 +484,7 @@ class GCodeCalculator:
 
         return all_aspects
 
-    def calculate_solar_system_transits(self, target_date: date) -> Dict:
+    def calculate_solar_system_transits(self, target_date: date) -> dict:
         """
         Calculate heliocentric positions for all celestial bodies.
         Returns data for D3.js solar system visualization.
@@ -511,7 +510,7 @@ class GCodeCalculator:
         sun_geo = math.degrees(float(ephem.Ecliptic(sun).lon)) % 360.0
         earth_helio = (sun_geo + 180.0) % 360.0
 
-        solar_system_data: Dict = {
+        solar_system_data: dict = {
             "date": target_date.isoformat(),
             "bodies": [
                 {
@@ -577,7 +576,7 @@ class GCodeCalculator:
 
         return solar_system_data
 
-    def calculate_lunar_nodes(self, target_date: date) -> Dict:
+    def calculate_lunar_nodes(self, target_date: date) -> dict:
         """
         Mean lunar nodes: where the Moon's orbit crosses the ecliptic.
 
@@ -590,7 +589,7 @@ class GCodeCalculator:
         north = (125.0445 - 0.0529538 * days_since_j2000) % 360.0
         south = (north + 180.0) % 360.0
 
-        def _node(name: str, symbol: str, longitude: float) -> Dict:
+        def _node(name: str, symbol: str, longitude: float) -> dict:
             return {
                 "name": name,
                 "symbol": symbol,

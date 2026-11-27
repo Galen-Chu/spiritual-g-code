@@ -6,14 +6,13 @@ from datetime import date, datetime, timedelta
 
 from django.contrib.auth import authenticate
 from django.contrib.auth import login as auth_login
-from django.db.models import Avg, Count, Q
+from django.db.models import Avg
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, status, viewsets
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import action
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -21,7 +20,6 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
 
 # Import AI engine for chart data generation
-from ai_engine.daily_gcode_service import get_daily_gcode_service
 from ai_engine.mock_calculator import MockGCodeCalculator
 
 from .annotation import ChartAnnotation
@@ -29,12 +27,11 @@ from .filters import DailyTransitFilter, GCodeTemplateFilter, GeneratedContentFi
 from .models import (
     DailyTransit,
     GCodeTemplate,
-    GCodeUser,
     GeneratedContent,
     NatalChart,
     UserActivity,
 )
-from .permissions import HasDailyGCodeEnabled, IsOwner, IsOwnerOrReadOnly
+from .permissions import IsOwner, IsOwnerOrReadOnly
 from .serializers import (
     ChartAnnotationSerializer,
     DailyTransitSerializer,
@@ -42,9 +39,7 @@ from .serializers import (
     GCodeTemplateSerializer,
     GenerateContentSerializer,
     GeneratedContentSerializer,
-    NatalChartCalculationSerializer,
     NatalChartSerializer,
-    UserActivitySerializer,
     UserRegistrationSerializer,
     UserSerializer,
 )
@@ -259,7 +254,7 @@ class UserProfileView(APIView):
 
         except Exception as e:
             return Response(
-                {"detail": f"Error deleting natal chart: {str(e)}"},
+                {"detail": f"Error deleting natal chart: {e!s}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
@@ -537,7 +532,7 @@ class NatalChartCalculateView(APIView):
         import logging
 
         logger = logging.getLogger(__name__)
-        logger.info(f"[NatalChartCalculateView] Request received")
+        logger.info("[NatalChartCalculateView] Request received")
         logger.info(
             f"[NatalChartCalculateView] User authenticated: {request.user.is_authenticated}"
         )
@@ -587,7 +582,7 @@ class NatalChartCalculateView(APIView):
                 timezone=timezone,
             )
 
-            logger.info(f"[NatalChartCalculateView] Chart calculated successfully")
+            logger.info("[NatalChartCalculateView] Chart calculated successfully")
 
             # Create or update natal chart
             natal_chart, created = NatalChart.objects.update_or_create(
@@ -595,7 +590,7 @@ class NatalChartCalculateView(APIView):
             )
 
             logger.info(
-                f'[NatalChartCalculateView] Natal chart {"created" if created else "updated"}'
+                f"[NatalChartCalculateView] Natal chart {'created' if created else 'updated'}"
             )
 
             # Log activity
@@ -989,7 +984,9 @@ class DashboardChartsView(APIView):
                             else (
                                 "medium"
                                 if score < 50
-                                else "high" if score < 75 else "intense"
+                                else "high"
+                                if score < 75
+                                else "intense"
                             )
                         )
                         trend_data.append(
@@ -1161,7 +1158,9 @@ class DashboardChartsView(APIView):
                             else (
                                 "medium"
                                 if score < 50
-                                else "high" if score < 75 else "intense"
+                                else "high"
+                                if score < 75
+                                else "intense"
                             )
                         )
 
@@ -1244,7 +1243,7 @@ class DashboardChartsView(APIView):
                     )
 
                 data["aspects_network"] = {"nodes": nodes, "links": links}
-            except Exception as e:
+            except Exception:
                 # Generate mock aspects network data for testing
                 data["aspects_network"] = self._get_mock_aspects_network()
 
@@ -1365,7 +1364,7 @@ class SolarSystemTransitView(APIView):
                 solar_system_data = calculator.calculate_solar_system_transits(
                     target_date
                 )
-            except Exception as e:
+            except Exception:
                 # Fall back to mock calculator if PyEphem fails
                 from ai_engine.mock_calculator import MockGCodeCalculator
 
@@ -1385,7 +1384,7 @@ class SolarSystemTransitView(APIView):
 
         except Exception as e:
             return Response(
-                {"error": f"Error calculating solar system transits: {str(e)}"},
+                {"error": f"Error calculating solar system transits: {e!s}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
@@ -1403,8 +1402,6 @@ class HealthCheckView(APIView):
     def get(self, request):
         """Check system health."""
         from django.db import connections
-
-        from ai_engine.gemini_client import GeminiGCodeClient
 
         health_status = {
             "status": "healthy",
@@ -1559,6 +1556,6 @@ class NatalWheelView(APIView):
 
         except Exception as e:
             return Response(
-                {"error": f"Error calculating wheel data: {str(e)}"},
+                {"error": f"Error calculating wheel data: {e!s}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )

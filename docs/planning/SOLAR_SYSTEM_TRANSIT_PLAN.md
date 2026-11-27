@@ -26,30 +26,30 @@ class GCodeCalculator:
         """Initialize calculator with extended celestial bodies."""
         # Classical Planets (11 including Earth)
         self.planets = {
-            'sun': ephem.Sun(),
-            'moon': ephem.Moon(),
-            'mercury': ephem.Mercury(),
-            'venus': ephem.Venus(),
-            'earth': ephem.Earth(),  # NEW
-            'mars': ephem.Mars(),
-            'jupiter': ephem.Jupiter(),
-            'saturn': ephem.Saturn(),
-            'uranus': ephem.Uranus(),
-            'neptune': ephem.Neptune(),
-            'pluto': ephem.Pluto(),
+            "sun": ephem.Sun(),
+            "moon": ephem.Moon(),
+            "mercury": ephem.Mercury(),
+            "venus": ephem.Venus(),
+            "earth": ephem.Earth(),  # NEW
+            "mars": ephem.Mars(),
+            "jupiter": ephem.Jupiter(),
+            "saturn": ephem.Saturn(),
+            "uranus": ephem.Uranus(),
+            "neptune": ephem.Neptune(),
+            "pluto": ephem.Pluto(),
         }
 
         # Major Asteroids (NEW section)
         self.asteroids = {
-            'ceres': ephem.readd('Ceres,1'),
-            'pallas': ephem.readd('2 Pallas'),
-            'juno': ephem.readd('3 Juno'),
-            'vesta': ephem.readd('4 Vesta'),
+            "ceres": ephem.readd("Ceres,1"),
+            "pallas": ephem.readd("2 Pallas"),
+            "juno": ephem.readd("3 Juno"),
+            "vesta": ephem.readd("4 Vesta"),
         }
 
         # Centaurs (NEW section)
         self.centaurs = {
-            'chiron': ephem.readd('2060 Chiron'),
+            "chiron": ephem.readd("2060 Chiron"),
         }
 
         # Combine all for iteration
@@ -67,17 +67,24 @@ def calculate_solar_system_transits(self, target_date: date) -> Dict:
     observer = ephem.Observer()
     observer.date = dt
 
-    solar_system_data = {
-        'date': target_date.isoformat(),
-        'bodies': []
-    }
+    solar_system_data = {"date": target_date.isoformat(), "bodies": []}
 
     # Orbital radii in AU (for visualization scaling)
     orbital_radii = {
-        'mercury': 0.39, 'venus': 0.72, 'earth': 1.0, 'mars': 1.52,
-        'ceres': 2.77, 'pallas': 2.77, 'juno': 2.77, 'vesta': 2.77,
-        'jupiter': 5.2, 'saturn': 9.58, 'chiron': 13.7,
-        'uranus': 19.2, 'neptune': 30.05, 'pluto': 39.48
+        "mercury": 0.39,
+        "venus": 0.72,
+        "earth": 1.0,
+        "mars": 1.52,
+        "ceres": 2.77,
+        "pallas": 2.77,
+        "juno": 2.77,
+        "vesta": 2.77,
+        "jupiter": 5.2,
+        "saturn": 9.58,
+        "chiron": 13.7,
+        "uranus": 19.2,
+        "neptune": 30.05,
+        "pluto": 39.48,
     }
 
     for body_name, body in self.all_celestial_bodies.items():
@@ -87,42 +94,66 @@ def calculate_solar_system_transits(self, target_date: date) -> Dict:
         helio_lon = body.hlong
         geocentric_lon = ephem.deg(body.ra + observer.sidereal_time())
 
-        solar_system_data['bodies'].append({
-            'name': body_name,
-            'symbol': self._get_planet_symbol(body_name),
-            'category': self._get_celestial_category(body_name),
-            'heliocentric_longitude': float(helio_lon),
-            'geocentric_longitude': float(geocentric_lon),
-            'orbital_radius_au': orbital_radii.get(body_name, 1.0),
-            'zodiac_sign': self._get_zodiac_sign(geocentric_lon),
-            'degree_in_sign': float(self._get_degree_in_sign(geocentric_lon))
-        })
+        solar_system_data["bodies"].append(
+            {
+                "name": body_name,
+                "symbol": self._get_planet_symbol(body_name),
+                "category": self._get_celestial_category(body_name),
+                "heliocentric_longitude": float(helio_lon),
+                "geocentric_longitude": float(geocentric_lon),
+                "orbital_radius_au": orbital_radii.get(body_name, 1.0),
+                "zodiac_sign": self._get_zodiac_sign(geocentric_lon),
+                "degree_in_sign": float(self._get_degree_in_sign(geocentric_lon)),
+            }
+        )
 
     return solar_system_data
+
 
 def _get_planet_symbol(self, body_name: str) -> str:
     """Get astronomical symbol for celestial body."""
     symbols = {
-        'sun': '☉', 'moon': '☽', 'mercury': '☿', 'venus': '♀',
-        'earth': '🌍', 'mars': '♂', 'jupiter': '♃', 'saturn': '♄',
-        'uranus': '♅', 'neptune': '♆', 'pluto': '♇',
-        'ceres': '⚳', 'pallas': '⚴', 'juno': '⚵', 'vesta': '⚶',
-        'chiron': '⚷'
+        "sun": "☉",
+        "moon": "☽",
+        "mercury": "☿",
+        "venus": "♀",
+        "earth": "🌍",
+        "mars": "♂",
+        "jupiter": "♃",
+        "saturn": "♄",
+        "uranus": "♅",
+        "neptune": "♆",
+        "pluto": "♇",
+        "ceres": "⚳",
+        "pallas": "⚴",
+        "juno": "⚵",
+        "vesta": "⚶",
+        "chiron": "⚷",
     }
     return symbols.get(body_name, body_name[0].upper())
+
 
 def _get_celestial_category(self, body_name: str) -> str:
     """Get category for visualization grouping."""
     categories = {
-        'sun': 'star',
-        'moon': 'satellite',
-        'mercury': 'personal', 'venus': 'personal', 'earth': 'personal', 'mars': 'personal',
-        'ceres': 'asteroid', 'pallas': 'asteroid', 'juno': 'asteroid', 'vesta': 'asteroid',
-        'jupiter': 'social', 'saturn': 'social',
-        'chiron': 'centaur',
-        'uranus': 'outer', 'neptune': 'outer', 'pluto': 'outer'
+        "sun": "star",
+        "moon": "satellite",
+        "mercury": "personal",
+        "venus": "personal",
+        "earth": "personal",
+        "mars": "personal",
+        "ceres": "asteroid",
+        "pallas": "asteroid",
+        "juno": "asteroid",
+        "vesta": "asteroid",
+        "jupiter": "social",
+        "saturn": "social",
+        "chiron": "centaur",
+        "uranus": "outer",
+        "neptune": "outer",
+        "pluto": "outer",
     }
-    return categories.get(body_name, 'unknown')
+    return categories.get(body_name, "unknown")
 ```
 
 ---
@@ -135,52 +166,82 @@ def _get_celestial_category(self, body_name: str) -> str:
 # Line ~29-41: Extend self.planet_periods
 self.planet_periods = {
     # Classical Planets
-    'sun': 365.25,
-    'moon': 27.32,
-    'mercury': 87.97,
-    'venus': 224.7,
-    'earth': 365.25,  # NEW
-    'mars': 687,
-    'jupiter': 4332.59,
-    'saturn': 10759.22,
-    'uranus': 30685.4,
-    'neptune': 60189,
-    'pluto': 90560,
-
+    "sun": 365.25,
+    "moon": 27.32,
+    "mercury": 87.97,
+    "venus": 224.7,
+    "earth": 365.25,  # NEW
+    "mars": 687,
+    "jupiter": 4332.59,
+    "saturn": 10759.22,
+    "uranus": 30685.4,
+    "neptune": 60189,
+    "pluto": 90560,
     # Major Asteroids (NEW)
-    'ceres': 1682,      # 4.6 years
-    'pallas': 1686,     # 4.6 years
-    'juno': 1594,       # 4.4 years
-    'vesta': 1325,      # 3.6 years
-
+    "ceres": 1682,  # 4.6 years
+    "pallas": 1686,  # 4.6 years
+    "juno": 1594,  # 4.4 years
+    "vesta": 1325,  # 3.6 years
     # Centaurs (NEW)
-    'chiron': 18548,    # 50.8 years
+    "chiron": 18548,  # 50.8 years
 }
 
 # Orbital radii in AU (for visualization)
 self.orbital_radii = {
-    'mercury': 0.39, 'venus': 0.72, 'earth': 1.0, 'mars': 1.52,
-    'ceres': 2.77, 'pallas': 2.77, 'juno': 2.77, 'vesta': 2.77,
-    'jupiter': 5.2, 'saturn': 9.58, 'chiron': 13.7,
-    'uranus': 19.2, 'neptune': 30.05, 'pluto': 39.48
+    "mercury": 0.39,
+    "venus": 0.72,
+    "earth": 1.0,
+    "mars": 1.52,
+    "ceres": 2.77,
+    "pallas": 2.77,
+    "juno": 2.77,
+    "vesta": 2.77,
+    "jupiter": 5.2,
+    "saturn": 9.58,
+    "chiron": 13.7,
+    "uranus": 19.2,
+    "neptune": 30.05,
+    "pluto": 39.48,
 }
 
 # Category mapping
 self.celestial_categories = {
-    'sun': 'star', 'moon': 'satellite',
-    'mercury': 'personal', 'venus': 'personal', 'earth': 'personal', 'mars': 'personal',
-    'ceres': 'asteroid', 'pallas': 'asteroid', 'juno': 'asteroid', 'vesta': 'asteroid',
-    'jupiter': 'social', 'saturn': 'social', 'chiron': 'centaur',
-    'uranus': 'outer', 'neptune': 'outer', 'pluto': 'outer'
+    "sun": "star",
+    "moon": "satellite",
+    "mercury": "personal",
+    "venus": "personal",
+    "earth": "personal",
+    "mars": "personal",
+    "ceres": "asteroid",
+    "pallas": "asteroid",
+    "juno": "asteroid",
+    "vesta": "asteroid",
+    "jupiter": "social",
+    "saturn": "social",
+    "chiron": "centaur",
+    "uranus": "outer",
+    "neptune": "outer",
+    "pluto": "outer",
 }
 
 # Planet symbols
 self.planet_symbols = {
-    'sun': '☉', 'moon': '☽', 'mercury': '☿', 'venus': '♀',
-    'earth': '🌍', 'mars': '♂', 'jupiter': '♃', 'saturn': '♄',
-    'uranus': '♅', 'neptune': '♆', 'pluto': '♇',
-    'ceres': '⚳', 'pallas': '⚴', 'juno': '⚵', 'vesta': '⚶',
-    'chiron': '⚷'
+    "sun": "☉",
+    "moon": "☽",
+    "mercury": "☿",
+    "venus": "♀",
+    "earth": "🌍",
+    "mars": "♂",
+    "jupiter": "♃",
+    "saturn": "♄",
+    "uranus": "♅",
+    "neptune": "♆",
+    "pluto": "♇",
+    "ceres": "⚳",
+    "pallas": "⚴",
+    "juno": "⚵",
+    "vesta": "⚶",
+    "chiron": "⚷",
 }
 ```
 
@@ -194,10 +255,7 @@ def calculate_solar_system_transits(self, target_date: date) -> Dict:
     epoch = date(2000, 1, 1)
     days_since_epoch = (target_date - epoch).days
 
-    solar_system_data = {
-        'date': target_date.isoformat(),
-        'bodies': []
-    }
+    solar_system_data = {"date": target_date.isoformat(), "bodies": []}
 
     for planet_name, period in self.planet_periods.items():
         # Calculate heliocentric longitude
@@ -205,24 +263,27 @@ def calculate_solar_system_transits(self, target_date: date) -> Dict:
         helio_longitude = (days_since_epoch / period * 360 + planet_seed * 360) % 360
 
         # Calculate geocentric longitude (add offset for inner planets)
-        if planet_name in ['mercury', 'venus', 'earth']:
+        if planet_name in ["mercury", "venus", "earth"]:
             geocentric_offset = (days_since_epoch / period * 180) % 360
             geo_longitude = (helio_longitude + geocentric_offset) % 360
         else:
             geo_longitude = helio_longitude
 
-        solar_system_data['bodies'].append({
-            'name': planet_name,
-            'symbol': self.planet_symbols.get(planet_name, planet_name[0].upper()),
-            'category': self.celestial_categories.get(planet_name, 'unknown'),
-            'heliocentric_longitude': round(helio_longitude, 2),
-            'geocentric_longitude': round(geo_longitude, 2),
-            'orbital_radius_au': self.orbital_radii.get(planet_name, 1.0),
-            'zodiac_sign': self._get_zodiac_sign_from_degree(helio_longitude),
-            'degree_in_sign': round(helio_longitude % 30, 2)
-        })
+        solar_system_data["bodies"].append(
+            {
+                "name": planet_name,
+                "symbol": self.planet_symbols.get(planet_name, planet_name[0].upper()),
+                "category": self.celestial_categories.get(planet_name, "unknown"),
+                "heliocentric_longitude": round(helio_longitude, 2),
+                "geocentric_longitude": round(geo_longitude, 2),
+                "orbital_radius_au": self.orbital_radii.get(planet_name, 1.0),
+                "zodiac_sign": self._get_zodiac_sign_from_degree(helio_longitude),
+                "degree_in_sign": round(helio_longitude % 30, 2),
+            }
+        )
 
     return solar_system_data
+
 
 def _get_zodiac_sign_from_degree(self, longitude: float) -> str:
     """Get zodiac sign from longitude degree."""
@@ -242,6 +303,7 @@ def _get_zodiac_sign_from_degree(self, longitude: float) -> str:
 # Solar System Transit View
 # ============================================
 
+
 class SolarSystemTransitView(APIView):
     """API endpoint for solar system transit visualization."""
 
@@ -253,14 +315,14 @@ class SolarSystemTransitView(APIView):
             from ai_engine.calculator import GCodeCalculator
 
             # Get target date from query params (default to today)
-            date_param = request.query_params.get('date')
+            date_param = request.query_params.get("date")
             if date_param:
                 try:
-                    target_date = datetime.strptime(date_param, '%Y-%m-%d').date()
+                    target_date = datetime.strptime(date_param, "%Y-%m-%d").date()
                 except ValueError:
                     return Response(
-                        {'error': 'Invalid date format. Use YYYY-MM-DD.'},
-                        status=status.HTTP_400_BAD_REQUEST
+                        {"error": "Invalid date format. Use YYYY-MM-DD."},
+                        status=status.HTTP_400_BAD_REQUEST,
                     )
             else:
                 target_date = date.today()
@@ -268,26 +330,31 @@ class SolarSystemTransitView(APIView):
             # Calculate solar system transits
             try:
                 calculator = GCodeCalculator()
-                solar_system_data = calculator.calculate_solar_system_transits(target_date)
+                solar_system_data = calculator.calculate_solar_system_transits(
+                    target_date
+                )
             except Exception as e:
                 # Fall back to mock calculator if PyEphem fails
                 from ai_engine.mock_calculator import MockGCodeCalculator
+
                 calculator = MockGCodeCalculator()
-                solar_system_data = calculator.calculate_solar_system_transits(target_date)
+                solar_system_data = calculator.calculate_solar_system_transits(
+                    target_date
+                )
 
             # Log activity
             UserActivity.objects.create(
                 user=request.user,
-                activity_type='solar_system_viewed',
-                metadata={'target_date': target_date.isoformat()}
+                activity_type="solar_system_viewed",
+                metadata={"target_date": target_date.isoformat()},
             )
 
             return Response(solar_system_data)
 
         except Exception as e:
             return Response(
-                {'error': f'Error calculating solar system transits: {str(e)}'},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                {"error": f"Error calculating solar system transits: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 ```
 
@@ -310,8 +377,11 @@ from .views import (
 urlpatterns = [
     # ... existing patterns ...
     # Solar System
-    path('solar-system/transits/', SolarSystemTransitView.as_view(), name='solar-system-transits'),
-
+    path(
+        "solar-system/transits/",
+        SolarSystemTransitView.as_view(),
+        name="solar-system-transits",
+    ),
     # ... existing patterns ...
 ]
 ```
@@ -999,7 +1069,7 @@ function exportSolarSystem() {
 ```python
 urlpatterns = [
     # ... existing patterns ...
-    path('solar-system/', views.solar_system_view, name='solar-system'),
+    path("solar-system/", views.solar_system_view, name="solar-system"),
     # ... existing patterns ...
 ]
 ```
@@ -1008,7 +1078,7 @@ urlpatterns = [
 ```python
 def solar_system_view(request):
     """Render solar system transit visualization page."""
-    return render(request, 'solar-system/index.html')
+    return render(request, "solar-system/index.html")
 ```
 
 ---
@@ -1065,6 +1135,7 @@ import pytest
 from datetime import date
 from ai_engine.mock_calculator import MockGCodeCalculator
 
+
 class TestSolarSystemTransits:
     """Test solar system transit calculations."""
 
@@ -1073,38 +1144,38 @@ class TestSolarSystemTransits:
         calculator = MockGCodeCalculator()
         result = calculator.calculate_solar_system_transits(date(2024, 1, 15))
 
-        assert 'date' in result
-        assert 'bodies' in result
-        assert len(result['bodies']) == 15  # 11 planets + 4 asteroids
+        assert "date" in result
+        assert "bodies" in result
+        assert len(result["bodies"]) == 15  # 11 planets + 4 asteroids
 
     def test_earth_included(self):
         """Test that Earth is included in calculations."""
         calculator = MockGCodeCalculator()
         result = calculator.calculate_solar_system_transits(date.today())
 
-        earth = next((b for b in result['bodies'] if b['name'] == 'earth'), None)
+        earth = next((b for b in result["bodies"] if b["name"] == "earth"), None)
         assert earth is not None
-        assert earth['symbol'] == '🌍'
+        assert earth["symbol"] == "🌍"
 
     def test_asteroids_included(self):
         """Test that major asteroids are included."""
         calculator = MockGCodeCalculator()
         result = calculator.calculate_solar_system_transits(date.today())
 
-        asteroid_names = ['ceres', 'pallas', 'juno', 'vesta']
+        asteroid_names = ["ceres", "pallas", "juno", "vesta"]
         for name in asteroid_names:
-            asteroid = next((b for b in result['bodies'] if b['name'] == name), None)
+            asteroid = next((b for b in result["bodies"] if b["name"] == name), None)
             assert asteroid is not None
-            assert asteroid['category'] == 'asteroid'
+            assert asteroid["category"] == "asteroid"
 
     def test_chiron_included(self):
         """Test that Chiron is included."""
         calculator = MockGCodeCalculator()
         result = calculator.calculate_solar_system_transits(date.today())
 
-        chiron = next((b for b in result['bodies'] if b['name'] == 'chiron'), None)
+        chiron = next((b for b in result["bodies"] if b["name"] == "chiron"), None)
         assert chiron is not None
-        assert chiron['category'] == 'centaur'
+        assert chiron["category"] == "centaur"
 ```
 
 ---
@@ -1173,6 +1244,7 @@ def calculate_lunar_nodes(self, observer) -> Dict:
     # Approximate node calculation (mean node)
     # For true node, need more complex calculation with epoch
     import math
+
     j2000_epoch = 2451545.0
     jd = observer.date + 2415020  # Convert to Julian Date
     days_since_j2000 = jd - j2000_epoch
@@ -1187,20 +1259,20 @@ def calculate_lunar_nodes(self, observer) -> Dict:
     south_node_longitude = (north_node_longitude + 180) % 360
 
     return {
-        'north_node': {
-            'name': 'north_node',
-            'symbol': '☊',
-            'longitude': round(north_node_longitude, 4),
-            'zodiac_sign': self._get_zodiac_sign(north_node_longitude),
-            'degree_in_sign': round(north_node_longitude % 30, 2)
+        "north_node": {
+            "name": "north_node",
+            "symbol": "☊",
+            "longitude": round(north_node_longitude, 4),
+            "zodiac_sign": self._get_zodiac_sign(north_node_longitude),
+            "degree_in_sign": round(north_node_longitude % 30, 2),
         },
-        'south_node': {
-            'name': 'south_node',
-            'symbol': '☋',
-            'longitude': round(south_node_longitude, 4),
-            'zodiac_sign': self._get_zodiac_sign(south_node_longitude),
-            'degree_in_sign': round(south_node_longitude % 30, 2)
-        }
+        "south_node": {
+            "name": "south_node",
+            "symbol": "☋",
+            "longitude": round(south_node_longitude, 4),
+            "zodiac_sign": self._get_zodiac_sign(south_node_longitude),
+            "degree_in_sign": round(south_node_longitude % 30, 2),
+        },
     }
 ```
 
@@ -1211,11 +1283,11 @@ def calculate_lunar_nodes(self, observer) -> Dict:
 
 **Add after the for loop** (after line 99):
 ```python
-        # Calculate lunar nodes (geocentric)
-        lunar_nodes = self.calculate_lunar_nodes(observer)
-        solar_system_data['lunar_nodes'] = lunar_nodes
+# Calculate lunar nodes (geocentric)
+lunar_nodes = self.calculate_lunar_nodes(observer)
+solar_system_data["lunar_nodes"] = lunar_nodes
 
-        return solar_system_data
+return solar_system_data
 ```
 
 ---
@@ -1245,30 +1317,30 @@ def calculate_lunar_nodes(self, target_date: date) -> Dict:
     south_node_longitude = (north_node_longitude + 180) % 360
 
     return {
-        'north_node': {
-            'name': 'north_node',
-            'symbol': '☊',
-            'longitude': round(north_node_longitude, 2),
-            'zodiac_sign': self._get_zodiac_sign_from_degree(north_node_longitude),
-            'degree_in_sign': round(north_node_longitude % 30, 2)
+        "north_node": {
+            "name": "north_node",
+            "symbol": "☊",
+            "longitude": round(north_node_longitude, 2),
+            "zodiac_sign": self._get_zodiac_sign_from_degree(north_node_longitude),
+            "degree_in_sign": round(north_node_longitude % 30, 2),
         },
-        'south_node': {
-            'name': 'south_node',
-            'symbol': '☋',
-            'longitude': round(south_node_longitude, 2),
-            'zodiac_sign': self._get_zodiac_sign_from_degree(south_node_longitude),
-            'degree_in_sign': round(south_node_longitude % 30, 2)
-        }
+        "south_node": {
+            "name": "south_node",
+            "symbol": "☋",
+            "longitude": round(south_node_longitude, 2),
+            "zodiac_sign": self._get_zodiac_sign_from_degree(south_node_longitude),
+            "degree_in_sign": round(south_node_longitude % 30, 2),
+        },
     }
 ```
 
 **Update** `calculate_solar_system_transits` method (~after line 225):
 ```python
-        # Calculate lunar nodes (geocentric)
-        lunar_nodes = self.calculate_lunar_nodes(target_date)
-        solar_system_data['lunar_nodes'] = lunar_nodes
+# Calculate lunar nodes (geocentric)
+lunar_nodes = self.calculate_lunar_nodes(target_date)
+solar_system_data["lunar_nodes"] = lunar_nodes
 
-        return solar_system_data
+return solar_system_data
 ```
 
 ---
